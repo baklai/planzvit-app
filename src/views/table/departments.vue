@@ -5,6 +5,7 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import AppDataTable from '@/components/AppDataTable.vue';
 import OptionsMenu from '@/components/menus/OptionsMenu.vue';
 import DepartmentModal from '@/components/modals/DepartmentModal.vue';
+
 import { useDepartment } from '@/stores/api/departments';
 
 const { findAll, removeOne } = useDepartment();
@@ -119,10 +120,7 @@ const columns = ref([
       render(value) {
         return (
           <Tag
-            class={[
-              'h-8 w-12 !text-base !font-semibold !text-black dark:!text-white',
-              '!bg-green-500/20'
-            ]}
+            class={['min-w-20', '!text-base', '!font-bold', '!text-white', '!bg-green-500/20']}
             value={value.length || '-'}
           />
         );

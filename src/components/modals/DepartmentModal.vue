@@ -35,7 +35,7 @@ defineExpose({
         setValues(await findOne({ id }));
       }
 
-      const { docs } = await Service.findAll();
+      const { docs } = await Service.findAll({ limit: 10000, offset: 0 });
 
       serviceList.value = docs;
 
@@ -277,12 +277,15 @@ const onCloseModal = async () => {
 
         <div class="flex flex-col gap-2">
           <label for="phone" class="font-bold"> Номер телефону </label>
-          <InputText
+          <InputMask
             id="phone"
+            date="phone"
+            class="w-full"
+            mask="+99(999)999-99-99"
             v-model="phone"
             v-bind="phoneAttrs"
-            placeholder="Номер телефону"
             :invalid="!!errors?.phone"
+            placeholder="Номер телефону"
             aria-describedby="phone-help"
           />
           <small id="phone-help" class="text-red-500" v-if="errors?.phone">
@@ -299,6 +302,7 @@ const onCloseModal = async () => {
           display="chip"
           name="services"
           v-model="services"
+          v-bind="servicesAttrs"
           optionValue="id"
           optionLabel="name"
           :maxSelectedLabels="3"
