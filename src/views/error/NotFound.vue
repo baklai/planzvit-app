@@ -16,7 +16,7 @@ const $config = useConfig();
     />
     <div class="font-semibold uppercase text-primary-600 hover:text-primary-500">
       <i class="pi pi-home mr-2"></i>
-      <RouterLink :to="{ name: 'home' }"> Повернутися на головну сторінку </RouterLink>
+      <RouterLink :to="{ name: 'home' }"> На головну сторінку </RouterLink>
     </div>
   </div>
 </template>

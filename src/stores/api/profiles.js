@@ -1,11 +1,8 @@
 import { inject } from 'vue';
 import { defineStore } from 'pinia';
 
-import { useScope } from '@/stores/scopes';
-
 export const useProfile = defineStore('profile', () => {
   const $axios = inject('axios');
-  const $scope = useScope();
 
   async function findAll(params) {
     try {
@@ -17,11 +14,7 @@ export const useProfile = defineStore('profile', () => {
 
   async function findOne({ id }) {
     try {
-      const profile = await $axios.get(`/profiles/${id}`);
-      return {
-        ...profile,
-        scope: $scope.getCustomScope(profile.scope)
-      };
+      return await $axios.get(`/profiles/${id}`);
     } catch (err) {
       throw new Error(err);
     }
@@ -29,10 +22,7 @@ export const useProfile = defineStore('profile', () => {
 
   async function createOne({ scope, ...payload }) {
     try {
-      return await $axios.post('/profiles', {
-        ...payload,
-        scope: $scope.getScopeKeyList(scope)
-      });
+      return await $axios.post('/profiles', { ...payload });
     } catch (err) {
       throw new Error(err.message);
     }
@@ -40,10 +30,7 @@ export const useProfile = defineStore('profile', () => {
 
   async function updateOne(id, { scope, ...payload }) {
     try {
-      return await $axios.put(`/profiles/${id}`, {
-        ...payload,
-        scope: $scope.getScopeKeyList(scope)
-      });
+      return await $axios.put(`/profiles/${id}`, { ...payload });
     } catch (err) {
       throw new Error(err.message);
     }

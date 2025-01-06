@@ -85,19 +85,19 @@ const setChartOptions = () => {
   <div class="flex flex-wrap gap-4">
     <div class="flex-1 p-4">
       <div class="p-4">
-        <!-- <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" /> -->
+        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
       </div>
       <div class="p-4">
-        <!-- <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" /> -->
+        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
       </div>
     </div>
 
     <div class="flex-1 p-4">
       <div class="p-4">
-        <!-- <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" /> -->
+        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
       </div>
       <div class="p-4">
-        <!-- <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" /> -->
+        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
       </div>
     </div>
   </div>

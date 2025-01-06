@@ -28,35 +28,50 @@ const router = createRouter({
     },
 
     {
-      path: '/report',
-      meta: { auth: true },
-      redirect: { name: 'home' },
-      children: [
-        {
-          path: 'network-info',
-          name: 'network-info',
-          meta: {
-            title: 'Мережева інформація',
-            description: 'Мережева інформація технічної підтримки'
-          },
-          component: () => import('@/views/auth/Signin.vue')
-        }
-      ]
-    },
-
-    {
       path: '/table',
-      meta: { auth: true },
-      redirect: { name: 'home' },
+      name: 'table',
+      meta: {
+        auth: true,
+        title: 'База даних',
+        description: 'База даних системи'
+      },
+      component: () => import('@/views/table/Index.vue'),
       children: [
         {
-          path: 'network-info',
-          name: 'network-info',
+          path: 'dashboard',
+          name: 'table-dashboard',
+          meta: {
+            title: 'Статистика по базі',
+            description: 'Статистика по базі даних системи'
+          },
+          component: () => import('@/views/table/Dashboard.vue')
+        },
+        {
+          path: 'departments',
+          name: 'table-departments',
           meta: {
             title: 'Мережева інформація',
             description: 'Мережева інформація технічної підтримки'
           },
-          component: () => import('@/views/auth/Signin.vue')
+          component: () => import('@/views/table/Departments.vue')
+        },
+        {
+          path: 'services',
+          name: 'table-services',
+          meta: {
+            title: 'Мережева інформація',
+            description: 'Мережева інформація технічної підтримки'
+          },
+          component: () => import('@/views/table/Services.vue')
+        },
+        {
+          path: 'profiles',
+          name: 'table-profiles',
+          meta: {
+            title: 'Мережева інформація',
+            description: 'Мережева інформація технічної підтримки'
+          },
+          component: () => import('@/views/table/Profiles.vue')
         }
       ]
     },

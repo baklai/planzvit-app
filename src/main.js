@@ -12,14 +12,16 @@ import AxiosPlugin from '@/plugins/axios.plugin';
 import PlanzvitPlugin from '@/plugins/planzvit.plugin';
 
 import PrimeVue from 'primevue/config';
+import Lara from '@primevue/themes/lara';
 import ConfirmationService from 'primevue/confirmationservice';
 import DialogService from 'primevue/dialogservice';
 import ToastService from 'primevue/toastservice';
 import FocusTrap from 'primevue/focustrap';
 import Tooltip from 'primevue/tooltip';
 
+import 'primeicons/primeicons.css';
 import '@/assets/tailwind.css';
-import '@/base.css';
+import '@/assets/main.css';
 
 const app = createApp(App);
 
@@ -27,7 +29,9 @@ app.use(router);
 app.use(createPinia());
 
 app.use(PrimeVue, {
-  theme: 'none',
+  theme: {
+    preset: Lara
+  },
   locale: {
     startsWith: 'Починається з',
     contains: 'Містить',

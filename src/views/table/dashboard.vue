@@ -1,8 +1,5 @@
 <script setup>
-definePageMeta({
-  title: 'Статистика по базі',
-  description: 'Статистика по базі даних системи'
-});
+import { ref, onMounted } from 'vue';
 
 onMounted(() => {
   chartData.value = setChartData();
@@ -39,15 +36,12 @@ const setChartData = () => {
     ]
   };
 };
+
 const setChartOptions = () => {
   const documentStyle = getComputedStyle(document.documentElement);
   const textColor = documentStyle.getPropertyValue('--p-text-color');
-  const textColorSecondary = documentStyle.getPropertyValue(
-    '--p-text-muted-color'
-  );
-  const surfaceBorder = documentStyle.getPropertyValue(
-    '--p-content-border-color'
-  );
+  const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
+  const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
 
   return {
     maintainAspectRatio: false,
@@ -91,39 +85,19 @@ const setChartOptions = () => {
   <div class="flex flex-wrap gap-4">
     <div class="flex-1 p-4">
       <div class="flex-1 p-4">
-        <Chart
-          type="bar"
-          :data="chartData"
-          :options="chartOptions"
-          class="h-[30rem]"
-        />
+        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
       </div>
       <div class="flex-1 p-4">
-        <Chart
-          type="bar"
-          :data="chartData"
-          :options="chartOptions"
-          class="h-[30rem]"
-        />
+        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
       </div>
     </div>
 
     <div class="flex-1 p-4">
       <div class="flex-1 p-4">
-        <Chart
-          type="bar"
-          :data="chartData"
-          :options="chartOptions"
-          class="h-[30rem]"
-        />
+        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
       </div>
       <div class="flex-1 p-4">
-        <Chart
-          type="bar"
-          :data="chartData"
-          :options="chartOptions"
-          class="h-[30rem]"
-        />
+        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
       </div>
     </div>
   </div>

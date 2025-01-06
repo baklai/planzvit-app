@@ -1,4 +1,6 @@
 <script setup>
+import { ref, computed } from 'vue';
+
 const props = defineProps({
   crud: {
     type: Boolean,
@@ -62,10 +64,7 @@ const crudOptions = computed(() => [
 
 const customOptions = computed(() => [...props.items]);
 
-const options = computed(() => [
-  ...(props.crud ? crudOptions.value : []),
-  ...customOptions.value
-]);
+const options = computed(() => [...(props.crud ? crudOptions.value : []), ...customOptions.value]);
 </script>
 
 <template>

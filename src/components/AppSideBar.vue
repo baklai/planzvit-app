@@ -1,11 +1,10 @@
 <script setup>
 import { ref } from 'vue';
 
-const refReportModal = ref();
+import ReportModal from '@/components/modals/ReportModal.vue';
+import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
 
-const goToHome = async () => {
-  await navigateTo('/', { force: true });
-};
+const refReportModal = ref();
 </script>
 
 <template>
@@ -29,7 +28,7 @@ const goToHome = async () => {
               width="42"
               height="42"
               class="cursor-pointer"
-              @click="goToHome"
+              @click="$router.push({ name: 'homr' })"
             />
           </div>
         </div>

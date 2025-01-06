@@ -1,11 +1,4 @@
-<script setup lang="tsx">
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-
-definePageMeta({
-  title: 'Планово-економічний звіт',
-  description: 'Планово-економічний звіт'
-});
-</script>
+<script setup></script>
 
 <template>
   <div class="flex h-full w-full"></div>
