@@ -1,13 +1,40 @@
-<!DOCTYPE html>
-<html lang="">
+<!doctype html>
+<html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="UTF-8" />
+    <meta name="google" content="notranslate" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>Planzvit</title>
+    <meta name="title" content="Planzvit" />
+    <meta name="description" content="Web application of technical support" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="<%- APP_BASE_URL %>" />
+    <meta property="og:title" content="Planzvit" />
+    <meta property="og:site_name" content="Planzvit" />
+    <meta property="og:description" content="Web application of technical support" />
+    <meta property="og:image" content="<%- APP_BASE_IMG %>" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="<%- APP_BASE_URL %>" />
+    <meta property="twitter:title" content="Planzvit" />
+    <meta property="twitter:description" content="Web application of technical support" />
+    <meta property="twitter:image" content="<%- APP_BASE_IMG %>" />
+
+    <link rel="icon" href="/favicon.ico" />
   </head>
-  <body>
+
+  <body
+    class="overflow-hidden  font-sans  "
+  >
+    <noscript> You need to enable JavaScript to run this app. </noscript>
+
     <div id="app"></div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

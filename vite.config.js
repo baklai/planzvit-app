@@ -19,4 +19,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+   build: {
+    chunkSizeWarningLimit: 1000
+  },
+  preview: {
+    port: 5173,
+    host: true,
+    cors: true,
+    open: false,
+    strictPort: true
+  }
 })
