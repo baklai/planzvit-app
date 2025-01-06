@@ -18,11 +18,11 @@ const { values, errors, handleSubmit, controlledValues, setValues, resetForm, de
       email: yup.string().email().required('Потрібно вказати значення'),
       phone: yup.string().required('Потрібно вказати значення'),
       fullname: yup.string().required('Потрібно вказати значення'),
-      enabled: yup.boolean().required('Потрібно вказати значення'),
+      isActivated: yup.boolean().required('Потрібно вказати значення'),
       role: yup.string().required('Потрібно вказати значення')
     }),
     initialValues: {
-      enabled: false,
+      isActivated: false,
       role: 'user'
     }
   });
@@ -67,7 +67,7 @@ const options = ref([
 const [email, emailAttrs] = defineField('email');
 const [phone, phoneAttrs] = defineField('phone');
 const [fullname, fullnameAttrs] = defineField('fullname');
-const [enabled, enabledAttrs] = defineField('enabled');
+const [isActivated, isActivatedAttrs] = defineField('isActivated');
 const [role, roleAttrs] = defineField('role');
 
 const onCreateRecord = async () => {
@@ -301,17 +301,17 @@ const onCloseModal = async () => {
       </div>
 
       <div class="flex flex-col gap-2">
-        <label for="enabled" class="block font-medium"> Статус профілю </label>
+        <label for="isActivated" class="block font-medium"> Статус профілю </label>
         <ToggleSwitch
-          id="enabled"
+          id="isActivated"
           class="w-full"
-          v-model="enabled"
-          v-bind="enabledAttrs"
+          v-model="isActivated"
+          v-bind="isActivatedAttrs"
           :invalid="!!errors?.email"
-          aria-describedby="enabled-help"
+          aria-describedby="isActivated-help"
         />
-        <small id="enabled-help" class="text-red-500" v-if="errors?.enabled">
-          {{ errors.enabled }}
+        <small id="isActivated-help" class="text-red-500" v-if="errors?.isActivated">
+          {{ errors.isActivated }}
         </small>
       </div>
     </form>
