@@ -72,3 +72,59 @@
     --p-text-hover-muted-color: var(--p-surface-300);
   }
 }
+
+html {
+  height: 100%;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+*:focus {
+  box-shadow: none !important;
+}
+
+*:focus-visible {
+  outline: none !important;
+}
+
+/* Scrollbar on Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-surface-500) transparent;
+}
+
+/* Scrollbar on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 0;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #d6d6d6;
+  border-radius: 1px;
+  border: 1px solid var(--p-surface-500);
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
