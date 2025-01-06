@@ -225,7 +225,7 @@ const onCloseModal = async () => {
         <label for="fullname" class="block font-medium"> Повне ім'я </label>
 
         <IconField>
-          <InputIcon icon="pi pi-user" />
+          <InputIcon class="pi pi-user" />
           <InputText
             id="fullname"
             class="w-full"
@@ -245,7 +245,7 @@ const onCloseModal = async () => {
       <div class="flex w-full flex-col gap-2">
         <label for="email" class="block font-medium"> Електронна пошта </label>
         <IconField>
-          <InputIcon icon="pi pi-at" />
+          <InputIcon class="pi pi-at" />
           <InputText
             id="email"
             class="w-full"
@@ -264,7 +264,7 @@ const onCloseModal = async () => {
       <div class="mb-4 flex w-full flex-col gap-2">
         <label for="phone" class="block font-medium"> Номер телефону </label>
         <IconField>
-          <InputIcon icon="pi pi-phone" />
+          <InputIcon class="pi pi-phone" />
           <InputMask
             id="phone"
             date="phone"
