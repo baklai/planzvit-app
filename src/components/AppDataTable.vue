@@ -4,6 +4,8 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 
+import { getObjField } from '@/service/ObjectMethods';
+
 const toast = useToast();
 const confirm = useConfirm();
 
@@ -685,7 +687,7 @@ onMounted(async () => {
           style="height: calc(100vh - 24rem)"
         >
           <div class="m-auto flex flex-col gap-2">
-            <i class="pi pi-filter-slash text-7xl text-surface-500"></i>
+            <i class="pi pi-filter-slash text-surface-500" style="font-size: 5rem"></i>
             <h5 class="text-2xl font-semibold">Записів не знайдено</h5>
             <p class="text-base text-surface-500">Спробуйте змінити пошукові запити у фільтрі</p>
             <Button

@@ -23,12 +23,12 @@ const toggle = event => {
     <template #start>
       <div class="my-2 flex items-center">
         <div class="flex items-center">
-          <Avatar icon="pi pi-user text-4xl" class="mr-3 text-4xl" size="large" />
+          <Avatar icon="pi pi-user" class="mr-3" size="large" />
           <div>
             <p class="m-0 font-bold">
               {{ user?.fullname }}
             </p>
-            <p class="line-height-3 m-0 text-surface-500">
+            <p class="line-height-3 m-0">
               {{ user?.email }}
             </p>
           </div>

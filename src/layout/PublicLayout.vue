@@ -20,18 +20,6 @@ const disabledSelectedFromHTML = ref({
         <main class="flex flex-col items-center gap-4">
           <RouterView />
         </main>
-
-        <p class="font-mormal text-center text-surface-500">
-          Є проблема?
-          <a
-            target="_blank"
-            href="#"
-            class="cursor-pointer font-semibold text-primary-600 hover:text-primary-500"
-          >
-            Натисніть тут
-          </a>
-          і дозвольте нам допомогти вам.
-        </p>
       </div>
     </div>
   </div>

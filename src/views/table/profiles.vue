@@ -119,10 +119,7 @@ const columns = ref([
       render(value) {
         return (
           <Tag
-            class={[
-              'h-8 w-12 !text-base !font-semibold !text-black dark:!text-white',
-              '!bg-green-500/20'
-            ]}
+            class={['h-8 w-12 !text-base !font-semibold !text-white', '!bg-green-500/20']}
             value={value || '-'}
           />
         );

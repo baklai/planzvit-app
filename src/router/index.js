@@ -44,14 +44,14 @@ const router = createRouter({
             title: 'Статистика по базі',
             description: 'Статистика по базі даних системи'
           },
-          component: () => import('@/views/table/Dashboard.vue')
+          component: () => import('@/views/table/dashboard.vue')
         },
         {
           path: 'departments',
           name: 'table-departments',
           meta: {
-            title: 'Мережева інформація',
-            description: 'Мережева інформація технічної підтримки'
+            title: 'Відділи підрозділу',
+            description: 'Перелік відділів підрозділу'
           },
           component: () => import('@/views/table/Departments.vue')
         },
@@ -59,8 +59,8 @@ const router = createRouter({
           path: 'services',
           name: 'table-services',
           meta: {
-            title: 'Мережева інформація',
-            description: 'Мережева інформація технічної підтримки'
+            title: 'Системи підтримки',
+            description: 'Список систем підтримки'
           },
           component: () => import('@/views/table/Services.vue')
         },
@@ -68,8 +68,8 @@ const router = createRouter({
           path: 'profiles',
           name: 'table-profiles',
           meta: {
-            title: 'Мережева інформація',
-            description: 'Мережева інформація технічної підтримки'
+            title: 'Профілі користувачів',
+            description: 'Список профілів користувачів'
           },
           component: () => import('@/views/table/Profiles.vue')
         }

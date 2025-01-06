@@ -103,7 +103,6 @@ onMounted(() => {
             <InputIcon icon="pi pi-at" />
             <InputText
               id="email"
-              size="large"
               class="w-full"
               v-model="email"
               v-bind="emailAttrs"
