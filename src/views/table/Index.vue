@@ -17,6 +17,11 @@ const items = ref([
     route: '/table/profiles',
     label: 'Профілі користувачів',
     icon: 'pi pi-users'
+  },
+  {
+    route: '/table/syslogs',
+    label: 'Аудит активності',
+    icon: 'pi pi-arrow-right-arrow-left'
   }
 ]);
 </script>

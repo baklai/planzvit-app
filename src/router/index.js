@@ -72,6 +72,15 @@ const router = createRouter({
             description: 'Список профілів користувачів'
           },
           component: () => import('@/views/table/Profiles.vue')
+        },
+        {
+          path: 'syslogs',
+          name: 'table-syslogs',
+          meta: {
+            title: 'Аудит активності',
+            description: 'Журнал аудиту активності'
+          },
+          component: () => import('@/views/table/Syslogs.vue')
         }
       ]
     },
