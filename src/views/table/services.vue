@@ -5,6 +5,7 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import AppDataTable from '@/components/AppDataTable.vue';
 import OptionsMenu from '@/components/menus/OptionsMenu.vue';
 import ServiceModal from '@/components/modals/ServiceModal.vue';
+
 import { useService } from '@/stores/api/services';
 
 const { findAll, removeOne } = useService();

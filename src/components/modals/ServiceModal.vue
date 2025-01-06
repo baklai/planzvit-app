@@ -234,7 +234,7 @@ const onCloseModal = async () => {
       <div class="flex flex-col space-y-4 md:w-1/2 md:pl-2">
         <div class="flex flex-col gap-2">
           <label for="price" class="font-bold"> Вартість роботи </label>
-          <InputText
+          <InputNumber
             id="price"
             v-model="price"
             v-bind="priceAttrs"

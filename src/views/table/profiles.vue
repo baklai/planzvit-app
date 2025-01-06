@@ -5,6 +5,7 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import AppDataTable from '@/components/AppDataTable.vue';
 import OptionsMenu from '@/components/menus/OptionsMenu.vue';
 import ProfileModal from '@/components/modals/ProfileModal.vue';
+
 import { useProfile } from '@/stores/api/profiles';
 
 const { findAll, removeOne } = useProfile();
@@ -92,14 +93,14 @@ const columns = ref([
   {
     header: { text: 'Статус профілю', width: '10rem' },
     column: {
-      field: 'enabled',
+      field: 'isActivated',
       render(value) {
         return value ? <i class={'pi pi-check !font-bold text-green-500'}></i> : <span>-</span>;
       }
     },
-    sorter: { field: 'enabled' },
+    sorter: { field: 'isActivated' },
     filter: {
-      field: 'enabled',
+      field: 'isActivated',
       value: null,
       matchMode: FilterMatchMode.CONTAINS,
       filterOperator: FilterOperator.AND,
@@ -119,7 +120,7 @@ const columns = ref([
       render(value) {
         return (
           <Tag
-            class={['h-8 w-12 !text-base !font-semibold !text-white', '!bg-green-500/20']}
+            class={['!text-base', '!font-semibold', '!text-white', '!bg-green-500/20']}
             value={value || '-'}
           />
         );
