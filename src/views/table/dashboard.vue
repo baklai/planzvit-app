@@ -1,7 +1,18 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
-onMounted(() => {
+import { useStatistic } from '@/stores/api/statistics';
+import { dateToStr } from '@/service/DataFilters';
+
+const Statistic = useStatistic();
+
+const stats = ref();
+
+onMounted(async () => {
+  stats.value = await Statistic.database();
+
+  console.log(stats.value);
+
   chartData.value = setChartData();
   chartOptions.value = setChartOptions();
 });
@@ -83,6 +94,62 @@ const setChartOptions = () => {
 
 <template>
   <div class="flex flex-wrap gap-4">
+    <div class="flex w-full p-4">
+      <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
+        <div class="panel-border mb-0 rounded-lg border p-6">
+          <div class="mb-3 flex justify-between">
+            <div>
+              <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
+              <div class="text-3xl font-bold text-primary-500">
+                {{ stats?.profiles || '-' }}
+              </div>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
+              <i class="pi pi-users text-black" style="font-size: 2rem" />
+            </div>
+          </div>
+          <span class="mr-2 font-medium text-green-500">Актуально на</span>
+          <span class="">{{ dateToStr(Date.now()) }}</span>
+        </div>
+      </div>
+
+      <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
+        <div class="panel-border mb-0 rounded-lg border p-6">
+          <div class="mb-3 flex justify-between">
+            <div>
+              <span class="mb-3 block text-2xl font-bold">Загальна кількість відділів</span>
+              <div class="text-3xl font-bold text-primary-500">
+                {{ stats?.departments || '-' }}
+              </div>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
+              <i class="pi pi-users text-black" style="font-size: 2rem" />
+            </div>
+          </div>
+          <span class="mr-2 font-medium text-green-500">Актуально на</span>
+          <span class="">{{ dateToStr(Date.now()) }}</span>
+        </div>
+      </div>
+
+      <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
+        <div class="panel-border mb-0 rounded-lg border p-6">
+          <div class="mb-3 flex justify-between">
+            <div>
+              <span class="mb-3 block text-2xl font-bold">Загальна кількість сервісів</span>
+              <div class="text-3xl font-bold text-primary-500">
+                {{ stats?.services || '-' }}
+              </div>
+            </div>
+            <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
+              <i class="pi pi-users text-black" style="font-size: 2rem" />
+            </div>
+          </div>
+          <span class="mr-2 font-medium text-green-500">Актуально на</span>
+          <span class="">{{ dateToStr(Date.now()) }}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="flex-1 p-4">
       <div class="flex-1 p-4">
         <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
@@ -102,3 +169,9 @@ const setChartOptions = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.panel-border {
+  border: 1px solid var(--p-panel-border-color);
+}
+</style>
