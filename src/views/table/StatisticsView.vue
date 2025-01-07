@@ -94,7 +94,7 @@ const setChartOptions = () => {
   <div class="flex flex-wrap gap-4">
     <div class="flex w-full p-4">
       <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
-        <div class="panel-border mb-0 rounded-lg border p-6">
+        <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
               <span class="mb-3 block text-2xl font-bold">Кількість відділів</span>
@@ -111,7 +111,7 @@ const setChartOptions = () => {
       </div>
 
       <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
-        <div class="panel-border mb-0 rounded-lg border p-6">
+        <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
               <span class="mb-3 block text-2xl font-bold">Кількість сервісів</span>
@@ -147,9 +147,3 @@ const setChartOptions = () => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.panel-border {
-  border: 1px solid var(--p-panel-border-color);
-}
-</style>
