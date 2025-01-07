@@ -102,7 +102,7 @@ const setChartOptions = () => {
             <div
               class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
             >
-              {{ stats?.departments || '-' }}
+              {{ stats?.departmentsCount || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-green-500">Актуально на</span>
@@ -119,7 +119,41 @@ const setChartOptions = () => {
             <div
               class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
             >
-              {{ stats?.services || '-' }}
+              {{ stats?.servicesCount || '-' }}
+            </div>
+          </div>
+          <span class="mr-2 font-medium text-green-500">Актуально на</span>
+          <span class="">{{ dateToStr(Date.now()) }}</span>
+        </div>
+      </div>
+
+      <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
+        <div class="mb-0 rounded-lg border p-6">
+          <div class="mb-3 flex justify-between">
+            <div>
+              <span class="mb-3 block text-2xl font-bold">Кількість служб (філій)</span>
+            </div>
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+            >
+              {{ stats?.branchesCount || '-' }}
+            </div>
+          </div>
+          <span class="mr-2 font-medium text-green-500">Актуально на</span>
+          <span class="">{{ dateToStr(Date.now()) }}</span>
+        </div>
+      </div>
+
+      <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
+        <div class="mb-0 rounded-lg border p-6">
+          <div class="mb-3 flex justify-between">
+            <div>
+              <span class="mb-3 block text-2xl font-bold">Кількість підрозділів</span>
+            </div>
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+            >
+              {{ stats?.subdivisionsCount || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-green-500">Актуально на</span>
