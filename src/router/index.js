@@ -79,6 +79,15 @@ const router = createRouter({
             description: 'Перелік сервісів, що підтримуються'
           },
           component: () => import('@/views/table/ServicesView.vue')
+        },
+        {
+          path: 'branches',
+          name: 'table-branches',
+          meta: {
+            title: 'Перелік служб (філій)',
+            description: 'Перелік служб (філії), що обслуговуються'
+          },
+          component: () => import('@/views/table/BranchesView.vue')
         }
       ]
     },

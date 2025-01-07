@@ -4,11 +4,11 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 
 import AppDataTable from '@/components/AppDataTable.vue';
 import OptionsMenu from '@/components/menus/OptionsMenu.vue';
-import DepartmentModal from '@/components/modals/DepartmentModal.vue';
+import BranchModal from '@/components/modals/BranchModal.vue';
 
-import { useDepartment } from '@/stores/api/departments';
+import { useBranch } from '@/stores/api/branches';
 
-const { findAll, removeOne } = useDepartment();
+const { findAll, removeOne } = useBranch();
 
 const refMenu = ref();
 const refModal = ref();
@@ -17,12 +17,12 @@ const refDataTable = ref();
 const globalFilter = ref({
   field: 'name',
   matchMode: FilterMatchMode.STARTS_WITH,
-  placeholder: 'Пошук за назвою відділу'
+  placeholder: 'Пошук за назвою служби (філії)'
 });
 
 const columns = ref([
   {
-    header: { text: 'Назва відділу', width: '16rem' },
+    header: { text: 'Назва служби (філії)', width: '12rem' },
     column: {
       field: 'name',
       render(value) {
@@ -45,7 +45,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Повна назва відділу', width: '13rem' },
+    header: { text: 'Повна назва служби (філії)', width: '20rem' },
     column: {
       field: 'description',
       render(value) {
@@ -68,67 +68,27 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Начальник відділу', width: '16rem' },
+    header: { text: 'Кількість підрозділів', width: '10rem' },
     column: {
-      field: 'manager',
-      render(value) {
-        return <span>{value}</span>;
-      }
-    },
-    sorter: { field: 'manager' },
-    filter: {
-      field: 'manager',
-      value: null,
-      matchMode: FilterMatchMode.CONTAINS,
-      filterOperator: FilterOperator.AND,
-      showFilterMatchModes: true
-    },
-    selectable: true,
-    exportable: true,
-    filtrable: true,
-    sortable: true,
-    frozen: false
-  },
-
-  {
-    header: { text: 'Номер телефону', width: '16rem' },
-    column: {
-      field: 'phone',
-      render(value) {
-        return <span>{value}</span>;
-      }
-    },
-    sorter: { field: 'phone' },
-    filter: {
-      field: 'phone',
-      value: null,
-      matchMode: FilterMatchMode.CONTAINS,
-      filterOperator: FilterOperator.AND,
-      showFilterMatchModes: true
-    },
-    selectable: true,
-    exportable: true,
-    filtrable: true,
-    sortable: true,
-    frozen: false
-  },
-
-  {
-    header: { text: 'Кількість сервісів', width: '13rem' },
-    column: {
-      field: 'services',
+      field: 'subdivisions',
       render(value) {
         return (
           <Tag
-            class={['min-w-20', '!text-base', '!font-bold', '!text-white', '!bg-green-500/20']}
-            value={value.length || '-'}
+            class={[
+              '!min-w-[3rem]',
+              '!text-base',
+              '!font-semibold',
+              '!text-white',
+              '!bg-green-500/20'
+            ]}
+            value={value?.length || '-'}
           />
         );
       }
     },
-    sorter: { field: 'services' },
+    sorter: { field: 'subdivisions' },
     filter: {
-      field: 'services',
+      field: 'subdivisions',
       value: null,
       matchMode: FilterMatchMode.CONTAINS,
       filterOperator: FilterOperator.AND,
@@ -136,8 +96,8 @@ const columns = ref([
     },
     selectable: true,
     exportable: true,
-    filtrable: false,
-    sortable: false,
+    filtrable: true,
+    sortable: true,
     frozen: false
   }
 ]);
@@ -153,7 +113,7 @@ const columns = ref([
       @delete="data => refDataTable.delete(data)"
     />
 
-    <DepartmentModal ref="refModal" @close="() => refDataTable.update({})" />
+    <BranchModal ref="refModal" @close="() => refDataTable.update({})" />
 
     <AppDataTable
       ref="refDataTable"

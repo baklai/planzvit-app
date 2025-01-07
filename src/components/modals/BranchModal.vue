@@ -1,40 +1,41 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useForm } from 'vee-validate';
 import * as yup from 'yup';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 
-import { useProfile } from '@/stores/api/profiles';
+import { useBranch } from '@/stores/api/branches';
 
 const toast = useToast();
 const confirm = useConfirm();
 
-const { findOne, createOne, updateOne, removeOne } = useProfile();
+const { findOne, createOne, updateOne, removeOne } = useBranch();
 
 const { values, errors, handleSubmit, controlledValues, setValues, resetForm, defineField } =
   useForm({
     validationSchema: yup.object({
-      email: yup.string().email().required('Потрібно вказати значення'),
-      phone: yup.string().required('Потрібно вказати значення'),
-      fullname: yup.string().required('Потрібно вказати значення'),
-      isActivated: yup.boolean().required('Потрібно вказати значення'),
-      role: yup.string().required('Потрібно вказати значення')
+      name: yup.string().required('Потрібно вказати значення'),
+      description: yup.string().required('Потрібно вказати значення')
     }),
-    initialValues: {
-      isActivated: false,
-      role: 'user'
-    }
+    initialValues: {}
   });
 
 const emits = defineEmits(['close']);
+
+const subdivisions = ref([]);
 
 defineExpose({
   toggle: async ({ id }) => {
     try {
       if (id) {
-        setValues(await findOne({ id }));
+        const data = await findOne({ id });
+        subdivisions.value = data.subdivisions;
+        setValues({ id: data.id, name: data.name, description: data.description });
+      } else {
+        subdivisions.value = [];
       }
+
       visible.value = true;
     } catch (err) {
       visible.value = false;
@@ -64,14 +65,28 @@ const options = ref([
   }
 ]);
 
-const [email, emailAttrs] = defineField('email');
-const [phone, phoneAttrs] = defineField('phone');
-const [fullname, fullnameAttrs] = defineField('fullname');
-const [isActivated, isActivatedAttrs] = defineField('isActivated');
-const [role, roleAttrs] = defineField('role');
+const [name, nameAttrs] = defineField('name');
+const [description, descriptionAttrs] = defineField('description');
+
+const onCellEditComplete = event => {
+  const { data, newValue, field } = event;
+
+  try {
+    data[field] = newValue;
+  } catch (err) {
+    event.preventDefault();
+  }
+};
+
+const onCellRemoveComplete = event => {
+  subdivisions.value = subdivisions.value.filter(
+    value => value.name !== event.name && value.description !== event.description
+  );
+};
 
 const onCreateRecord = async () => {
   resetForm({ values: {} }, { force: true });
+  subdivisions.value = [];
   toast.add({
     severity: 'success',
     summary: 'Інформація',
@@ -103,6 +118,7 @@ const onRemoveRecord = async () => {
       accept: async () => {
         try {
           await removeOne(values);
+          subdivisions.value = [];
           toast.add({
             severity: 'success',
             summary: 'Інформація',
@@ -144,10 +160,21 @@ const onRemoveRecord = async () => {
 const onSaveRecord = handleSubmit(async values => {
   try {
     loading.value = true;
+
+    const sanitizeSubdivisions = subdivisions => {
+      return subdivisions.map(({ createdAt, updatedAt, id, ...rest }) => rest);
+    };
+
     if (values?.id) {
-      await updateOne(values.id, controlledValues.value);
+      await updateOne(values.id, {
+        ...controlledValues.value,
+        subdivisions: sanitizeSubdivisions(subdivisions.value)
+      });
     } else {
-      await createOne(controlledValues.value);
+      await createOne({
+        ...controlledValues.value,
+        subdivisions: sanitizeSubdivisions(subdivisions.value)
+      });
     }
     toast.add({
       severity: 'success',
@@ -190,7 +217,7 @@ const onCloseModal = async () => {
     closable
     :draggable="false"
     v-model:visible="visible"
-    class="mx-auto w-[90vw] md:w-[80vw] lg:w-[60vw] xl:w-[50vw] 2xl:w-[30vw]"
+    class="mx-auto w-[90vw] md:w-[90vw] lg:w-[70vw] xl:w-[60vw] 2xl:w-[40vw]"
     @hide="onCloseModal"
   >
     <template #header>
@@ -198,9 +225,9 @@ const onCloseModal = async () => {
         <div class="flex items-center justify-center">
           <Avatar icon="pi pi-file" class="mr-4" size="large" />
           <div>
-            <p class="line-height-2 text-lg font-bold">Профіль користувача</p>
+            <p class="line-height-2 text-lg font-bold">Відділ підрозділу</p>
             <p class="line-height-2 text-base font-normal text-surface-500">
-              {{ values?.id ? 'Редагування обраного запису' : 'Створення нового запису' }}
+              {{ values?.id ? 'Редагуваня обраного запису' : 'Створення нового запису' }}
             </p>
           </div>
         </div>
@@ -221,98 +248,97 @@ const onCloseModal = async () => {
     <ProgressBar mode="indeterminate" style="height: 6px" v-if="loading" />
 
     <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
-      <div class="flex w-full flex-col gap-2">
-        <label for="fullname" class="block font-medium"> Повне ім'я </label>
-
-        <IconField>
-          <InputIcon class="pi pi-user" />
+      <div class="flex flex-col space-y-4 md:w-1/2 md:pr-2">
+        <div class="flex flex-col gap-2">
+          <label for="name" class="font-bold"> Назва служби (філії) </label>
           <InputText
-            id="fullname"
-            class="w-full"
-            v-model="fullname"
-            v-bind="fullnameAttrs"
-            :invalid="!!errors?.fullname"
-            placeholder="Повне ім'я"
-            aria-describedby="fullname-help"
+            id="name"
+            v-model="name"
+            v-bind="nameAttrs"
+            placeholder="Назва служби (філії)"
+            :invalid="!!errors?.name"
+            aria-describedby="name-help"
           />
-        </IconField>
-
-        <small id="fullname-help" class="text-red-500" v-if="errors?.fullname">
-          {{ errors.fullname }}
-        </small>
+          <small id="name-help" class="text-red-500" v-if="errors?.name">
+            {{ errors.name }}
+          </small>
+        </div>
       </div>
 
-      <div class="flex w-full flex-col gap-2">
-        <label for="email" class="block font-medium"> Електронна пошта </label>
-        <IconField>
-          <InputIcon class="pi pi-at" />
+      <div class="flex flex-col space-y-4 md:w-1/2 md:pr-2">
+        <div class="flex flex-col gap-2">
+          <label for="description" class="font-bold"> Повна назва служби (філії) </label>
           <InputText
-            id="email"
-            class="w-full"
-            v-model="email"
-            v-bind="emailAttrs"
-            placeholder="Електронна пошта"
-            :invalid="!!errors?.email"
-            aria-describedby="email-help"
+            id="description"
+            v-model="description"
+            v-bind="descriptionAttrs"
+            placeholder="Повна назва служби (філії)"
+            :invalid="!!errors?.description"
+            aria-describedby="description-help"
           />
-        </IconField>
-        <small id="email-help" class="text-red-500" v-if="errors?.email">
-          {{ errors.email }}
-        </small>
+          <small id="description-help" class="text-red-500" v-if="errors?.description">
+            {{ errors.description }}
+          </small>
+        </div>
       </div>
 
-      <div class="mb-4 flex w-full flex-col gap-2">
-        <label for="phone" class="block font-medium"> Номер телефону </label>
-        <IconField>
-          <InputIcon class="pi pi-phone" />
-          <InputMask
-            id="phone"
-            date="phone"
-            class="w-full"
-            mask="+99(999)999-99-99"
-            v-model="phone"
-            v-bind="phoneAttrs"
-            :invalid="!!errors?.phone"
-            placeholder="Номер телефону"
-            aria-describedby="phone-help"
-          />
-        </IconField>
-        <small id="phone-help" class="text-red-500" v-if="errors?.phone">
-          {{ errors.phone }}
-        </small>
-      </div>
+      <div class="flex w-full flex-col space-y-4">
+        <DataTable
+          id="subdivisions"
+          scrollable
+          showGridlines
+          editMode="cell"
+          scrollHeight="300px"
+          v-model:value="subdivisions"
+          @cell-edit-complete="onCellEditComplete"
+        >
+          <template #header>
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <label for="subdivisions" class="font-semibold uppercase">
+                Перелік структурних підрозділів
+              </label>
+              <Button
+                rounded
+                size="large"
+                variant="text"
+                severity="secondary"
+                icon="pi pi-plus-circle text-primary"
+                v-tooltip.bottom="'Додати запис'"
+                @click="subdivisions.push({ name: '', description: '' })"
+              />
+            </div>
+          </template>
 
-      <div class="flex w-full flex-col gap-2">
-        <label for="role" class="block font-medium"> Роль користувача </label>
-        <Select
-          id="role"
-          class="w-full"
-          v-model="role"
-          v-bind="roleAttrs"
-          :options="['user', 'admin', 'moderator']"
-          placeholder="Роль користувача"
-          :invalid="!!errors?.role"
-          aria-describedby="role-help"
-        />
+          <Column header="#" headerStyle="width:3rem">
+            <template #body="slotProps">
+              {{ slotProps.index + 1 }}
+            </template>
+          </Column>
 
-        <small id="role-help" class="text-red-500" v-if="errors?.role">
-          {{ errors.role }}
-        </small>
-      </div>
+          <Column field="name" header="Назва підрозділу" style="width: 35%">
+            <template #editor="{ data, field }">
+              <InputText v-model="data[field]" autofocus fluid />
+            </template>
+          </Column>
 
-      <div class="flex flex-col gap-2">
-        <label for="isActivated" class="block font-medium"> Статус профілю </label>
-        <ToggleSwitch
-          id="isActivated"
-          class="w-full"
-          v-model="isActivated"
-          v-bind="isActivatedAttrs"
-          :invalid="!!errors?.email"
-          aria-describedby="isActivated-help"
-        />
-        <small id="isActivated-help" class="text-red-500" v-if="errors?.isActivated">
-          {{ errors.isActivated }}
-        </small>
+          <Column field="description" header="Опис підрозділу">
+            <template #editor="{ data, field }">
+              <InputText v-model="data[field]" autofocus fluid />
+            </template>
+          </Column>
+
+          <Column style="width: 1rem">
+            <template #body="slotProps">
+              <Button
+                rounded
+                variant="text"
+                severity="danger"
+                icon="pi pi-trash"
+                @click="onCellRemoveComplete(slotProps.data)"
+              />
+            </template>
+          </Column>
+        </DataTable>
       </div>
     </form>
 

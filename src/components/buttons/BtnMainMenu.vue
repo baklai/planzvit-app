@@ -1,7 +1,41 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const refMenu = ref();
+
+const menu = ref([
+  {
+    label: 'Головна',
+    icon: 'pi pi-home !text-2xl !mr-2',
+    command: () => {
+      router.push({ name: 'home' });
+    }
+  },
+  {
+    label: 'Звіти',
+    icon: 'pi pi-file-excel !text-2xl !mr-2',
+    command: () => {
+      router.push({ name: 'report' });
+    }
+  },
+  {
+    label: 'База даних',
+    icon: 'pi pi-database !text-2xl !mr-2',
+    command: () => {
+      router.push({ name: 'table' });
+    }
+  },
+  {
+    label: 'Вийти з додатку',
+    icon: 'pi pi-sign-out !text-2xl !mr-2',
+    command: () => {
+      router.push({ name: 'signin' });
+    }
+  }
+]);
 
 const toggle = event => {
   refMenu.value.toggle(event);
@@ -19,33 +53,21 @@ const toggle = event => {
     @click="toggle"
   />
 
-  <Menu ref="refMenu" popup :model="[]" class="w-[22rem] px-4 py-2">
+  <Menu ref="refMenu" popup :model="menu" class="w-[20rem] px-6 py-4 text-xl">
     <template #start>
-      <div class="my-2 flex items-center">
+      <div class="my-2 flex items-center text-base">
         <div class="flex items-center">
           <Avatar icon="pi pi-user" class="mr-3" size="large" />
           <div>
             <p class="m-0 font-bold">
-              {{ user?.fullname }}
+              {{ $planzvit?.profile?.fullname }}
             </p>
             <p class="line-height-3 m-0">
-              {{ user?.email }}
+              {{ $planzvit?.profile?.email }}
             </p>
           </div>
         </div>
       </div>
-      <div class="max-h-[30rem] w-full overflow-scroll px-2 py-2"></div>
-    </template>
-
-    <template #item="{ label, item, props }">
-      <a :href="item.url" v-bind="props.action">
-        <span v-bind="props.icon" />
-        <span v-bind="props.label">{{ label }}</span>
-      </a>
-    </template>
-
-    <template #end>
-      <div class="flex content-center items-center justify-between py-2"></div>
     </template>
   </Menu>
 </template>

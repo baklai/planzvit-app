@@ -263,7 +263,7 @@ const confirmDeleteAll = () => {
     >
       <template #icon>
         <i class="mr-2 hidden sm:block">
-          <i class="pi pi-arrow-right-arrow-left mx-2 hidden text-4xl sm:block" />
+          <i class="pi pi-arrow-right-arrow-left mx-2 hidden sm:block" style="font-size: 2.5rem" />
         </i>
       </template>
 

@@ -1,5 +1,6 @@
 <script setup>
 import BtnToggleTheme from '@/components/buttons/BtnToggleTheme.vue';
+import BtnFullScreen from '@/components/buttons/BtnFullScreen.vue';
 import BtnMainMenu from '@/components/buttons/BtnMainMenu.vue';
 </script>
 
@@ -25,6 +26,7 @@ import BtnMainMenu from '@/components/buttons/BtnMainMenu.vue';
 
     <div class="flex flex-nowrap gap-x-4 whitespace-nowrap">
       <BtnToggleTheme />
+      <BtnFullScreen />
       <BtnMainMenu />
     </div>
   </header>

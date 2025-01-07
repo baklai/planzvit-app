@@ -116,7 +116,7 @@ const columns = ref([
       @toggle-modal="data => refModal.toggle(data)"
     >
       <template #icon>
-        <i class="pi pi-file-excel mx-2 hidden text-4xl sm:block" />
+        <i class="pi pi-file-excel mx-2 hidden sm:block" style="font-size: 2.5rem" />
       </template>
       <template #title>
         {{ $route?.meta?.title }}

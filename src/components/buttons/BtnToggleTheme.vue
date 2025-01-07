@@ -7,11 +7,11 @@ function toggleDarkMode() {
   isDarkAppTheme.value = !isDarkAppTheme.value;
   document.documentElement.classList.toggle('dark', isDarkAppTheme.value);
 
-  localStorage.setItem('theme', isDarkAppTheme.value ? 'dark' : 'light');
+  localStorage.setItem('app-theme', isDarkAppTheme.value ? 'dark' : 'light');
 }
 
 onMounted(() => {
-  const savedTheme = localStorage.getItem('theme');
+  const savedTheme = localStorage.getItem('app-theme');
   isDarkAppTheme.value = savedTheme === 'dark';
   document.documentElement.classList.toggle('dark', isDarkAppTheme.value);
 });

@@ -12,7 +12,8 @@ const items = ref([
     label: 'Перелік відділів',
     icon: 'pi pi-table'
   },
-  { route: '/table/services', label: 'Сервіси підтримки', icon: 'pi pi-table' }
+  { route: '/table/services', label: 'Сервіси підтримки', icon: 'pi pi-table' },
+  { route: '/table/branches', label: 'Перелік служб (філій)', icon: 'pi pi-table' }
 ]);
 </script>
 
