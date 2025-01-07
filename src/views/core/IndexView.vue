@@ -4,7 +4,7 @@ import { ref } from 'vue';
 const items = ref([
   {
     route: '/core/statistics',
-    label: 'Статистика по базі',
+    label: 'Статистична інформація',
     icon: 'pi pi-chart-bar'
   },
   {

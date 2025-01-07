@@ -22,16 +22,16 @@ const globalFilter = ref({
 
 const columns = ref([
   {
-    header: { text: 'Номер роботи', width: '10rem' },
+    header: { text: 'Код сервісу', width: '10rem' },
     column: {
-      field: 'number',
+      field: 'code',
       render(value) {
         return <span>{value}</span>;
       }
     },
-    sorter: { field: 'number' },
+    sorter: { field: 'code' },
     filter: {
-      field: 'number',
+      field: 'code',
       value: null,
       matchMode: FilterMatchMode.CONTAINS,
       filterOperator: FilterOperator.AND,
@@ -45,7 +45,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Назва системи', width: '20rem' },
+    header: { text: 'Назва сервісу', width: '20rem' },
     column: {
       field: 'name',
       render(value) {
@@ -68,7 +68,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Вартість послуги', width: '20rem' },
+    header: { text: 'Вартість підтримки (грн/шт)', width: '20rem' },
     column: {
       field: 'price',
       render(value) {

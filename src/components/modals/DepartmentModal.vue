@@ -206,7 +206,7 @@ const onCloseModal = async () => {
           <div>
             <p class="line-height-2 text-lg font-bold">Відділ підрозділу</p>
             <p class="line-height-2 text-base font-normal text-surface-500">
-              {{ values?.id ? 'Редагувати обраний запис' : 'Створити новий запис' }}
+              {{ values?.id ? 'Редагуваня обраного запису' : 'Створення нового запису' }}
             </p>
           </div>
         </div>
@@ -229,12 +229,12 @@ const onCloseModal = async () => {
     <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
       <div class="flex flex-col space-y-4 md:w-1/2 md:pr-2">
         <div class="flex flex-col gap-2">
-          <label for="code" class="font-bold"> Код відділу </label>
+          <label for="code" class="font-bold"> Назва відділу </label>
           <InputText
             id="code"
             v-model="code"
             v-bind="codeAttrs"
-            placeholder="Код відділу"
+            placeholder="Назва відділу"
             :invalid="!!errors?.code"
             aria-describedby="code-help"
           />
@@ -244,12 +244,12 @@ const onCloseModal = async () => {
         </div>
 
         <div class="flex flex-col gap-2">
-          <label for="name" class="font-bold"> Назва відділу </label>
+          <label for="name" class="font-bold"> Повна назва відділу </label>
           <InputText
             id="name"
             v-model="name"
             v-bind="nameAttrs"
-            placeholder="Назва відділу"
+            placeholder="Повна назва відділу"
             :invalid="!!errors?.name"
             aria-describedby="name-help"
           />
@@ -295,7 +295,7 @@ const onCloseModal = async () => {
       </div>
 
       <div class="flex w-full flex-col gap-2">
-        <label for="services" class="font-bold"> Перелік робіт </label>
+        <label for="services" class="font-bold"> Перелік сервісів, що підтримуються </label>
         <MultiSelect
           filter
           size="large"
@@ -307,7 +307,7 @@ const onCloseModal = async () => {
           optionLabel="name"
           :maxSelectedLabels="3"
           :options="serviceList || []"
-          placeholder="Перелік робіт"
+          placeholder="Перелік сервісів, що підтримуються"
         >
         </MultiSelect>
         <small id="services-help" class="text-red-500" v-if="errors?.services">

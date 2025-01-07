@@ -4,15 +4,15 @@ import { ref } from 'vue';
 const items = ref([
   {
     route: '/table/statistics',
-    label: 'Статистика по базі',
+    label: 'Статистична інформація',
     icon: 'pi pi-chart-bar'
   },
   {
     route: '/table/departments',
-    label: 'Відділи підрозділу',
+    label: 'Перелік відділів',
     icon: 'pi pi-table'
   },
-  { route: '/table/services', label: 'Системи підтримки', icon: 'pi pi-table' }
+  { route: '/table/services', label: 'Сервіси підтримки', icon: 'pi pi-table' }
 ]);
 </script>
 

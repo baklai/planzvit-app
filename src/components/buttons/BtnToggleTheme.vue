@@ -1,11 +1,20 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const isDarkAppTheme = ref(false);
 
 function toggleDarkMode() {
-  document.documentElement.classList.toggle('dark');
+  isDarkAppTheme.value = !isDarkAppTheme.value;
+  document.documentElement.classList.toggle('dark', isDarkAppTheme.value);
+
+  localStorage.setItem('theme', isDarkAppTheme.value ? 'dark' : 'light');
 }
+
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme');
+  isDarkAppTheme.value = savedTheme === 'dark';
+  document.documentElement.classList.toggle('dark', isDarkAppTheme.value);
+});
 </script>
 
 <template>

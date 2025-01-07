@@ -15,7 +15,7 @@ const { findOne, createOne, updateOne, removeOne } = useService();
 const { values, errors, handleSubmit, controlledValues, setValues, resetForm, defineField } =
   useForm({
     validationSchema: yup.object({
-      number: yup.string().required('Потрібно вказати значення'),
+      code: yup.string().required('Потрібно вказати значення'),
       name: yup.string().required('Потрібно вказати значення'),
       price: yup.number().required('Потрібно вказати значення')
     }),
@@ -59,7 +59,7 @@ const options = ref([
   }
 ]);
 
-const [number, numberAttrs] = defineField('number');
+const [code, codeAttrs] = defineField('code');
 const [name, nameAttrs] = defineField('name');
 const [price, priceAttrs] = defineField('price');
 
@@ -191,9 +191,9 @@ const onCloseModal = async () => {
         <div class="flex items-center justify-center">
           <Avatar icon="pi pi-file" class="mr-4" size="large" />
           <div>
-            <p class="line-height-2 text-lg font-bold">Система підтримки</p>
+            <p class="line-height-2 text-lg font-bold">Сервіс підтримки</p>
             <p class="line-height-2 text-base font-normal text-surface-500">
-              {{ values?.id ? 'Редагувати обраний запис' : 'Створити новий запис' }}
+              {{ values?.id ? 'Редагування обраного запису' : 'Створення нового запису' }}
             </p>
           </div>
         </div>
@@ -216,29 +216,29 @@ const onCloseModal = async () => {
     <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
       <div class="flex flex-col space-y-4 md:w-1/2 md:pr-2">
         <div class="flex flex-col gap-2">
-          <label for="number" class="font-bold"> Номер роботи </label>
+          <label for="code" class="font-bold"> Код сервісу </label>
           <InputText
-            id="number"
-            v-model="number"
-            v-bind="numberAttrs"
-            placeholder="Номер роботи"
-            :invalid="!!errors?.number"
-            aria-describedby="number-help"
+            id="code"
+            v-model="code"
+            v-bind="codeAttrs"
+            placeholder="Код сервісу"
+            :invalid="!!errors?.code"
+            aria-describedby="code-help"
           />
-          <small id="number-help" class="text-red-500" v-if="errors?.number">
-            {{ errors.number }}
+          <small id="code-help" class="text-red-500" v-if="errors?.code">
+            {{ errors.code }}
           </small>
         </div>
       </div>
 
       <div class="flex flex-col space-y-4 md:w-1/2 md:pl-2">
         <div class="flex flex-col gap-2">
-          <label for="price" class="font-bold"> Вартість роботи </label>
+          <label for="price" class="font-bold"> Вартість підтримки (грн/шт) </label>
           <InputNumber
             id="price"
             v-model="price"
             v-bind="priceAttrs"
-            placeholder="Вартість роботи"
+            placeholder="Вартість підтримки"
             :invalid="!!errors?.price"
             aria-describedby="price-help"
           />
@@ -250,13 +250,13 @@ const onCloseModal = async () => {
 
       <div class="flex w-full flex-col space-y-4">
         <div class="flex flex-col gap-2">
-          <label for="name" class="font-bold"> Назва системи </label>
+          <label for="name" class="font-bold"> Назва сервісу </label>
           <Textarea
             rows="5"
             id="name"
             v-model="name"
             v-bind="nameAttrs"
-            placeholder="Назва системи"
+            placeholder="Назва сервісу"
             :invalid="!!errors?.name"
             aria-describedby="name-help"
           />

@@ -49,11 +49,7 @@ const router = createRouter({
     {
       path: '/table',
       name: 'table',
-      meta: {
-        auth: true,
-        title: 'База даних',
-        description: 'База даних системи'
-      },
+      meta: { auth: true },
       redirect: { name: 'table-statistics' },
       component: () => import('@/views/table/IndexView.vue'),
       children: [
@@ -61,7 +57,7 @@ const router = createRouter({
           path: 'statistics',
           name: 'table-statistics',
           meta: {
-            title: 'Статистика по базі',
+            title: 'Статистична інформація',
             description: 'Статистика по базі даних системи'
           },
           component: () => import('@/views/table/StatisticsView.vue')
@@ -70,8 +66,8 @@ const router = createRouter({
           path: 'departments',
           name: 'table-departments',
           meta: {
-            title: 'Відділи підрозділу',
-            description: 'Перелік відділів підрозділу'
+            title: 'Перелік відділів',
+            description: 'Перелік відділів виробничого підрозділу'
           },
           component: () => import('@/views/table/DepartmentsView.vue')
         },
@@ -79,8 +75,8 @@ const router = createRouter({
           path: 'services',
           name: 'table-services',
           meta: {
-            title: 'Системи підтримки',
-            description: 'Список систем підтримки'
+            title: 'Сервіси підтримки',
+            description: 'Перелік сервісів, що підтримуються'
           },
           component: () => import('@/views/table/ServicesView.vue')
         }
@@ -90,11 +86,7 @@ const router = createRouter({
     {
       path: '/core',
       name: 'core',
-      meta: {
-        auth: true,
-        title: 'База даних',
-        description: 'База даних системи'
-      },
+      meta: { auth: true },
       redirect: { name: 'core-statistics' },
       component: () => import('@/views/core/IndexView.vue'),
       children: [
@@ -102,7 +94,7 @@ const router = createRouter({
           path: 'statistics',
           name: 'core-statistics',
           meta: {
-            title: 'Статистика по базі',
+            title: 'Статистична інформація',
             description: 'Статистика по базі даних системи'
           },
           component: () => import('@/views/core/StatisticsView.vue')

@@ -22,7 +22,7 @@ const globalFilter = ref({
 
 const columns = ref([
   {
-    header: { text: 'Код відділу', width: '16rem' },
+    header: { text: 'Назва відділу', width: '16rem' },
     column: {
       field: 'code',
       render(value) {
@@ -45,7 +45,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Назва відділу', width: '13rem' },
+    header: { text: 'Повна назва відділу', width: '13rem' },
     column: {
       field: 'name',
       render(value) {
@@ -114,7 +114,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Кількість робіт', width: '13rem' },
+    header: { text: 'Кількість сервісів', width: '13rem' },
     column: {
       field: 'services',
       render(value) {
