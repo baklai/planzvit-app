@@ -587,7 +587,7 @@ onMounted(async () => {
       @page="onPage"
       :pt="{
         mask: {
-          class: ['bg-transparent', 'dark:bg-transparent']
+          class: ['!bg-transparent', 'dark:!bg-transparent']
         }
       }"
     >

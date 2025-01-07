@@ -28,7 +28,10 @@ const columns = ref([
       field: 'host',
       render(value) {
         return (
-          <Tag class="!bg-surface-500/20 px-6 !text-base !font-normal !text-white" value={value} />
+          <Tag
+            class="!bg-surface-500/20 px-6 !text-base !font-normal text-black dark:!text-white"
+            value={value}
+          />
         );
       }
     },

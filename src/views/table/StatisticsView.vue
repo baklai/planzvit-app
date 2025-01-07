@@ -11,8 +11,6 @@ const stats = ref();
 onMounted(async () => {
   stats.value = await Statistic.database();
 
-  console.log(stats.value);
-
   chartData.value = setChartData();
   chartOptions.value = setChartOptions();
 });

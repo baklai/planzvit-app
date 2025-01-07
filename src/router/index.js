@@ -35,7 +35,7 @@ const router = createRouter({
         title: 'База даних',
         description: 'База даних системи'
       },
-      redirect: { name: 'table-dashboard' },
+      redirect: { name: 'table-statistics' },
       component: () => import('@/views/table/TableView.vue'),
       children: [
         {
