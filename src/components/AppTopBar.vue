@@ -1,4 +1,5 @@
 <script setup>
+import BtnToggleTheme from '@/components/buttons/BtnToggleTheme.vue';
 import BtnMainMenu from '@/components/buttons/BtnMainMenu.vue';
 </script>
 
@@ -22,7 +23,8 @@ import BtnMainMenu from '@/components/buttons/BtnMainMenu.vue';
       </div>
     </div>
 
-    <div class="flex flex-nowrap gap-2 whitespace-nowrap">
+    <div class="flex flex-nowrap gap-x-4 whitespace-nowrap">
+      <BtnToggleTheme />
       <BtnMainMenu />
     </div>
   </header>
