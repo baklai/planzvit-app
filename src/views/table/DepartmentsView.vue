@@ -24,14 +24,14 @@ const columns = ref([
   {
     header: { text: 'Назва відділу', width: '16rem' },
     column: {
-      field: 'code',
+      field: 'name',
       render(value) {
         return <span>{value}</span>;
       }
     },
-    sorter: { field: 'code' },
+    sorter: { field: 'name' },
     filter: {
-      field: 'code',
+      field: 'name',
       value: null,
       matchMode: FilterMatchMode.CONTAINS,
       filterOperator: FilterOperator.AND,
@@ -47,14 +47,14 @@ const columns = ref([
   {
     header: { text: 'Повна назва відділу', width: '13rem' },
     column: {
-      field: 'name',
+      field: 'description',
       render(value) {
         return <span>{value}</span>;
       }
     },
-    sorter: { field: 'name' },
+    sorter: { field: 'description' },
     filter: {
-      field: 'name',
+      field: 'description',
       value: null,
       matchMode: FilterMatchMode.CONTAINS,
       filterOperator: FilterOperator.AND,

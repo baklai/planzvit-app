@@ -18,8 +18,8 @@ const Service = useService();
 const { values, errors, handleSubmit, controlledValues, setValues, resetForm, defineField } =
   useForm({
     validationSchema: yup.object({
-      code: yup.string().required('Потрібно вказати значення'),
       name: yup.string().required('Потрібно вказати значення'),
+      description: yup.string().required('Потрібно вказати значення'),
       phone: yup.string().required('Потрібно вказати значення'),
       manager: yup.string().required('Потрібно вказати значення')
     }),
@@ -70,8 +70,8 @@ const options = ref([
   }
 ]);
 
-const [code, codeAttrs] = defineField('code');
 const [name, nameAttrs] = defineField('name');
+const [description, descriptionAttrs] = defineField('description');
 const [phone, phoneAttrs] = defineField('phone');
 const [manager, managerAttrs] = defineField('manager');
 const [services, servicesAttrs] = defineField('services');
@@ -229,32 +229,32 @@ const onCloseModal = async () => {
     <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
       <div class="flex flex-col space-y-4 md:w-1/2 md:pr-2">
         <div class="flex flex-col gap-2">
-          <label for="code" class="font-bold"> Назва відділу </label>
-          <InputText
-            id="code"
-            v-model="code"
-            v-bind="codeAttrs"
-            placeholder="Назва відділу"
-            :invalid="!!errors?.code"
-            aria-describedby="code-help"
-          />
-          <small id="code-help" class="text-red-500" v-if="errors?.code">
-            {{ errors.code }}
-          </small>
-        </div>
-
-        <div class="flex flex-col gap-2">
-          <label for="name" class="font-bold"> Повна назва відділу </label>
+          <label for="name" class="font-bold"> Назва відділу </label>
           <InputText
             id="name"
             v-model="name"
             v-bind="nameAttrs"
-            placeholder="Повна назва відділу"
+            placeholder="Назва відділу"
             :invalid="!!errors?.name"
             aria-describedby="name-help"
           />
           <small id="name-help" class="text-red-500" v-if="errors?.name">
             {{ errors.name }}
+          </small>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="description" class="font-bold"> Повна назва відділу </label>
+          <InputText
+            id="description"
+            v-model="description"
+            v-bind="descriptionAttrs"
+            placeholder="Повна назва відділу"
+            :invalid="!!errors?.description"
+            aria-describedby="description-help"
+          />
+          <small id="description-help" class="text-red-500" v-if="errors?.description">
+            {{ errors.description }}
           </small>
         </div>
       </div>
