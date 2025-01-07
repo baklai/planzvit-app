@@ -9,7 +9,7 @@ const Statistic = useStatistic();
 const stats = ref();
 
 onMounted(async () => {
-  stats.value = await Statistic.database();
+  stats.value = await Statistic.datacore();
 
   chartData.value = setChartData();
   chartOptions.value = setChartOptions();
@@ -97,29 +97,12 @@ const setChartOptions = () => {
         <div class="panel-border mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-2xl font-bold">Кількість відділів</span>
+              <span class="mb-3 block text-2xl font-bold">Кількість профілів</span>
             </div>
             <div
               class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
             >
-              {{ stats?.departments || '-' }}
-            </div>
-          </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
-        </div>
-      </div>
-
-      <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
-        <div class="panel-border mb-0 rounded-lg border p-6">
-          <div class="mb-3 flex justify-between">
-            <div>
-              <span class="mb-3 block text-2xl font-bold">Кількість сервісів</span>
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
-            >
-              {{ stats?.services || '-' }}
+              {{ stats?.profiles || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-green-500">Актуально на</span>

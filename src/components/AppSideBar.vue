@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 
 import ReportModal from '@/components/modals/ReportModal.vue';
+import BtnReportsList from '@/components/buttons/BtnReportsList.vue';
 import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
 
 const refReportModal = ref();
@@ -52,17 +53,6 @@ const refReportModal = ref();
       <Button
         size="large"
         variant="text"
-        icon="pi pi-file-excel"
-        severity="secondary"
-        class="bg-transparent text-muted-color hover:bg-emphasis"
-        v-tooltip="'Звіти про надання послуг з програмно-технологічного супроводу'"
-        as="router-link"
-        to="/report"
-      />
-
-      <Button
-        size="large"
-        variant="text"
         icon="pi pi-plus-circle text-primary font-bold"
         severity="secondary"
         class="bg-transparent text-muted-color hover:bg-emphasis"
@@ -73,6 +63,21 @@ const refReportModal = ref();
 
     <template #footer>
       <div class="flex flex-col items-center">
+        <BtnReportsList />
+
+        <Button
+          size="large"
+          variant="text"
+          icon="pi pi-database"
+          severity="secondary"
+          class="bg-transparent text-muted-color hover:bg-emphasis"
+          v-tooltip="'База даних'"
+          as="router-link"
+          to="/table"
+        />
+
+        <Divider />
+
         <BtnInfoProfile />
 
         <Button
@@ -83,7 +88,7 @@ const refReportModal = ref();
           class="bg-transparent text-muted-color hover:bg-emphasis"
           v-tooltip="'Налаштування'"
           as="router-link"
-          to="/table"
+          to="/core"
         />
 
         <Divider />

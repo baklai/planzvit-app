@@ -12,5 +12,13 @@ export const useStatistic = defineStore('statistic', () => {
     }
   }
 
-  return { database };
+  async function datacore() {
+    try {
+      return await $axios.get('/statistics/datacore');
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  return { database, datacore };
 });

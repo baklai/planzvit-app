@@ -3,23 +3,17 @@ import { ref } from 'vue';
 
 const items = ref([
   {
-    route: '/table/statistics',
+    route: '/core/statistics',
     label: 'Статистика по базі',
     icon: 'pi pi-chart-bar'
   },
   {
-    route: '/table/departments',
-    label: 'Відділи підрозділу',
-    icon: 'pi pi-table'
-  },
-  { route: '/table/services', label: 'Системи підтримки', icon: 'pi pi-table' },
-  {
-    route: '/table/profiles',
+    route: '/core/profiles',
     label: 'Профілі користувачів',
     icon: 'pi pi-users'
   },
   {
-    route: '/table/syslogs',
+    route: '/core/syslogs',
     label: 'Аудит активності',
     icon: 'pi pi-arrow-right-arrow-left'
   }
@@ -45,7 +39,7 @@ const items = ref([
     </TabList>
   </Tabs>
 
-  <div class="w-full">
+  <div class="h-full w-full overflow-auto">
     <RouterView />
   </div>
 </template>

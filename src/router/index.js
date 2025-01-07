@@ -28,6 +28,25 @@ const router = createRouter({
     },
 
     {
+      path: '/report',
+      name: 'report',
+      meta: {
+        auth: true
+      },
+      children: [
+        {
+          path: 'monthly',
+          name: 'report-monthly',
+          meta: {
+            title: 'Звіт за місяць',
+            description: 'Статистика по базі даних системи'
+          },
+          component: () => import('@/views/report/MonthlyView.vue')
+        }
+      ]
+    },
+
+    {
       path: '/table',
       name: 'table',
       meta: {
@@ -36,7 +55,7 @@ const router = createRouter({
         description: 'База даних системи'
       },
       redirect: { name: 'table-statistics' },
-      component: () => import('@/views/table/TableView.vue'),
+      component: () => import('@/views/table/IndexView.vue'),
       children: [
         {
           path: 'statistics',
@@ -64,24 +83,47 @@ const router = createRouter({
             description: 'Список систем підтримки'
           },
           component: () => import('@/views/table/ServicesView.vue')
+        }
+      ]
+    },
+
+    {
+      path: '/core',
+      name: 'core',
+      meta: {
+        auth: true,
+        title: 'База даних',
+        description: 'База даних системи'
+      },
+      redirect: { name: 'core-statistics' },
+      component: () => import('@/views/core/IndexView.vue'),
+      children: [
+        {
+          path: 'statistics',
+          name: 'core-statistics',
+          meta: {
+            title: 'Статистика по базі',
+            description: 'Статистика по базі даних системи'
+          },
+          component: () => import('@/views/core/StatisticsView.vue')
         },
         {
           path: 'profiles',
-          name: 'table-profiles',
+          name: 'core-profiles',
           meta: {
             title: 'Профілі користувачів',
             description: 'Список профілів користувачів'
           },
-          component: () => import('@/views/table/ProfilesView.vue')
+          component: () => import('@/views/core/ProfilesView.vue')
         },
         {
           path: 'syslogs',
-          name: 'table-syslogs',
+          name: 'core-syslogs',
           meta: {
             title: 'Аудит активності',
             description: 'Журнал аудиту активності'
           },
-          component: () => import('@/views/table/SyslogsView.vue')
+          component: () => import('@/views/core/SyslogsView.vue')
         }
       ]
     },

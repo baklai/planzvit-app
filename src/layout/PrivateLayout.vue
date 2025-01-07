@@ -10,7 +10,7 @@ import AppSideBar from '@/components/AppSideBar.vue';
     <div class="h-full flex-1">
       <AppTopBar class="mb-4" />
 
-      <main class="h-full overflow-auto">
+      <main class="h-full w-full">
         <RouterView />
       </main>
     </div>

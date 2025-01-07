@@ -86,7 +86,7 @@ const setChartOptions = () => {
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-4">
+  <div class="flex h-full w-full flex-wrap gap-4 overflow-auto">
     <div class="flex w-full p-4">
       <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
         <div class="panel-border mb-0 rounded-lg border p-6">
