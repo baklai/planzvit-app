@@ -25,7 +25,7 @@ const toggle = event => {
   <Button
     size="large"
     variant="text"
-    icon="pi pi-file-excel"
+    icon="pi pi-file-excel !text-2xl"
     severity="secondary"
     class="bg-transparent text-muted-color hover:bg-emphasis"
     v-tooltip="'Звіти про надання послуг з програмно-технологічного супроводу'"

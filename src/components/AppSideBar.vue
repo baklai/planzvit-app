@@ -42,7 +42,7 @@ const refReportModal = ref();
       <Button
         size="large"
         variant="text"
-        icon="pi pi-home"
+        icon="pi pi-home !text-2xl"
         severity="secondary"
         class="bg-transparent text-muted-color hover:bg-emphasis"
         v-tooltip="'Головна сторінка'"
@@ -50,10 +50,12 @@ const refReportModal = ref();
         to="/"
       />
 
+      <BtnReportsList />
+
       <Button
         size="large"
         variant="text"
-        icon="pi pi-plus-circle text-primary font-bold"
+        icon="pi pi-plus-circle text-primary font-bold !text-2xl"
         severity="secondary"
         class="bg-transparent text-muted-color hover:bg-emphasis"
         v-tooltip="'Щомісячний звіт'"
@@ -63,8 +65,6 @@ const refReportModal = ref();
 
     <template #footer>
       <div class="flex flex-col items-center">
-        <BtnReportsList />
-
         <Button
           size="large"
           variant="text"
