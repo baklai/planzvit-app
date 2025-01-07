@@ -30,7 +30,12 @@ app.use(createPinia());
 
 app.use(PrimeVue, {
   theme: {
-    preset: Lara
+    preset: Lara,
+    options: {
+      prefix: 'p',
+      darkModeSelector: 'class',
+      cssLayer: false
+    }
   },
   locale: {
     startsWith: 'Починається з',

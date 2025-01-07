@@ -45,7 +45,7 @@ const router = createRouter({
             title: 'Статистика по базі',
             description: 'Статистика по базі даних системи'
           },
-          component: () => import('@/views/table/dashboard.vue')
+          component: () => import('@/views/table/Dashboard.vue')
         },
         {
           path: 'departments',
