@@ -13,9 +13,9 @@ const Department = useDepartment();
 const Report = useReport();
 
 defineExpose({
-  toggle: async () => {
+  toggle: async ({ id }) => {
     try {
-      departments.value = await $fetch(`/api/reports/deplist`);
+      departments.value = await Department.findAll({ offset: 0, limit: 100 });
 
       visible.value = true;
     } catch (err) {
@@ -41,7 +41,7 @@ const options = ref([
 
 const initReport = async id => {
   try {
-    report.value = await $fetch(`/api/reports?department=${id}`);
+    report.value = await Report.findOne({ id });
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -128,17 +128,14 @@ const onCloseModal = async () => {
 
     <ProgressBar mode="indeterminate" style="height: 6px" v-if="loading" />
 
-    <Button
-      severity="secondary"
-      v-for="dep in departments"
-      v-if="!report"
-      @click="() => initReport(dep.id)"
-    >
-      <div class="flex flex-col gap-2 p-4">
-        <p class="font-bold text-primary">{{ dep.code }}</p>
-        <p>{{ dep.name }}</p>
-      </div>
-    </Button>
+    <div v-if="!report">
+      <Button severity="secondary" v-for="dep in departments" @click="() => initReport(dep.id)">
+        <div class="flex flex-col gap-2 p-4">
+          <p class="font-bold text-primary">{{ dep.code }}</p>
+          <p>{{ dep.name }}</p>
+        </div>
+      </Button>
+    </div>
 
     <form
       class="flex flex-col gap-y-4 md:flex-row md:flex-wrap"

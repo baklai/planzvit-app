@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 const items = ref([
   {
-    route: '/table/dashboard',
+    route: '/table/statistics',
     label: 'Статистика по базі',
     icon: 'pi pi-chart-bar'
   },

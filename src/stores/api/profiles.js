@@ -20,7 +20,7 @@ export const useProfile = defineStore('profile', () => {
     }
   }
 
-  async function createOne({ scope, ...payload }) {
+  async function createOne({ ...payload }) {
     try {
       return await $axios.post('/profiles', { ...payload });
     } catch (err) {
@@ -28,7 +28,7 @@ export const useProfile = defineStore('profile', () => {
     }
   }
 
-  async function updateOne(id, { scope, ...payload }) {
+  async function updateOne(id, { ...payload }) {
     try {
       return await $axios.put(`/profiles/${id}`, { ...payload });
     } catch (err) {

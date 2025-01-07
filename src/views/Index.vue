@@ -4,8 +4,6 @@ import { ref, onMounted } from 'vue';
 import { useStatistic } from '@/stores/api/statistics';
 import { dateToStr } from '@/service/DataFilters';
 
-const Statistic = useStatistic();
-
 onMounted(() => {
   chartData.value = setChartData();
   chartOptions.value = setChartOptions();

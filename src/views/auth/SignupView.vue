@@ -8,7 +8,7 @@ const toast = useToast();
 
 const $auth = inject('auth');
 
-const { values, errors, handleSubmit, resetForm, defineField } = useForm({
+const { errors, handleSubmit, resetForm, defineField } = useForm({
   validationSchema: yup.object({
     email: yup.string().email().required('Потрібно вказати значення'),
     fullname: yup.string().required('Потрібно вказати значення'),

@@ -36,16 +36,16 @@ const router = createRouter({
         description: 'База даних системи'
       },
       redirect: { name: 'table-dashboard' },
-      component: () => import('@/views/table/Index.vue'),
+      component: () => import('@/views/table/TableView.vue'),
       children: [
         {
-          path: 'dashboard',
-          name: 'table-dashboard',
+          path: 'statistics',
+          name: 'table-statistics',
           meta: {
             title: 'Статистика по базі',
             description: 'Статистика по базі даних системи'
           },
-          component: () => import('@/views/table/Dashboard.vue')
+          component: () => import('@/views/table/StatisticsView.vue')
         },
         {
           path: 'departments',
@@ -54,7 +54,7 @@ const router = createRouter({
             title: 'Відділи підрозділу',
             description: 'Перелік відділів підрозділу'
           },
-          component: () => import('@/views/table/Departments.vue')
+          component: () => import('@/views/table/DepartmentsView.vue')
         },
         {
           path: 'services',
@@ -63,7 +63,7 @@ const router = createRouter({
             title: 'Системи підтримки',
             description: 'Список систем підтримки'
           },
-          component: () => import('@/views/table/Services.vue')
+          component: () => import('@/views/table/ServicesView.vue')
         },
         {
           path: 'profiles',
@@ -72,7 +72,7 @@ const router = createRouter({
             title: 'Профілі користувачів',
             description: 'Список профілів користувачів'
           },
-          component: () => import('@/views/table/Profiles.vue')
+          component: () => import('@/views/table/ProfilesView.vue')
         },
         {
           path: 'syslogs',
@@ -81,7 +81,7 @@ const router = createRouter({
             title: 'Аудит активності',
             description: 'Журнал аудиту активності'
           },
-          component: () => import('@/views/table/Syslogs.vue')
+          component: () => import('@/views/table/SyslogsView.vue')
         }
       ]
     },
@@ -93,17 +93,17 @@ const router = createRouter({
         {
           path: 'signin',
           name: 'signin',
-          component: () => import('@/views/auth/Signin.vue')
+          component: () => import('@/views/auth/SigninView.vue')
         },
         {
           path: 'signup',
           name: 'signup',
-          component: () => import('@/views/auth/Signup.vue')
+          component: () => import('@/views/auth/SignupView.vue')
         },
         {
           path: 'reset',
           name: 'reset',
-          component: () => import('@/views/auth/Reset.vue')
+          component: () => import('@/views/auth/ResetView.vue')
         }
       ]
     },
