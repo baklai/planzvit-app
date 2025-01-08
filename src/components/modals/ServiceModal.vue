@@ -17,7 +17,7 @@ const { values, errors, handleSubmit, controlledValues, setValues, resetForm, de
     validationSchema: yup.object({
       code: yup.string().required('Потрібно вказати значення'),
       name: yup.string().required('Потрібно вказати значення'),
-      price: yup.number().required('Потрібно вказати значення')
+      price: yup.number()
     }),
     initialValues: {}
   });
