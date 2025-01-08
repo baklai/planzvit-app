@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 
 import ReportModal from '@/components/modals/ReportModal.vue';
-import BtnReportsList from '@/components/buttons/BtnReportsList.vue';
 import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
 
 const refReportModal = ref();
@@ -50,7 +49,16 @@ const refReportModal = ref();
         to="/"
       />
 
-      <BtnReportsList />
+      <Button
+        size="large"
+        variant="text"
+        icon="pi pi-file-excel font-bold !text-2xl"
+        severity="secondary"
+        class="bg-transparent text-muted-color hover:bg-emphasis"
+        v-tooltip="'Звіти про надання послуг'"
+        as="router-link"
+        to="/report"
+      />
 
       <Button
         size="large"

@@ -4,18 +4,18 @@ import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 
 import { useDepartment } from '@/stores/api/departments';
-import { useReport } from '@/stores/api/reports';
 
 const toast = useToast();
 const confirm = useConfirm();
 
 const Department = useDepartment();
-const Report = useReport();
 
 defineExpose({
-  toggle: async ({ id }) => {
+  toggle: async () => {
     try {
-      departments.value = await Department.findAll({ offset: 0, limit: 100 });
+      const { docs } = await Department.findAll({ offset: 0, limit: 100 });
+
+      departments.value = docs;
 
       visible.value = true;
     } catch (err) {
@@ -24,8 +24,8 @@ defineExpose({
   }
 });
 
-const departments = ref([]);
 const report = ref();
+const departments = ref([]);
 
 const visible = ref(false);
 const loading = ref(false);
@@ -39,9 +39,9 @@ const options = ref([
   }
 ]);
 
-const initReport = async id => {
+const onGenerateReport = async event => {
   try {
-    report.value = await Report.findOne({ id });
+    // report.value = await Report.findOne({ id: event.id });
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -56,7 +56,7 @@ const onSaveRecord = async values => {
   try {
     loading.value = true;
 
-    await Report.createOne({});
+    // await Report.createOne({});
 
     toast.add({
       severity: 'success',
@@ -78,6 +78,7 @@ const onSaveRecord = async values => {
 
 const onCloseModal = async () => {
   report.value = null;
+  loading.value = false;
 };
 </script>
 
@@ -94,7 +95,7 @@ const onCloseModal = async () => {
   <Dialog
     modal
     closable
-    maximizable
+    :maximizable="!!report"
     :draggable="false"
     v-model:visible="visible"
     class="mx-auto w-[90vw] md:w-[80vw] lg:w-[60vw] xl:w-[50vw] 2xl:w-[30vw]"
@@ -128,11 +129,16 @@ const onCloseModal = async () => {
 
     <ProgressBar mode="indeterminate" style="height: 6px" v-if="loading" />
 
-    <div v-if="!report">
-      <Button severity="secondary" v-for="dep in departments" @click="() => initReport(dep.id)">
-        <div class="flex flex-col gap-2 p-4">
-          <p class="font-bold text-primary">{{ dep.code }}</p>
-          <p>{{ dep.name }}</p>
+    <div v-if="!report" class="flex flex-col gap-2">
+      <Button
+        variant="outlined"
+        severity="secondary"
+        v-for="item in departments"
+        @click="() => onGenerateReport(item)"
+      >
+        <div class="flex flex-col gap-2">
+          <p class="font-bold text-primary">{{ item.name }}</p>
+          <p>{{ item.description }}</p>
         </div>
       </Button>
     </div>

@@ -297,18 +297,29 @@ const onCloseModal = async () => {
       <div class="flex w-full flex-col gap-2">
         <label for="services" class="font-bold"> Перелік сервісів, що підтримуються </label>
         <MultiSelect
+          fluid
           filter
           size="large"
           display="chip"
           name="services"
+          resetFilterOnClear
           v-model="services"
           v-bind="servicesAttrs"
           optionValue="id"
-          optionLabel="name"
+          optionLabel="code"
           :maxSelectedLabels="3"
           :options="serviceList || []"
           placeholder="Перелік сервісів, що підтримуються"
+          overlayClass="w-5"
         >
+          <template #option="slotProps">
+            <div class="flex items-center">
+              <div>
+                {{ slotProps.option.code }} -
+                <span class="truncate">{{ slotProps.option.name }}</span>
+              </div>
+            </div>
+          </template>
         </MultiSelect>
         <small id="services-help" class="text-red-500" v-if="errors?.services">
           {{ errors.services }}

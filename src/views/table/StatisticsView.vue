@@ -6,41 +6,39 @@ import { dateToStr } from '@/service/DataFilters';
 
 const Statistic = useStatistic();
 
-const stats = ref();
+const statistic = ref();
 
-onMounted(async () => {
-  stats.value = await Statistic.database();
-
-  chartData.value = setChartData();
-  chartOptions.value = setChartOptions();
-});
-
-const chartData = ref();
+const departmentChart = ref();
+const branchChart = ref();
 const chartOptions = ref();
 
-const setChartData = () => {
+const setDepartmentChartData = data => {
   const documentStyle = getComputedStyle(document.documentElement);
 
   return {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: data.map(({ name }) => name),
     datasets: [
       {
         type: 'bar',
-        label: 'Dataset 1',
+        label: 'Кількість сервісів по відділах',
+        backgroundColor: documentStyle.getPropertyValue('--p-green-500'),
+        data: data.map(({ servicesCount }) => servicesCount)
+      }
+    ]
+  };
+};
+
+const setBranchChartData = data => {
+  const documentStyle = getComputedStyle(document.documentElement);
+
+  return {
+    labels: data.map(({ name }) => name),
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Кількість підрозділів по службах (філіях)',
         backgroundColor: documentStyle.getPropertyValue('--p-cyan-500'),
-        data: [50, 25, 12, 48, 90, 76, 42]
-      },
-      {
-        type: 'bar',
-        label: 'Dataset 2',
-        backgroundColor: documentStyle.getPropertyValue('--p-gray-500'),
-        data: [21, 84, 24, 75, 37, 65, 34]
-      },
-      {
-        type: 'bar',
-        label: 'Dataset 3',
-        backgroundColor: documentStyle.getPropertyValue('--p-orange-500'),
-        data: [41, 52, 24, 74, 23, 21, 32]
+        data: data.map(({ subdivisionsCount }) => subdivisionsCount)
       }
     ]
   };
@@ -88,95 +86,96 @@ const setChartOptions = () => {
     }
   };
 };
+
+onMounted(async () => {
+  statistic.value = await Statistic.database();
+  departmentChart.value = setDepartmentChartData(statistic.value.departmentChart);
+  branchChart.value = setBranchChartData(statistic.value.branchChart);
+  chartOptions.value = setChartOptions();
+});
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-4">
-    <div class="flex w-full p-4">
-      <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
-        <div class="mb-0 rounded-lg border p-6">
-          <div class="mb-3 flex justify-between">
-            <div>
-              <span class="mb-3 block text-2xl font-bold">Кількість відділів</span>
-            </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
-            >
-              {{ stats?.departmentsCount || '-' }}
-            </div>
-          </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
+  <div class="flex h-full w-full flex-wrap">
+    <div class="flex h-full w-full gap-4">
+      <div class="flex w-2/3 flex-col p-4">
+        <div class="w-full p-4">
+          <Chart type="bar" :data="departmentChart" :options="chartOptions" class="min-h-[30rem]" />
+        </div>
+
+        <div class="w-full p-4">
+          <Chart type="bar" :data="branchChart" :options="chartOptions" class="min-h-[30rem]" />
         </div>
       </div>
 
-      <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
-        <div class="mb-0 rounded-lg border p-6">
-          <div class="mb-3 flex justify-between">
-            <div>
-              <span class="mb-3 block text-2xl font-bold">Кількість сервісів</span>
+      <div class="flex w-1/3 flex-col p-4">
+        <div class="w-full p-4">
+          <div class="mb-0 rounded-lg border p-6">
+            <div class="mb-3 flex justify-between">
+              <div>
+                <span class="mb-3 block text-2xl font-bold">Кількість відділів</span>
+              </div>
+              <div
+                class="flex h-12 min-w-10 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              >
+                {{ statistic?.departmentsCount || '-' }}
+              </div>
             </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
-            >
-              {{ stats?.servicesCount || '-' }}
-            </div>
+            <span class="mr-2 font-medium text-green-500">Актуально на</span>
+            <span class="">{{ dateToStr(Date.now()) }}</span>
           </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
         </div>
-      </div>
 
-      <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
-        <div class="mb-0 rounded-lg border p-6">
-          <div class="mb-3 flex justify-between">
-            <div>
-              <span class="mb-3 block text-2xl font-bold">Кількість служб (філій)</span>
+        <div class="w-full p-4">
+          <div class="mb-0 rounded-lg border p-6">
+            <div class="mb-3 flex justify-between">
+              <div>
+                <span class="mb-3 block text-2xl font-bold">Кількість сервісів</span>
+              </div>
+              <div
+                class="flex h-12 min-w-10 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              >
+                {{ statistic?.servicesCount || '-' }}
+              </div>
             </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
-            >
-              {{ stats?.branchesCount || '-' }}
-            </div>
+            <span class="mr-2 font-medium text-green-500">Актуально на</span>
+            <span class="">{{ dateToStr(Date.now()) }}</span>
           </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
         </div>
-      </div>
 
-      <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
-        <div class="mb-0 rounded-lg border p-6">
-          <div class="mb-3 flex justify-between">
-            <div>
-              <span class="mb-3 block text-2xl font-bold">Кількість підрозділів</span>
+        <div class="w-full p-4">
+          <div class="mb-0 rounded-lg border p-6">
+            <div class="mb-3 flex justify-between">
+              <div>
+                <span class="mb-3 block text-2xl font-bold">Кількість служб (філій)</span>
+              </div>
+              <div
+                class="flex h-12 min-w-10 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              >
+                {{ statistic?.branchesCount || '-' }}
+              </div>
             </div>
-            <div
-              class="flex h-12 w-12 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
-            >
-              {{ stats?.subdivisionsCount || '-' }}
-            </div>
+            <span class="mr-2 font-medium text-green-500">Актуально на</span>
+            <span class="">{{ dateToStr(Date.now()) }}</span>
           </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
         </div>
-      </div>
-    </div>
 
-    <div class="flex-1 p-4">
-      <div class="flex-1 p-4">
-        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
-      </div>
-      <div class="flex-1 p-4">
-        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
-      </div>
-    </div>
-
-    <div class="flex-1 p-4">
-      <div class="flex-1 p-4">
-        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
-      </div>
-      <div class="flex-1 p-4">
-        <Chart type="bar" :data="chartData" :options="chartOptions" class="h-[30rem]" />
+        <div class="w-full p-4">
+          <div class="mb-0 rounded-lg border p-6">
+            <div class="mb-3 flex justify-between">
+              <div>
+                <span class="mb-3 block text-2xl font-bold">Кількість підрозділів</span>
+              </div>
+              <div
+                class="flex h-12 min-w-10 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              >
+                {{ statistic?.subdivisionsCount || '-' }}
+              </div>
+            </div>
+            <span class="mr-2 font-medium text-green-500">Актуально на</span>
+            <span class="">{{ dateToStr(Date.now()) }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

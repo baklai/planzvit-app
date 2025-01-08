@@ -45,7 +45,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Назва сервісу', width: '20rem' },
+    header: { text: 'Назва сервісу', width: '30rem' },
     column: {
       field: 'name',
       render(value) {
@@ -68,7 +68,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Вартість підтримки (грн/шт)', width: '20rem' },
+    header: { text: 'Вартість підтримки (грн/шт)', width: '10rem' },
     column: {
       field: 'price',
       render(value) {

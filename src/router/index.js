@@ -30,16 +30,16 @@ const router = createRouter({
     {
       path: '/report',
       name: 'report',
-      meta: {
-        auth: true
-      },
+      meta: { auth: true },
+      redirect: { name: 'report-monthly' },
+      component: () => import('@/views/report/ReportView.vue'),
       children: [
         {
           path: 'monthly',
           name: 'report-monthly',
           meta: {
             title: 'Звіт за місяць',
-            description: 'Статистика по базі даних системи'
+            description: 'Звіт про надання послуг з програмно-технологічного супроводу'
           },
           component: () => import('@/views/report/MonthlyView.vue')
         }
@@ -51,7 +51,7 @@ const router = createRouter({
       name: 'table',
       meta: { auth: true },
       redirect: { name: 'table-statistics' },
-      component: () => import('@/views/table/IndexView.vue'),
+      component: () => import('@/views/table/TableView.vue'),
       children: [
         {
           path: 'statistics',
@@ -97,7 +97,7 @@ const router = createRouter({
       name: 'core',
       meta: { auth: true },
       redirect: { name: 'core-statistics' },
-      component: () => import('@/views/core/IndexView.vue'),
+      component: () => import('@/views/core/CoreView.vue'),
       children: [
         {
           path: 'statistics',

@@ -578,7 +578,7 @@ onMounted(async () => {
       :totalRecords="totalRecords"
       :rowsPerPageOptions="recordsPerPageOptions"
       currentPageReportTemplate="Показано з {first} по {last} з {totalRecords} записів"
-      style="height: calc(100vh - 14rem)"
+      style="height: calc(100vh - 13rem)"
       class="min-w-full overflow-x-auto text-base"
       :paginatorTemplate="'CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'"
       @state-restore="onStorage"
@@ -588,6 +588,11 @@ onMounted(async () => {
       :pt="{
         mask: {
           class: ['!bg-transparent', 'dark:!bg-transparent']
+        },
+        pcpaginator: {
+          root: {
+            class: ['!bg-transparent', 'dark:!bg-transparent']
+          }
         }
       }"
     >
@@ -767,7 +772,7 @@ onMounted(async () => {
         :filterField="filter.field"
         :showFilterMatchModes="filter.showFilterMatchModes"
         :style="{ minWidth: header.width }"
-        headerClass="font-bold text-center uppercase"
+        headerClass="!font-bold text-center uppercase"
         class="max-w-80"
       >
         <template #header>
