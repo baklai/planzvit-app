@@ -65,6 +65,10 @@ const refReportModal = ref();
 
     <template #footer>
       <div class="flex flex-col items-center">
+        <BtnInfoProfile />
+
+        <Divider />
+
         <Button
           size="large"
           variant="text"
@@ -75,10 +79,6 @@ const refReportModal = ref();
           as="router-link"
           to="/table"
         />
-
-        <Divider />
-
-        <BtnInfoProfile />
 
         <Button
           size="large"
