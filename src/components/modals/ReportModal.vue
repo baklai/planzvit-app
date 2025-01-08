@@ -3,19 +3,17 @@ import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 
-import { useDepartment } from '@/stores/api/departments';
+import { useReport } from '@/stores/api/reports';
 
 const toast = useToast();
 const confirm = useConfirm();
 
-const Department = useDepartment();
+const { getDepartment, getDepartments, getBranches } = useReport();
 
 defineExpose({
   toggle: async () => {
     try {
-      const { docs } = await Department.findAll({ offset: 0, limit: 100 });
-
-      departments.value = docs;
+      departments.value = await getDepartments();
 
       visible.value = true;
     } catch (err) {
@@ -25,6 +23,9 @@ defineExpose({
 });
 
 const report = ref();
+const branches = ref([]);
+const services = ref([]);
+const department = ref([]);
 const departments = ref([]);
 
 const visible = ref(false);
@@ -39,9 +40,72 @@ const options = ref([
   }
 ]);
 
+// const onGenerateReport = async event => {
+//   try {
+//     loading.value = true;
+
+//     department.value = await getDepartment({ id: event.id });
+
+//     branches.value = await getBranches();
+//     services.value = department.value?.services || [];
+
+//     const data = services.value.map(service => {
+//       const data = branches.value.map(branch => {
+//         const data = branch.subdivisions.map(subdivision => {
+//           return {
+//             service: { id: service.code, code: service.code, name: service.name },
+//             branch: { id: branch.id, name: branch.name },
+//             subdivision: { id: subdivision.id, name: subdivision.name },
+//             countJobsPreviousMonth: 0,
+//             countJobsCurrentMonth: 0,
+//             totalCountOfJobs: 0
+//           };
+//         });
+//         return [...data];
+//       });
+//       return [...data];
+//     });
+
+//     report.value = data.flat(Infinity);
+//   } catch (err) {
+//     toast.add({
+//       severity: 'warn',
+//       summary: 'Попередження',
+//       detail: err.message,
+//       life: 5000
+//     });
+//   } finally {
+//     loading.value = false;
+//   }
+// };
+
 const onGenerateReport = async event => {
   try {
-    // report.value = await Report.findOne({ id: event.id });
+    loading.value = true;
+
+    department.value = await getDepartment({ id: event.id });
+    branches.value = await getBranches();
+    services.value = department.value?.services || [];
+
+    const data = [];
+    for (const service of services.value) {
+      for (const branch of branches.value) {
+        for (const subdivision of branch.subdivisions) {
+          data.push({
+            service: { id: service.code, code: service.code, name: service.name },
+            branch: { id: branch.id, name: branch.name },
+            subdivision: { id: subdivision.id, name: subdivision.name },
+            countJobsPreviousMonth: 0,
+            countJobsCurrentMonth: 0,
+            totalCountOfJobs: 0
+          });
+
+          await new Promise(resolve => setTimeout(resolve, 0));
+        }
+      }
+    }
+
+    report.value = data;
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -49,6 +113,18 @@ const onGenerateReport = async event => {
       detail: err.message,
       life: 5000
     });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onCellEditComplete = event => {
+  const { data, newValue, field } = event;
+
+  try {
+    data[field] = newValue;
+  } catch (err) {
+    event.preventDefault();
   }
 };
 
@@ -79,6 +155,7 @@ const onSaveRecord = async values => {
 const onCloseModal = async () => {
   report.value = null;
   loading.value = false;
+  departments.value = [];
 };
 </script>
 
@@ -98,7 +175,12 @@ const onCloseModal = async () => {
     :maximizable="!!report"
     :draggable="false"
     v-model:visible="visible"
-    class="mx-auto w-[90vw] md:w-[80vw] lg:w-[60vw] xl:w-[50vw] 2xl:w-[30vw]"
+    :class="[
+      'mx-auto w-[30rem]',
+      {
+        '!w-[90vw]': !!report
+      }
+    ]"
     @hide="onCloseModal"
   >
     <template #header>
@@ -127,9 +209,12 @@ const onCloseModal = async () => {
       </div>
     </template>
 
-    <ProgressBar mode="indeterminate" style="height: 6px" v-if="loading" />
+    <div v-if="loading" class="flex h-full w-full flex-col justify-center text-center">
+      <ProgressSpinner v-if="loading" />
+      <p>Почекайте, щомісячний звіт готується...</p>
+    </div>
 
-    <div v-if="!report" class="flex flex-col gap-2">
+    <div v-if="!report && !loading" class="flex flex-col gap-2">
       <Button
         variant="outlined"
         severity="secondary"
@@ -143,11 +228,65 @@ const onCloseModal = async () => {
       </Button>
     </div>
 
-    <form
-      class="flex flex-col gap-y-4 md:flex-row md:flex-wrap"
-      @submit.prevent="onSaveRecord"
+    <DataTable
+      id="report-table"
+      showGridlines
+      scrollable
+      scrollHeight="flex"
+      resizableColumns
+      columnResizeMode="expand"
+      v-model:value="report"
+      class="text-lg"
+      editMode="cell"
+      paginator
+      :rows="10"
+      :rowsPerPageOptions="[5, 10, 15, 20, 50]"
+      @cell-edit-complete="onCellEditComplete"
       v-if="report"
-    ></form>
+    >
+      <Column frozen header="№" headerStyle="width:3rem">
+        <template #body="slotProps">
+          {{ slotProps.index + 1 }}
+        </template>
+      </Column>
+
+      <Column field="service.code" header="Код роботи" style="width: 10%"></Column>
+      <Column field="service.name" header="Назва системи" style="width: 30%"></Column>
+      <Column field="branch.name" header="Служба (філія)" style="width: 10%"></Column>
+      <Column field="subdivision.name" header="Структурний підрозділ" style="width: 20%"></Column>
+
+      <Column
+        field="countJobsPreviousMonth"
+        header="Кількість робочих місць (робіт) - попередній місяць"
+        style="width: 10%"
+      ></Column>
+
+      <Column
+        field="countJobsCurrentMonth"
+        header="Кількість нових робочих місць (робіт) за теперешній місяць"
+        style="width: 10%"
+      >
+        <template #editor="{ data, field }">
+          <InputText v-model="data[field]" autofocus fluid />
+        </template>
+      </Column>
+
+      <Column
+        field="totalCountOfJobs"
+        header="Кількість робочих місць (робіт) всього"
+        style="width: 10%"
+      ></Column>
+
+      <!-- <ColumnGroup type="footer">
+        <Row>
+          <Column footer="Totals:" :colspan="3" footerStyle="text-align:right" />
+          <Column :footer="lastYearTotal" />
+          <Column :footer="thisYearTotal" />
+        </Row>
+      </ColumnGroup> -->
+
+      <template #footer> In total there are {{ report ? report.length : 0 }} report. </template>
+    </DataTable>
 
     <template #footer>
       <Button

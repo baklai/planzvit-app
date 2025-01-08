@@ -4,55 +4,29 @@ import { defineStore } from 'pinia';
 export const useReport = defineStore('report', () => {
   const $axios = inject('axios');
 
-  async function findAll(params) {
+  async function getDepartment({ id }) {
     try {
-      return await $axios.get('/reports', { params });
+      return await $axios.get(`/reports/departments/${id}`);
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-  async function findOne({ id }) {
+  async function getDepartments() {
     try {
-      return await $axios.get(`/reports/${id}`);
+      return await $axios.get('/reports/departments');
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-  async function createOne({ ...payload }) {
+  async function getBranches() {
     try {
-      return await $axios.post('/reports', { ...payload });
+      return await $axios.get('/reports/branches');
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-  async function updateOne(id, { ...payload }) {
-    try {
-      return await $axios.put(`/reports/${id}`, { ...payload });
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
-
-  async function removeOne({ id }) {
-    try {
-      return await $axios.delete(`/reports/${id}`);
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
-
-  async function generateReport({ id }) {
-    try {
-      return await $axios.get(`/reports/${id}/report`, {
-        timeout: 60000
-      });
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
-
-  return { findAll, findOne, createOne, updateOne, removeOne, generateReport };
+  return { getDepartment, getDepartments, getBranches };
 });
