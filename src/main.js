@@ -21,6 +21,7 @@ import Tooltip from 'primevue/tooltip';
 
 import 'primeicons/primeicons.css';
 import '@/assets/tailwind.css';
+import '@/assets/fonts.css';
 import '@/assets/main.css';
 
 const app = createApp(App);
