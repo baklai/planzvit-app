@@ -252,7 +252,7 @@ const onCloseModal = async () => {
 
       <Column field="service.code" header="Код роботи" style="width: 10%"></Column>
       <Column field="service.name" header="Назва системи" style="width: 30%"></Column>
-      <Column field="branch.name" header="Служба (філія)" style="width: 10%"></Column>
+      <Column field="branch.name" header="Служба/філія" style="width: 10%"></Column>
       <Column field="subdivision.name" header="Структурний підрозділ" style="width: 20%"></Column>
 
       <Column

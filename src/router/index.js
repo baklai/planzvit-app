@@ -38,7 +38,7 @@ const router = createRouter({
           path: 'monthly',
           name: 'report-monthly',
           meta: {
-            title: 'Звіт за місяць',
+            title: 'Щомісячний звіт',
             description: 'Звіт про надання послуг з програмно-технологічного супроводу'
           },
           component: () => import('@/views/report/MonthlyView.vue')

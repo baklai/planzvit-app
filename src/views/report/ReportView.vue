@@ -4,7 +4,7 @@ import { ref } from 'vue';
 const items = ref([
   {
     route: '/report/monthly',
-    label: 'Звіт за місяць',
+    label: 'Щомісячний звіт',
     icon: 'pi pi-file-excel'
   }
 ]);

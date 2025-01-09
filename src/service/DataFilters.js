@@ -2,6 +2,13 @@ export const dateToStr = value => {
   return value ? new Date(value).toLocaleDateString() : value;
 };
 
+export const dateToMonthStr = value => {
+  if (!value) return;
+  const date = new Date(value);
+  const formatter = new Intl.DateTimeFormat('uk-UA', { month: 'long', year: 'numeric' });
+  return formatter.format(date);
+};
+
 export const dateToLocaleStr = (value, locale) => {
   return value
     ? new Date(value).toLocaleDateString(locale, {
