@@ -1,13 +1,24 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useToast } from 'primevue/usetoast';
 
 import { dateToStr } from '@/service/DataFilters';
 
-const stats = ref();
+const toast = useToast();
+const statistic = ref();
 
 onMounted(() => {
-  chartData.value = setChartData();
-  chartOptions.value = setChartOptions();
+  try {
+    chartData.value = setChartData();
+    chartOptions.value = setChartOptions();
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  }
 });
 
 const chartData = ref();
@@ -87,14 +98,14 @@ const setChartOptions = () => {
 
 <template>
   <div class="flex h-full w-full flex-wrap gap-4 overflow-auto">
-    <div class="flex w-full p-4">
+    <!-- <div class="flex w-full p-4">
       <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
         <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
               <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
               <div class="text-3xl font-bold text-primary-500">
-                {{ stats?.profiles || '-' }}
+                {{ statistic?.profiles || '-' }}
               </div>
             </div>
             <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
@@ -112,7 +123,7 @@ const setChartOptions = () => {
             <div>
               <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
               <div class="text-3xl font-bold text-primary-500">
-                {{ stats?.profiles || '-' }}
+                {{ statistic?.profiles || '-' }}
               </div>
             </div>
             <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
@@ -130,7 +141,7 @@ const setChartOptions = () => {
             <div>
               <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
               <div class="text-3xl font-bold text-primary-500">
-                {{ stats?.profiles || '-' }}
+                {{ statistic?.profiles || '-' }}
               </div>
             </div>
             <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
@@ -148,7 +159,7 @@ const setChartOptions = () => {
             <div>
               <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
               <div class="text-3xl font-bold text-primary-500">
-                {{ stats?.profiles || '-' }}
+                {{ statistic?.profiles || '-' }}
               </div>
             </div>
             <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
@@ -168,6 +179,6 @@ const setChartOptions = () => {
       <div class="w-1/2 p-4">
         <Chart type="bar" :data="chartData" :options="chartOptions" class="min-h-[30rem]" />
       </div>
-    </div>
+    </div> -->
   </div>
 </template>

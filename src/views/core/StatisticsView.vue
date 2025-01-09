@@ -26,8 +26,8 @@ onMounted(async () => {
 
 <template>
   <div class="flex h-full w-full flex-wrap gap-4">
-    <div class="flex w-full p-4">
-      <div class="w-full p-4 lg:w-1/4 xl:w-1/4">
+    <div class="flex w-full">
+      <div class="w-full p-4 lg:w-1/4 xl:w-1/5">
         <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
