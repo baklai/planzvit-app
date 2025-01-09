@@ -52,7 +52,7 @@ const refReportModal = ref();
       <Button
         size="large"
         variant="text"
-        icon="pi pi-file-excel font-bold !text-2xl"
+        icon="pi pi-file-excel !text-2xl"
         severity="secondary"
         class="bg-transparent text-muted-color hover:bg-emphasis"
         v-tooltip="'Звіти про надання послуг'"
