@@ -1,10 +1,5 @@
 <script setup>
-import { ref } from 'vue';
-
-import ReportModal from '@/components/modals/ReportModal.vue';
 import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
-
-const refReportModal = ref();
 </script>
 
 <template>
@@ -67,7 +62,8 @@ const refReportModal = ref();
         severity="secondary"
         class="bg-transparent text-muted-color hover:bg-emphasis"
         v-tooltip="'Щомісячний звіт'"
-        @click="refReportModal.toggle()"
+        as="router-link"
+        to="/report/monthly"
       />
     </div>
 
@@ -107,6 +103,4 @@ const refReportModal = ref();
       </div>
     </template>
   </Panel>
-
-  <ReportModal ref="refReportModal" />
 </template>

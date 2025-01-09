@@ -1,14 +1,12 @@
 <script setup lang="jsx">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import { useConfirm } from 'primevue/useconfirm';
 
 import { useReport } from '@/stores/api/reports';
 import { useDepartment } from '@/stores/api/departments';
 import { dateToMonthStr } from '@/service/DataFilters.js';
 
 const toast = useToast();
-const confirm = useConfirm();
 
 const Report = useReport();
 const Department = useDepartment();
@@ -18,15 +16,20 @@ const datepiker = ref();
 const department = ref();
 const departments = ref([]);
 
-const countJobsPreviousMonth = ref();
-const countJobsCurrentMonth = ref();
-const totalCountOfJobs = ref();
+const countJobsPreviousMonth = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.jobsPreviousMonth, 0);
+});
+
+const countJobsCurrentMonth = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.jobsCurrentMonth, 0);
+});
+
+const totalCountOfJobs = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.jobsTotalCurrentMonth, 0);
+});
 
 const loading = ref(false);
 const totalRecords = ref();
-const offsetRecords = ref(0);
-const recordsPerPage = ref(15);
-const recordsPerPageOptions = ref([10, 15, 20, 25, 50]);
 
 const initOneReport = async () => {
   if (!department.value || !datepiker.value) return;
@@ -59,9 +62,9 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    const { docs, totalDocs, offset, limit } = await Report.findAll({
-      offset: offsetRecords.value,
-      limit: recordsPerPage.value,
+    const { docs, totalDocs } = await Report.findAll({
+      offset: 0,
+      limit: 10000,
       filters: {
         department: department.value.id,
         monthOfReport: datepiker.value.getMonth() + 1,
@@ -73,8 +76,6 @@ const onUpdateRecords = async () => {
 
     records.value = docs;
     totalRecords.value = totalDocs;
-    offsetRecords.value = Number(offset);
-    recordsPerPage.value = limit;
   } catch (err) {
     records.value = [];
     toast.add({
@@ -107,13 +108,6 @@ const onCellEditComplete = async event => {
   }
 };
 
-const onPage = async event => {
-  const { rows, first } = event;
-  recordsPerPage.value = rows;
-  offsetRecords.value = first;
-  await onUpdateRecords();
-};
-
 onMounted(async () => {
   try {
     const response = await Department.findAll({ offset: 0, limit: 100 });
@@ -141,7 +135,6 @@ onMounted(async () => {
     <DataTable
       lazy
       rowHover
-      paginator
       scrollable
       dataKey="id"
       showGridlines
@@ -152,18 +145,11 @@ onMounted(async () => {
       columnResizeMode="expand"
       editMode="cell"
       :loading="loading"
-      :pageLinkSize="1"
       style="height: calc(100vh - 13rem)"
       v-model:value="records"
+      :virtualScrollerOptions="{ itemSize: 46 }"
       @cell-edit-complete="onCellEditComplete"
-      :first="offsetRecords"
-      :rows="recordsPerPage"
-      :totalRecords="totalRecords"
-      :rowsPerPageOptions="recordsPerPageOptions"
-      currentPageReportTemplate="Показано з {first} по {last} з {totalRecords} записів"
       class="min-w-full overflow-x-auto text-base"
-      :paginatorTemplate="'CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'"
-      @page="onPage"
       :pt="{
         mask: {
           class: ['!bg-transparent', 'dark:!bg-transparent']
@@ -240,7 +226,7 @@ onMounted(async () => {
 
       <ColumnGroup type="header">
         <Row>
-          <Column header="№" :rowspan="2" />
+          <Column header="#" :rowspan="2" />
           <Column header="Код роботи" :rowspan="2" />
           <Column header="Назва системи" :rowspan="2" />
           <Column header="Служба/філія" :rowspan="2" />
@@ -256,9 +242,9 @@ onMounted(async () => {
         </Row>
       </ColumnGroup>
 
-      <Column frozen headerStyle="width: 3rem">
+      <Column frozen headerStyle="width: 3rem;" style="text-align: center">
         <template #body="slotProps">
-          {{ slotProps.index + offsetRecords + 1 }}
+          {{ slotProps.index + 1 }}
         </template>
       </Column>
 
@@ -347,14 +333,14 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <!-- <ColumnGroup type="footer">
+      <ColumnGroup type="footer">
         <Row>
           <Column footer="Всього:" :colspan="5" footerStyle="text-align:right" />
-          <Column :footer="countJobsPreviousMonth" />
-          <Column :footer="countJobsCurrentMonth" />
-          <Column :footer="totalCountOfJobs" />
+          <Column :footer="countJobsPreviousMonth" style="width: 10%; text-align: center" />
+          <Column :footer="countJobsCurrentMonth" style="width: 10%; text-align: center" />
+          <Column :footer="totalCountOfJobs" style="width: 10%; text-align: center" />
         </Row>
-      </ColumnGroup> -->
+      </ColumnGroup>
     </DataTable>
   </div>
 </template>
