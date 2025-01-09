@@ -87,7 +87,7 @@ const menuActions = computed(() => [
     command: () => onUpdateRecords()
   },
   {
-    label: '-'
+    separator: true
   },
   {
     label: 'Скинути налаштування',

@@ -22,9 +22,9 @@ import AppSideBar from '@/components/AppSideBar.vue';
         <div
           class="-mt-20 inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary text-primary-contrast"
         >
-          <i :class="[message?.icon || 'pi pi-question', 'text-5xl']"></i>
+          <i :class="[message?.icon || 'pi pi-question', '!text-4xl']"></i>
         </div>
-        <span class="font-bolde mb-2 mt-4 block text-2xl">
+        <span class="mb-2 mt-4 block text-center text-2xl font-bold">
           {{ message.message }}
         </span>
         <p class="mb-0">{{ message.header }}</p>

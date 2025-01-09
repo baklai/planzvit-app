@@ -29,6 +29,9 @@ const menu = ref([
     }
   },
   {
+    separator: true
+  },
+  {
     label: 'Вийти з додатку',
     icon: 'pi pi-sign-out !text-2xl !mr-2',
     command: () => {
