@@ -68,7 +68,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Начальник відділу', width: '16rem' },
+    header: { text: 'Відповідальна особа', width: '16rem' },
     column: {
       field: 'manager',
       render(value) {

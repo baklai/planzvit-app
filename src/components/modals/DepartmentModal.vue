@@ -261,12 +261,12 @@ const onCloseModal = async () => {
 
       <div class="flex flex-col space-y-4 md:w-1/2 md:pr-2">
         <div class="flex flex-col gap-2">
-          <label for="manager" class="font-bold"> Начальник відділу </label>
+          <label for="manager" class="font-bold"> Відповідальна особа </label>
           <InputText
             id="manager"
             v-model="manager"
             v-bind="managerAttrs"
-            placeholder="Начальник відділу"
+            placeholder="Відповідальна особа"
             :invalid="!!errors?.manager"
             aria-describedby="manager-help"
           />
@@ -299,7 +299,6 @@ const onCloseModal = async () => {
         <MultiSelect
           fluid
           filter
-          size="large"
           display="chip"
           name="services"
           resetFilterOnClear

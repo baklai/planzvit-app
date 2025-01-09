@@ -27,7 +27,7 @@ import AppSideBar from '@/components/AppSideBar.vue';
         <span class="mb-2 mt-4 block text-center text-2xl font-bold">
           {{ message.message }}
         </span>
-        <p class="mb-0">{{ message.header }}</p>
+        <p>{{ message.header }}</p>
         <div class="mt-4 flex items-center gap-2">
           <Button
             label="Так"

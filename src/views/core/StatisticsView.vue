@@ -1,15 +1,26 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useToast } from 'primevue/usetoast';
 
 import { useStatistic } from '@/stores/api/statistics';
 import { dateToStr } from '@/service/DataFilters';
 
+const toast = useToast();
 const Statistic = useStatistic();
 
 const statistic = ref();
 
 onMounted(async () => {
-  statistic.value = await Statistic.datacore();
+  try {
+    statistic.value = await Statistic.datacore();
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  }
 });
 </script>
 
