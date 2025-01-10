@@ -237,8 +237,8 @@ onMounted(async () => {
 
       <ColumnGroup type="header">
         <Row>
-          <Column header="" :rowspan="2" />
-          <Column header="Код роботи" :rowspan="2" />
+          <Column header="" :rowspan="2" frozen />
+          <Column header="Код роботи" :rowspan="2" frozen />
           <Column header="Назва системи" :rowspan="2" />
           <Column header="Служба/філія" :rowspan="2" />
           <Column header="Структурний підрозділ" :rowspan="2" />
@@ -259,7 +259,7 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column field="service.code" style="width: 10%"></Column>
+      <Column field="service.code" style="width: 10%" frozen></Column>
       <Column field="service.name" style="width: 30%"></Column>
       <Column field="branch.name" style="width: 10%"></Column>
 
@@ -288,7 +288,7 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column frozen field="currentMonthJobChanges" style="width: 10%; text-align: center">
+      <Column field="currentMonthJobChanges" style="width: 10%; text-align: center">
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -306,7 +306,7 @@ onMounted(async () => {
           <InputNumber
             v-model="data[field]"
             showButtons
-            buttonLayout="horizontal"
+            buttonLayout="stacked"
             :step="1"
             size="small"
             inputId="integeronly"
