@@ -118,7 +118,7 @@ const columns = ref([
     column: {
       field: 'role',
       render(value) {
-        return <Tag class={['!text-white', '!bg-primary/90']} value={value || '-'} />;
+        return <Tag severity="success" class="min-w-[6rem]" value={value || '-'} />;
       }
     },
     sorter: { field: 'role' },

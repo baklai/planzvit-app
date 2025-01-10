@@ -20,6 +20,44 @@ const globalFilter = ref({
   placeholder: 'Пошук за назвою відділу'
 });
 
+const expansion = ref({
+  fileld: 'services',
+  title: 'Перелік сервісів',
+  subtitle: 'Перелік сервісів відділу',
+  columns: [
+    {
+      header: { text: 'Код сервісу', width: '6rem' },
+      column: {
+        field: 'code',
+        render(value) {
+          return <span>{value}</span>;
+        }
+      },
+      sortable: true
+    },
+    {
+      header: { text: 'Назва сервісу', width: '16rem' },
+      column: {
+        field: 'name',
+        render(value) {
+          return <span>{value}</span>;
+        }
+      },
+      sortable: true
+    },
+    {
+      header: { text: 'Вартість підтримки', width: '16rem' },
+      column: {
+        field: 'price',
+        render(value) {
+          return <span>{value}</span>;
+        }
+      },
+      sortable: true
+    }
+  ]
+});
+
 const columns = ref([
   {
     header: { text: 'Назва відділу', width: '16rem' },
@@ -118,12 +156,7 @@ const columns = ref([
     column: {
       field: 'services',
       render(value) {
-        return (
-          <Tag
-            class={['min-w-20', '!text-base', '!font-bold', '!text-white', '!bg-green-500/20']}
-            value={value.length || '-'}
-          />
-        );
+        return <Tag severity="success" class="min-w-[4rem]" value={value?.length || '-'} />;
       }
     },
     sorter: { field: 'services' },
@@ -158,6 +191,7 @@ const columns = ref([
     <AppDataTable
       ref="refDataTable"
       :columns="columns"
+      :expansion="expansion"
       :globalFilter="globalFilter"
       :storageKey="`app-datatable-${$route.name}`"
       :exportFileName="$route.name"

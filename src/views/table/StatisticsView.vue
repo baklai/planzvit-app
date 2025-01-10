@@ -38,7 +38,7 @@ const setBranchChartData = data => {
     datasets: [
       {
         type: 'bar',
-        label: 'Кількість підрозділів по службах (філіях)',
+        label: 'Кількість підрозділів по службах / філіях',
         backgroundColor: documentStyle.getPropertyValue('--p-cyan-500'),
         data: data.map(({ subdivisionsCount }) => subdivisionsCount)
       }
@@ -116,7 +116,7 @@ onMounted(async () => {
               <span class="mb-3 block text-2xl font-bold">Кількість відділів</span>
             </div>
             <div
-              class="flex h-12 min-w-10 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
             >
               {{ statistic?.departmentsCount || '-' }}
             </div>
@@ -133,7 +133,7 @@ onMounted(async () => {
               <span class="mb-3 block text-2xl font-bold">Кількість сервісів</span>
             </div>
             <div
-              class="flex h-12 min-w-10 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
             >
               {{ statistic?.servicesCount || '-' }}
             </div>
@@ -150,7 +150,7 @@ onMounted(async () => {
               <span class="mb-3 block text-2xl font-bold">Кількість служб (філій)</span>
             </div>
             <div
-              class="flex h-12 min-w-10 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
             >
               {{ statistic?.branchesCount || '-' }}
             </div>
@@ -167,7 +167,7 @@ onMounted(async () => {
               <span class="mb-3 block text-2xl font-bold">Кількість підрозділів</span>
             </div>
             <div
-              class="flex h-12 min-w-10 items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
             >
               {{ statistic?.subdivisionsCount || '-' }}
             </div>

@@ -337,14 +337,9 @@ onMounted(async () => {
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
-              :class="[
-                '!min-w-[4rem]',
-                '!text-base',
-                '!font-bold',
-                '!text-white',
-                data[field] > 0 ? '!bg-primary/90' : '!bg-red-500/90'
-              ]"
+              :severity="data[field] > 0 ? 'success' : 'danger'"
               :value="data[field]"
+              class="min-w-[4rem]"
             />
           </span>
           <span v-else>

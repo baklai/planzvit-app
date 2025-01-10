@@ -14,6 +14,10 @@ const props = defineProps({
     type: Array,
     default: []
   },
+  expansion: {
+    type: [Object, Boolean],
+    default: false
+  },
   globalFilter: {
     type: [Object, Boolean],
     default: false
@@ -63,6 +67,7 @@ const params = ref({});
 const filters = ref({});
 const records = ref([]);
 const loading = ref(false);
+const expandedRows = ref({});
 const totalRecords = ref();
 const offsetRecords = ref(0);
 const recordsPerPage = ref(15);
@@ -569,6 +574,7 @@ onMounted(async () => {
       responsiveLayout="scroll"
       columnResizeMode="expand"
       :value="records"
+      v-model:expandedRows="expandedRows"
       :loading="loading"
       v-model:filters="filters"
       :exportFilename="exportFileName"
@@ -755,6 +761,8 @@ onMounted(async () => {
         </template>
       </Column>
 
+      <Column expander style="width: 5rem" v-if="expansion" />
+
       <Column
         v-for="(
           { header, column, filter, sortable, filtrable, selectable, exportable, frozen }, index
@@ -935,6 +943,74 @@ onMounted(async () => {
           </div>
         </template>
       </Column>
+
+      <template #expansion="{ data }" v-if="expansion">
+        <div class="flex w-full flex-col px-[4rem] pb-2">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="mb-2 flex flex-wrap items-center gap-1">
+              <i class="pi pi-list mx-2 hidden sm:block" style="font-size: 2rem" />
+              <div class="flex flex-col" v-if="expansion?.title || expansion?.subtitle">
+                <p class="text-base font-normal" v-if="expansion?.title">
+                  {{ expansion.title }}
+                </p>
+                <p class="text-sm font-normal text-surface-500" v-if="expansion?.subtitle">
+                  {{ expansion.subtitle }}
+                </p>
+              </div>
+            </div>
+            <div class="flex w-full flex-wrap items-center justify-between gap-2 sm:w-max"></div>
+          </div>
+
+          <DataTable
+            scrollable
+            showGridlines
+            scrollHeight="300px"
+            :virtualScrollerOptions="{ itemSize: 36 }"
+            :value="data[`${expansion.fileld}`]"
+            tableStyle="min-width: 60rem"
+            class="min-w-full overflow-x-auto text-base"
+            :pt="{
+              mask: {
+                class: ['!bg-transparent', 'dark:!bg-transparent']
+              }
+            }"
+          >
+            <Column frozen headerStyle="width: 3rem;" style="text-align: center">
+              <template #header="slotProps">
+                <span class="m-auto">#</span>
+              </template>
+              <template #body="slotProps">
+                {{ slotProps.index + 1 }}
+              </template>
+            </Column>
+
+            <Column
+              v-for="({ header, column, sortable = false }, index) of expansion.columns"
+              :key="`expansion-${column.field}-${index}`"
+              :field="column.field"
+              :header="header.text"
+              :sortable="sortable"
+              :exportHeader="header.text"
+              :style="{ minWidth: header.width }"
+              removableSort
+              sortMode="multiple"
+              headerClass="text-center uppercase"
+              class="max-w-80"
+            >
+              <template #body="{ data, field }">
+                <div class="overflow-hidden text-ellipsis whitespace-nowrap px-2">
+                  <component
+                    v-if="column?.render && typeof column.render === 'function'"
+                    :is="column?.render(getObjField(data, field))"
+                    @click="column?.action ? column?.action(data) : false"
+                  />
+                  <span v-else>{{ getObjField(data, field) }}</span>
+                </div>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+      </template>
     </DataTable>
   </div>
 </template>

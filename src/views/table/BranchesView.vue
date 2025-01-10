@@ -20,6 +20,34 @@ const globalFilter = ref({
   placeholder: 'Пошук за назвою служби (філії)'
 });
 
+const expansion = ref({
+  fileld: 'subdivisions',
+  title: 'Перелік підрозділів',
+  subtitle: 'Перелік підрозділів служби (філії)',
+  columns: [
+    {
+      header: { text: 'Назва підрозділу', width: '6rem' },
+      column: {
+        field: 'name',
+        render(value) {
+          return <span>{value}</span>;
+        }
+      },
+      sortable: true
+    },
+    {
+      header: { text: 'Повна назва підрозділу', width: '16rem' },
+      column: {
+        field: 'description',
+        render(value) {
+          return <span>{value}</span>;
+        }
+      },
+      sortable: true
+    }
+  ]
+});
+
 const columns = ref([
   {
     header: { text: 'Назва служби (філії)', width: '12rem' },
@@ -72,18 +100,7 @@ const columns = ref([
     column: {
       field: 'subdivisions',
       render(value) {
-        return (
-          <Tag
-            class={[
-              '!min-w-[3rem]',
-              '!text-base',
-              '!font-semibold',
-              '!text-white',
-              '!bg-green-500/20'
-            ]}
-            value={value?.length || '-'}
-          />
-        );
+        return <Tag severity="secondary" class="min-w-[4rem]" value={value?.length || '-'} />;
       }
     },
     sorter: { field: 'subdivisions' },
@@ -118,6 +135,7 @@ const columns = ref([
     <AppDataTable
       ref="refDataTable"
       :columns="columns"
+      :expansion="expansion"
       :globalFilter="globalFilter"
       :storageKey="`app-datatable-${$route.name}`"
       :exportFileName="$route.name"
