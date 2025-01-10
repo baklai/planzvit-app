@@ -222,12 +222,14 @@ onMounted(async () => {
         <div
           v-if="!loading && !records?.length"
           class="absolute left-0 z-20 flex h-full w-full items-stretch justify-center bg-none text-center"
-          style="height: calc(100vh - 24rem)"
+          style="height: calc(100vh - 30rem)"
         >
-          <div class="m-auto flex flex-col gap-2">
+          <div class="m-auto flex flex-col gap-4">
             <i class="pi pi-search text-surface-500" style="font-size: 5rem"></i>
             <h5 class="text-2xl font-semibold">Записів не знайдено</h5>
-            <p class="text-base text-surface-500">Спробуйте змінити пошукові запити у фільтрі</p>
+            <p class="max-w-[30rem] text-base text-surface-500">
+              Спробуйте змінити пошукові запити у фільтрі або створіть новий щомісячний звіт
+            </p>
             <Button class="m-auto my-4 w-max" label="Створити звіт" @click="initOneReport" />
           </div>
         </div>
