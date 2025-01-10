@@ -154,7 +154,7 @@ onMounted(async () => {
       columnResizeMode="expand"
       editMode="cell"
       :loading="loading"
-      style="height: calc(100vh - 13rem)"
+      style="height: calc(100vh - 12rem)"
       v-model:value="records"
       :virtualScrollerOptions="{ itemSize: 46 }"
       @cell-edit-complete="onCellEditComplete"
@@ -293,7 +293,7 @@ onMounted(async () => {
           <span v-if="data[field] !== 0">
             <Tag
               :severity="data[field] > 0 ? 'success' : 'warn'"
-              class="min-w-[4rem]"
+              class="min-w-[4rem] font-bold"
               :value="data[field] || '-'"
             />
           </span>
@@ -313,12 +313,6 @@ onMounted(async () => {
             autofocus
             fluid
           >
-            <template #incrementbuttonicon>
-              <span class="pi pi-plus" />
-            </template>
-            <template #decrementbuttonicon>
-              <span class="pi pi-minus" />
-            </template>
           </InputNumber>
         </template>
       </Column>
