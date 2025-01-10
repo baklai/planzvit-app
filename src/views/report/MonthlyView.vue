@@ -12,27 +12,36 @@ const Report = useReport();
 const Department = useDepartment();
 
 const records = ref([]);
+const totalRecords = ref();
 const datepiker = ref();
 const department = ref();
 const departments = ref([]);
 
-const countJobsPreviousMonth = computed(() => {
-  return records.value.reduce((sum, item) => sum + item.jobsPreviousMonth, 0);
+const allPreviousMonthJobCount = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.previousMonthJobCount, 0);
 });
 
-const countJobsCurrentMonth = computed(() => {
-  return records.value.reduce((sum, item) => sum + item.jobsCurrentMonth, 0);
+const allCurrentMonthJobChanges = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.currentMonthJobChanges, 0);
 });
 
-const totalCountOfJobs = computed(() => {
-  return records.value.reduce((sum, item) => sum + item.jobsTotalCurrentMonth, 0);
+const allCurrentMonthJobCount = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.currentMonthJobCount, 0);
 });
 
 const loading = ref(false);
-const totalRecords = ref();
 
 const initOneReport = async () => {
-  if (!department.value || !datepiker.value) return;
+  if (!department.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Вкажіть місяць, рік та відділ підрозділу!',
+      life: 5000
+    });
+
+    return;
+  }
 
   try {
     loading.value = true;
@@ -95,12 +104,12 @@ const onCellEditComplete = async event => {
   try {
     data[field] = newValue;
 
-    if (field === 'jobsCurrentMonth') {
-      data['jobsTotalCurrentMonth'] = data['jobsPreviousMonth'] + data['jobsCurrentMonth'];
+    if (field === 'currentMonthJobChanges') {
+      data['currentMonthJobCount'] = data['previousMonthJobCount'] + data['currentMonthJobChanges'];
 
       await Report.updateOne(data['id'], {
-        jobsCurrentMonth: data['jobsCurrentMonth'],
-        jobsTotalCurrentMonth: data['jobsTotalCurrentMonth']
+        currentMonthJobChanges: data['currentMonthJobChanges'],
+        currentMonthJobCount: data['currentMonthJobCount']
       });
     }
   } catch (err) {
@@ -110,9 +119,9 @@ const onCellEditComplete = async event => {
 
 onMounted(async () => {
   try {
-    const response = await Department.findAll({ offset: 0, limit: 100 });
+    const response = await Department.findAll({ offset: 0, limit: 1000 });
 
-    departments.value = response.docs.map(({ id, name, description }) => {
+    departments.value = response?.docs?.map(({ id, name, description }) => {
       return { id, name, description };
     });
 
@@ -236,9 +245,9 @@ onMounted(async () => {
         </Row>
 
         <Row>
-          <Column header="Попередній місяць" field="countJobsPreviousMonth" />
-          <Column header="Поточні зміни (+/-)" field="countJobsCurrentMonth" />
-          <Column header="Поточний місяць" field="totalCountOfJobs" />
+          <Column header="Попередній місяць" field="previousMonthJobCount" />
+          <Column header="Поточні зміни (+/-)" field="currentMonthJobChanges" />
+          <Column header="Поточний місяць" field="currentMonthJobCount" />
         </Row>
       </ColumnGroup>
 
@@ -255,14 +264,14 @@ onMounted(async () => {
       <Column field="subdivision" style="width: 20%">
         <template #body="slotProps">
           {{
-            slotProps.data.branch.subdivisions.find(
-              ({ id, name }) => id === slotProps.data.subdivision
-            ).name
+            slotProps.data?.branch?.subdivisions?.find(
+              ({ id }) => id === slotProps.data.subdivision
+            )?.name || '-'
           }}
         </template>
       </Column>
 
-      <Column field="jobsPreviousMonth" style="width: 10%; text-align: center">
+      <Column field="previousMonthJobCount" style="width: 10%; text-align: center">
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -279,7 +288,7 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column field="jobsCurrentMonth" style="width: 10%; text-align: center">
+      <Column field="currentMonthJobChanges" style="width: 10%; text-align: center">
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -316,7 +325,7 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column field="jobsTotalCurrentMonth" style="width: 10%; text-align: center">
+      <Column field="currentMonthJobCount" style="width: 10%; text-align: center">
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -333,12 +342,12 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <ColumnGroup type="footer">
+      <ColumnGroup type="footer" v-if="totalRecords">
         <Row>
           <Column footer="Всього:" :colspan="5" footerStyle="text-align:right" />
-          <Column :footer="countJobsPreviousMonth" style="width: 10%; text-align: center" />
-          <Column :footer="countJobsCurrentMonth" style="width: 10%; text-align: center" />
-          <Column :footer="totalCountOfJobs" style="width: 10%; text-align: center" />
+          <Column :footer="allPreviousMonthJobCount" style="width: 10%; text-align: center" />
+          <Column :footer="allCurrentMonthJobChanges" style="width: 10%; text-align: center" />
+          <Column :footer="allCurrentMonthJobCount" style="width: 10%; text-align: center" />
         </Row>
       </ColumnGroup>
     </DataTable>
