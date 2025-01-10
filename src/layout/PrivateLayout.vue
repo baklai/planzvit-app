@@ -1,18 +1,17 @@
 <script setup>
 import Tag from 'primevue/tag';
-
 import AppTopBar from '@/components/AppTopBar.vue';
 import AppSideBar from '@/components/AppSideBar.vue';
 </script>
 
 <template>
-  <div class="flex h-screen min-h-screen w-full min-w-full items-start gap-6 overflow-hidden p-4">
-    <AppSideBar />
+  <div class="flex h-screen p-4">
+    <AppSideBar class="hidden md:flex" />
 
-    <div class="h-full flex-1">
-      <AppTopBar class="mb-4" />
+    <div class="flex flex-1 flex-col overflow-hidden pl-4">
+      <AppTopBar />
 
-      <main class="h-full w-full">
+      <main class="flex-1 overflow-hidden">
         <RouterView />
       </main>
     </div>

@@ -18,7 +18,7 @@ const items = ref([
 </script>
 
 <template>
-  <Tabs :value="$route.path" class="mt-4">
+  <Tabs :value="$route.path" scrollable>
     <TabList>
       <Tab
         v-for="tab in items"

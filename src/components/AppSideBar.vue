@@ -1,5 +1,6 @@
 <script setup>
 import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
+import AppLogoImg from '@/components/AppLogoImg.vue';
 </script>
 
 <template>
@@ -19,9 +20,9 @@ import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
         <div class="flex items-center gap-3">
           <div class="flex h-11 w-11 items-center justify-center rounded-xl text-primary">
             <AppLogoImg
-              fill="currentColor"
               width="42"
               height="42"
+              fill="currentColor"
               class="cursor-pointer"
               @click="$router.push({ name: 'homr' })"
             />

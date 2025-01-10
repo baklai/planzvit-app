@@ -584,7 +584,7 @@ onMounted(async () => {
       :totalRecords="totalRecords"
       :rowsPerPageOptions="recordsPerPageOptions"
       currentPageReportTemplate="Показано з {first} по {last} з {totalRecords} записів"
-      style="height: calc(100vh - 13rem)"
+      style="height: calc(100vh - 12rem)"
       class="min-w-full overflow-x-auto text-base"
       :paginatorTemplate="'CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown'"
       @state-restore="onStorage"
@@ -597,7 +597,7 @@ onMounted(async () => {
         },
         pcpaginator: {
           root: {
-            class: ['!bg-transparent', 'dark:!bg-transparent']
+            class: ['!bg-transparent dark:!bg-transparent', '!px-0']
           }
         }
       }"
@@ -712,8 +712,8 @@ onMounted(async () => {
       </template>
 
       <template #paginatorstart>
-        <div class="flex flex-wrap items-center justify-evenly gap-4 p-2 xl:justify-between">
-          <div class="flex flex-wrap items-center justify-evenly gap-2">
+        <div class="flex flex-wrap items-center justify-evenly gap-4 py-2 xl:justify-between">
+          <div class="flex flex-wrap items-center justify-evenly">
             <Menu ref="refMenuActions" :model="menuActions" popup>
               <template #item="{ label, item, props, separator }">
                 <hr v-if="item.label === '-'" />
@@ -976,7 +976,7 @@ onMounted(async () => {
             }"
           >
             <Column frozen headerStyle="width: 3rem;" style="text-align: center">
-              <template #header="slotProps">
+              <template #header>
                 <span class="m-auto">#</span>
               </template>
               <template #body="slotProps">

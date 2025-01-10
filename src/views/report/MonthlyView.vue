@@ -147,8 +147,8 @@ onMounted(async () => {
       scrollable
       dataKey="id"
       showGridlines
-      alwaysShowPaginator
-      ref="refReportTable"
+      removableSort
+      resizableColumns
       scrollHeight="flex"
       responsiveLayout="scroll"
       columnResizeMode="expand"
@@ -237,7 +237,7 @@ onMounted(async () => {
 
       <ColumnGroup type="header">
         <Row>
-          <Column header="#" :rowspan="2" />
+          <Column header="" :rowspan="2" />
           <Column header="Код роботи" :rowspan="2" />
           <Column header="Назва системи" :rowspan="2" />
           <Column header="Служба/філія" :rowspan="2" />
@@ -277,38 +277,28 @@ onMounted(async () => {
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
-              :class="[
-                '!min-w-[4rem]',
-                '!text-base',
-                '!font-bold',
-                '!text-white',
-                data[field] > 0 ? '!bg-primary/90' : '!bg-red-500/90'
-              ]"
+              :severity="data[field] > 0 ? 'success' : 'warn'"
+              class="min-w-[4rem]"
               :value="data[field] || '-'"
             />
           </span>
           <span v-else>
-            {{ data[field] }}
+            <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
           </span>
         </template>
       </Column>
 
-      <Column field="currentMonthJobChanges" style="width: 10%; text-align: center">
+      <Column frozen field="currentMonthJobChanges" style="width: 10%; text-align: center">
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
-              :class="[
-                '!min-w-[4rem]',
-                '!text-base',
-                '!font-bold',
-                '!text-white',
-                data[field] > 0 ? '!bg-primary/90' : '!bg-red-500/90'
-              ]"
+              :severity="data[field] > 0 ? 'success' : 'warn'"
+              class="min-w-[4rem]"
               :value="data[field] || '-'"
             />
           </span>
           <span v-else>
-            {{ data[field] }}
+            <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
           </span>
         </template>
 
@@ -337,13 +327,13 @@ onMounted(async () => {
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
-              :severity="data[field] > 0 ? 'success' : 'danger'"
-              :value="data[field]"
+              :severity="data[field] > 0 ? 'success' : 'warn'"
               class="min-w-[4rem]"
+              :value="data[field] || '-'"
             />
           </span>
           <span v-else>
-            {{ data[field] }}
+            <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
           </span>
         </template>
       </Column>
