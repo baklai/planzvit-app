@@ -316,12 +316,14 @@ onMounted(async () => {
           <InputNumber
             v-model="data[field]"
             showButtons
-            buttonLayout="stacked"
+            buttonLayout="horizontal"
             :step="1"
             size="small"
             inputId="integeronly"
             autofocus
             fluid
+            variant="filled"
+            inputClass="text-center w-48 h-10 text-base"
           >
           </InputNumber>
         </template>
