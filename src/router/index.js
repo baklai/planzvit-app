@@ -42,6 +42,15 @@ const router = createRouter({
             description: 'Звіт про надання послуг з програмно-технологічного супроводу'
           },
           component: () => import('@/views/report/MonthlyView.vue')
+        },
+        {
+          path: 'actdocument',
+          name: 'report-actdocument',
+          meta: {
+            title: 'Акт здавання-приймання послуг',
+            description: 'Акт здавання-приймання послуг, який надаються підрозділом'
+          },
+          component: () => import('@/views/report/ActDocumentView.vue')
         }
       ]
     },

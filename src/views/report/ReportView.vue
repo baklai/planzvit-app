@@ -6,6 +6,11 @@ const items = ref([
     route: '/report/monthly',
     label: 'Щомісячний звіт',
     icon: 'pi pi-file-excel'
+  },
+  {
+    route: '/report/actdocument',
+    label: 'Акт здавання-приймання послуг',
+    icon: 'pi pi-file-excel'
   }
 ]);
 </script>
