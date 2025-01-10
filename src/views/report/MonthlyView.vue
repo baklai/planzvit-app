@@ -198,7 +198,7 @@ onMounted(async () => {
                 iconDisplay="input"
                 dateFormat="mm/yy"
                 variant="filled"
-                placeholder="Оберіть місяць"
+                placeholder="Оберіть рік та місяць"
                 size="large"
                 @value-change="onUpdateRecords"
               />

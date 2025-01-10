@@ -75,7 +75,9 @@ onMounted(async () => {
                 view="month"
                 dateFormat="mm/yy"
                 variant="filled"
-                placeholder="Оберіть місяць"
+                showIcon
+                iconDisplay="input"
+                placeholder="Оберіть рік та місяць"
                 size="large"
               />
             </div>
