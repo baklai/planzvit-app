@@ -194,6 +194,8 @@ onMounted(async () => {
               <DatePicker
                 v-model="datepiker"
                 view="month"
+                showIcon
+                iconDisplay="input"
                 dateFormat="mm/yy"
                 variant="filled"
                 placeholder="Оберіть місяць"
@@ -208,7 +210,7 @@ onMounted(async () => {
                 :options="departments"
                 optionLabel="name"
                 placeholder="Оберіть відділ"
-                class="w-full md:w-56"
+                class="!min-w-[20rem] md:w-56"
                 @value-change="onUpdateRecords"
               />
             </div>
