@@ -106,7 +106,7 @@ onMounted(async () => {
             <p class="w-[30rem] text-wrap text-center text-base text-surface-500">
               Спробуйте змінити пошукові запити у фільтрі або створіть новий щомісячний звіт
             </p>
-            <Button class="m-auto my-4 w-max" label="Створити звіт" />
+            <!-- <Button class="m-auto my-4 w-max" label="Створити звіт" /> -->
           </div>
         </div>
       </template>
