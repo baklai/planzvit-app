@@ -95,7 +95,7 @@ const columns = ref([
     column: {
       field: 'isActivated',
       render(value) {
-        return value ? <i class={'pi pi-check !font-bold text-green-500'}></i> : <span>-</span>;
+        return value ? <i class={'pi pi-check !font-bold !text-primary'}></i> : <span>-</span>;
       }
     },
     sorter: { field: 'isActivated' },
@@ -118,12 +118,7 @@ const columns = ref([
     column: {
       field: 'role',
       render(value) {
-        return (
-          <Tag
-            class={['!text-base', '!font-semibold', '!text-white', '!bg-green-500/20']}
-            value={value || '-'}
-          />
-        );
+        return <Tag class={['!text-white', '!bg-primary/90']} value={value || '-'} />;
       }
     },
     sorter: { field: 'role' },

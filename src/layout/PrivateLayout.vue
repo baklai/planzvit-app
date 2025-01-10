@@ -1,4 +1,6 @@
 <script setup>
+import Tag from 'primevue/tag';
+
 import AppTopBar from '@/components/AppTopBar.vue';
 import AppSideBar from '@/components/AppSideBar.vue';
 </script>

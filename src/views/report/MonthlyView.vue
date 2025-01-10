@@ -280,12 +280,15 @@ onMounted(async () => {
               :class="[
                 '!min-w-[4rem]',
                 '!text-base',
-                '!font-semibold',
+                '!font-bold',
                 '!text-white',
                 data[field] > 0 ? '!bg-primary/90' : '!bg-red-500/90'
               ]"
               :value="data[field] || '-'"
             />
+          </span>
+          <span v-else>
+            {{ data[field] }}
           </span>
         </template>
       </Column>
@@ -297,12 +300,15 @@ onMounted(async () => {
               :class="[
                 '!min-w-[4rem]',
                 '!text-base',
-                '!font-semibold',
+                '!font-bold',
                 '!text-white',
                 data[field] > 0 ? '!bg-primary/90' : '!bg-red-500/90'
               ]"
               :value="data[field] || '-'"
             />
+          </span>
+          <span v-else>
+            {{ data[field] }}
           </span>
         </template>
 
@@ -334,12 +340,15 @@ onMounted(async () => {
               :class="[
                 '!min-w-[4rem]',
                 '!text-base',
-                '!font-semibold',
+                '!font-bold',
                 '!text-white',
                 data[field] > 0 ? '!bg-primary/90' : '!bg-red-500/90'
               ]"
-              :value="data[field] || '-'"
+              :value="data[field]"
             />
+          </span>
+          <span v-else>
+            {{ data[field] }}
           </span>
         </template>
       </Column>

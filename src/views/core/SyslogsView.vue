@@ -27,12 +27,7 @@ const columns = ref([
     column: {
       field: 'host',
       render(value) {
-        return (
-          <Tag
-            class="!bg-surface-500/20 px-6 !text-base !font-normal text-black dark:!text-white"
-            value={value}
-          />
-        );
+        return <span>{value || '-'}</span>;
       }
     },
     sorter: { field: 'host' },
@@ -76,9 +71,7 @@ const columns = ref([
     column: {
       field: 'profile',
       render(value) {
-        return (
-          <Tag class="!bg-surface-500/20 px-6 !text-base !font-normal !text-white" value={value} />
-        );
+        return <span>{value || '-'}</span>;
       }
     },
     sorter: { field: 'profile' },
