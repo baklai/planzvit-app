@@ -15,10 +15,10 @@ const menu = ref([
     }
   },
   {
-    label: 'Звіти',
+    label: 'Планвіт',
     icon: 'pi pi-file-excel !text-2xl !mr-2',
     command: () => {
-      router.push({ name: 'report' });
+      router.push({ name: 'sheet' });
     }
   },
   {
@@ -26,6 +26,16 @@ const menu = ref([
     icon: 'pi pi-database !text-2xl !mr-2',
     command: () => {
       router.push({ name: 'table' });
+    }
+  },
+   {
+    separator: true
+  },
+   {
+    label: 'Надати звіт',
+    icon: 'pi pi-plus-circle !text-primary !text-2xl !mr-2',
+    command: () => {
+      router.push({ name: 'report' });
     }
   },
   {
