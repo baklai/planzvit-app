@@ -3,12 +3,7 @@ import { ref } from 'vue';
 
 const items = ref([
   {
-    route: '/report/monthly',
-    label: 'Щомісячний звіт',
-    icon: 'pi pi-file-excel'
-  },
-  {
-    route: '/report/actdocument',
+    route: '/docs/subdivision-report',
     label: 'Акт здавання-приймання послуг',
     icon: 'pi pi-file-excel'
   }

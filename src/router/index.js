@@ -16,7 +16,7 @@ const router = createRouter({
         title: 'Планзвіт',
         description: 'Програмно-технологічний супровід'
       },
-      component: () => import('@/views/Index.vue'),
+      component: () => import('@/views/HomeView.vue'),
       beforeEnter: (to, from) => {
         const store = useApp();
         if (!store.loggedIn) {
@@ -30,27 +30,28 @@ const router = createRouter({
     {
       path: '/report',
       name: 'report',
+      meta: {
+        auth: true,
+        title: 'Щомісячний звіт',
+        description: 'Звіт про надання послуг з програмно-технологічного супроводу'
+      },
+      component: () => import('@/views/ReportView.vue')
+    },
+
+    {
+      path: '/docs',
+      name: 'docs',
       meta: { auth: true },
-      redirect: { name: 'report-monthly' },
-      component: () => import('@/views/report/ReportView.vue'),
+      component: () => import('@/views/docs/DocumenView.vue'),
       children: [
         {
-          path: 'monthly',
-          name: 'report-monthly',
-          meta: {
-            title: 'Щомісячний звіт',
-            description: 'Звіт про надання послуг з програмно-технологічного супроводу'
-          },
-          component: () => import('@/views/report/MonthlyView.vue')
-        },
-        {
-          path: 'actdocument',
-          name: 'report-actdocument',
+          path: 'subdivision-report',
+          name: 'subdivision-report',
           meta: {
             title: 'Акт здавання-приймання послуг',
             description: 'Акт здавання-приймання послуг, який надаються підрозділом'
           },
-          component: () => import('@/views/report/ActDocumentView.vue')
+          component: () => import('@/views/docs/SubdivisionReportView.vue')
         }
       ]
     },
@@ -179,7 +180,7 @@ router.beforeEach((to, from) => {
   if (title) {
     document.title = `PZ • ${title}`;
   } else {
-    document.title = `PZ • Програмно-технологічний супровід`;
+    document.title = 'PZ • Програмно-технологічний супровід';
   }
 
   const description = to.meta.description;
