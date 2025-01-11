@@ -1,6 +1,5 @@
 <script setup lang="jsx">
 import { ref, computed, onMounted } from 'vue';
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 
 import { useReport } from '@/stores/api/reports';
@@ -17,10 +16,6 @@ const totalRecords = ref();
 const datepiker = ref();
 const department = ref();
 const departments = ref([]);
-
-const filters = ref({
-  'services.code': { value: null, matchMode: FilterMatchMode.STARTS_WITH }
-});
 
 const allPreviousMonthJobCount = computed(() => {
   return records.value.reduce((sum, item) => sum + item.previousMonthJobCount, 0);
@@ -152,7 +147,6 @@ onMounted(async () => {
       scrollable
       dataKey="id"
       showGridlines
-      removableSort
       resizableColumns
       scrollHeight="flex"
       sortMode="multiple"
@@ -160,8 +154,6 @@ onMounted(async () => {
       columnResizeMode="expand"
       editMode="cell"
       :loading="loading"
-      filterDisplay="menu"
-      v-model:filters="filters"
       style="height: calc(100vh - 12rem)"
       v-model:value="records"
       :virtualScrollerOptions="{ itemSize: 46 }"
@@ -249,21 +241,41 @@ onMounted(async () => {
       <ColumnGroup type="header">
         <Row>
           <Column header="" :rowspan="2" frozen />
-          <Column header="Код роботи" :rowspan="2" frozen field="service.code" sortable />
-          <Column header="Назва системи" :rowspan="2" field="service.name" sortable />
-          <Column header="Служба/філія" :rowspan="2" field="branch.name" sortable />
-          <Column header="Структурний підрозділ" :rowspan="2" field="subdivision.name" sortable />
-          <Column header="Кількість робіт" :colspan="3" headerClass="!uppercase" />
+          <Column header="Код роботи" :rowspan="2" frozen />
+          <Column header="Назва системи" :rowspan="2" />
+          <Column header="Служба/філія" :rowspan="2" />
+          <Column header="Структурний підрозділ" :rowspan="2" />
+          <Column
+            header="Кількість робіт"
+            :colspan="3"
+            :pt="{
+              columntitle: {
+                class: ['m-auto', 'uppercase']
+              }
+            }"
+          />
         </Row>
 
         <Row>
-          <Column header="Попередній місяць" field="previousMonthJobCount" />
-          <Column header="Поточні зміни (+/-)" field="currentMonthJobChanges" />
-          <Column header="Поточний місяць" field="currentMonthJobCount" />
+          <Column
+            header="Попередній місяць"
+            field="previousMonthJobCount"
+            :pt="{ columntitle: { class: ['m-auto'] } }"
+          />
+          <Column
+            header="Поточні зміни (+/-)"
+            field="currentMonthJobChanges"
+            :pt="{ columntitle: { class: ['m-auto'] } }"
+          />
+          <Column
+            header="Поточний місяць"
+            field="currentMonthJobCount"
+            :pt="{ columntitle: { class: ['m-auto'] } }"
+          />
         </Row>
       </ColumnGroup>
 
-      <Column frozen headerStyle="width: 3rem;" style="text-align: center">
+      <Column style="width: 3rem; text-align: center" frozen>
         <template #body="slotProps">
           {{ slotProps.index + 1 }}
         </template>
@@ -272,7 +284,6 @@ onMounted(async () => {
       <Column field="service.code" style="width: 10%" frozen />
       <Column field="service.name" style="width: 30%" />
       <Column field="branch.name" style="width: 10%" />
-
       <Column field="subdivision" style="width: 20%">
         <template #body="slotProps">
           {{

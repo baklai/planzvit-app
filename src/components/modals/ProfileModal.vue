@@ -289,7 +289,7 @@ const onCloseModal = async () => {
           class="w-full"
           v-model="role"
           v-bind="roleAttrs"
-          :options="['user', 'admin', 'moderator']"
+          :options="['user', 'moderator', 'administrator']"
           placeholder="Роль користувача"
           :invalid="!!errors?.role"
           aria-describedby="role-help"
