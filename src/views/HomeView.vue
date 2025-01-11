@@ -12,6 +12,8 @@ const statistic = ref();
 
 const departmentChart = ref();
 const branchChart = ref();
+const departmentReportChart = ref();
+const branchReportChart = ref();
 const chartOptions = ref();
 
 const setDepartmentChartData = data => {
@@ -41,6 +43,38 @@ const setBranchChartData = data => {
         label: 'Кількість підрозділів по службах / філіях',
         backgroundColor: documentStyle.getPropertyValue('--p-cyan-500'),
         data: data.map(({ subdivisionsCount }) => subdivisionsCount)
+      }
+    ]
+  };
+};
+
+const setDepartmentReportChartData = data => {
+  const documentStyle = getComputedStyle(document.documentElement);
+
+  return {
+    labels: data.map(({ department }) => department),
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Кількість виконаних робіт по відділах за поточний місяць',
+        backgroundColor: documentStyle.getPropertyValue('--p-green-500'),
+        data: data.map(({ currentMonthJobCount }) => currentMonthJobCount)
+      }
+    ]
+  };
+};
+
+const setBranchReportChartData = data => {
+  const documentStyle = getComputedStyle(document.documentElement);
+
+  return {
+    labels: data.map(({ branch }) => branch),
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Кількість виконаних робіт по службам(філіям) за поточний місяць',
+        backgroundColor: documentStyle.getPropertyValue('--p-cyan-500'),
+        data: data.map(({ currentMonthJobCount }) => currentMonthJobCount)
       }
     ]
   };
@@ -91,9 +125,15 @@ const setChartOptions = () => {
 
 onMounted(async () => {
   try {
-    statistic.value = await Statistic.database();
+    statistic.value = await Statistic.dashboard();
     departmentChart.value = setDepartmentChartData(statistic.value.departmentChart);
     branchChart.value = setBranchChartData(statistic.value.branchChart);
+
+    departmentReportChart.value = setDepartmentReportChartData(
+      statistic.value.departmentReportChart
+    );
+    branchReportChart.value = setBranchReportChartData(statistic.value.branchReportChart);
+
     chartOptions.value = setChartOptions();
   } catch (err) {
     toast.add({
@@ -107,7 +147,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex w-full flex-wrap gap-4">
+  <div class="flex h-full w-full flex-wrap overflow-auto">
     <div class="flex w-full flex-wrap">
       <div class="w-full p-4 lg:w-1/4 xl:w-1/4">
         <div class="mb-0 rounded-lg border p-6">
@@ -185,6 +225,21 @@ onMounted(async () => {
 
       <div class="w-full p-4">
         <Chart type="bar" :data="branchChart" :options="chartOptions" class="min-h-[30rem]" />
+      </div>
+    </div>
+
+    <div class="flex w-full flex-row gap-4">
+      <div class="w-full p-4">
+        <Chart
+          type="bar"
+          :data="departmentReportChart"
+          :options="chartOptions"
+          class="min-h-[30rem]"
+        />
+      </div>
+
+      <div class="w-full p-4">
+        <Chart type="bar" :data="branchReportChart" :options="chartOptions" class="min-h-[30rem]" />
       </div>
     </div>
   </div>
