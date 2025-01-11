@@ -104,7 +104,7 @@ onMounted(async () => {
             <div class="flex flex-wrap items-center gap-1">
               <i class="pi pi-file-excel mr-2 hidden sm:block" style="font-size: 2.5rem" />
               <div class="flex flex-col">
-                <h3 class="text-2xl font-normal">
+                <h3 class="text-xl font-normal">
                   {{ selectSubdivision?.name ? `${selectSubdivision.name} - ` : '' }}
                   <span>{{ $route?.meta?.title }}</span>
                   {{ datepiker ? `за ${dateToMonthStr(datepiker)}` : '' }}
@@ -174,6 +174,7 @@ onMounted(async () => {
           header="Кількість робіт"
           field="currentMonthJobCount"
           style="width: 15%; text-align: center"
+          :pt="{ columntitle: { class: ['m-auto'] } }"
         >
           <template #body="{ data, field }">
             <span v-if="data[field] === 0">

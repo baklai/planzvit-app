@@ -2,51 +2,45 @@
 import { ref, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 
+import { useStatistic } from '@/stores/api/statistics';
 import { dateToStr } from '@/service/DataFilters';
 
 const toast = useToast();
+const Statistic = useStatistic();
+
 const statistic = ref();
 
-onMounted(() => {
-  try {
-    chartData.value = setChartData();
-    chartOptions.value = setChartOptions();
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  }
-});
-
-const chartData = ref();
+const departmentChart = ref();
+const branchChart = ref();
 const chartOptions = ref();
 
-const setChartData = () => {
+const setDepartmentChartData = data => {
   const documentStyle = getComputedStyle(document.documentElement);
 
   return {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    labels: data.map(({ name }) => name),
     datasets: [
       {
         type: 'bar',
-        label: 'Dataset 1',
+        label: 'Кількість сервісів по відділах',
+        backgroundColor: documentStyle.getPropertyValue('--p-green-500'),
+        data: data.map(({ servicesCount }) => servicesCount)
+      }
+    ]
+  };
+};
+
+const setBranchChartData = data => {
+  const documentStyle = getComputedStyle(document.documentElement);
+
+  return {
+    labels: data.map(({ name }) => name),
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Кількість підрозділів по службах / філіях',
         backgroundColor: documentStyle.getPropertyValue('--p-cyan-500'),
-        data: [50, 25, 12, 48, 90, 76, 42]
-      },
-      {
-        type: 'bar',
-        label: 'Dataset 2',
-        backgroundColor: documentStyle.getPropertyValue('--p-gray-500'),
-        data: [21, 84, 24, 75, 37, 65, 34]
-      },
-      {
-        type: 'bar',
-        label: 'Dataset 3',
-        backgroundColor: documentStyle.getPropertyValue('--p-orange-500'),
-        data: [41, 52, 24, 74, 23, 21, 32]
+        data: data.map(({ subdivisionsCount }) => subdivisionsCount)
       }
     ]
   };
@@ -94,22 +88,37 @@ const setChartOptions = () => {
     }
   };
 };
+
+onMounted(async () => {
+  try {
+    statistic.value = await Statistic.database();
+    departmentChart.value = setDepartmentChartData(statistic.value.departmentChart);
+    branchChart.value = setBranchChartData(statistic.value.branchChart);
+    chartOptions.value = setChartOptions();
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  }
+});
 </script>
 
 <template>
-  <div class="flex h-full w-full flex-wrap gap-4 overflow-auto">
-    <!-- <div class="flex w-full p-4">
-      <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
+  <div class="flex w-full flex-wrap">
+    <div class="mt-8 flex-1 flex-row flex-wrap p-4">
+      <div class="w-full p-4">
         <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
-              <div class="text-3xl font-bold text-primary-500">
-                {{ statistic?.profiles || '-' }}
-              </div>
+              <span class="mb-3 block text-2xl font-bold">Кількість відділів</span>
             </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
-              <i class="pi pi-users text-black" style="font-size: 2rem" />
+            <div
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+            >
+              {{ statistic?.departmentsCount || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-green-500">Актуально на</span>
@@ -117,17 +126,16 @@ const setChartOptions = () => {
         </div>
       </div>
 
-      <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
+      <div class="w-full p-4">
         <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
-              <div class="text-3xl font-bold text-primary-500">
-                {{ statistic?.profiles || '-' }}
-              </div>
+              <span class="mb-3 block text-2xl font-bold">Кількість сервісів</span>
             </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
-              <i class="pi pi-users text-black" style="font-size: 2rem" />
+            <div
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+            >
+              {{ statistic?.servicesCount || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-green-500">Актуально на</span>
@@ -135,17 +143,16 @@ const setChartOptions = () => {
         </div>
       </div>
 
-      <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
+      <div class="w-full p-4">
         <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
-              <div class="text-3xl font-bold text-primary-500">
-                {{ statistic?.profiles || '-' }}
-              </div>
+              <span class="mb-3 block text-2xl font-bold">Кількість служб (філій)</span>
             </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
-              <i class="pi pi-users text-black" style="font-size: 2rem" />
+            <div
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+            >
+              {{ statistic?.branchesCount || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-green-500">Актуально на</span>
@@ -153,17 +160,16 @@ const setChartOptions = () => {
         </div>
       </div>
 
-      <div class="w-full p-4 lg:w-2/4 xl:w-1/4">
+      <div class="w-full p-4">
         <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-2xl font-bold">Загальна кількість профілів</span>
-              <div class="text-3xl font-bold text-primary-500">
-                {{ statistic?.profiles || '-' }}
-              </div>
+              <span class="mb-3 block text-2xl font-bold">Кількість підрозділів</span>
             </div>
-            <div class="flex h-12 w-12 items-center justify-center rounded bg-green-100 p-2">
-              <i class="pi pi-users text-black" style="font-size: 2rem" />
+            <div
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+            >
+              {{ statistic?.subdivisionsCount || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-green-500">Актуально на</span>
@@ -172,13 +178,14 @@ const setChartOptions = () => {
       </div>
     </div>
 
-    <div class="flex h-full w-full p-4">
-      <div class="w-1/2 p-4">
-        <Chart type="bar" :data="chartData" :options="chartOptions" class="min-h-[30rem]" />
+    <div class="flex basis-2/3 flex-col p-4">
+      <div class="w-full p-4">
+        <Chart type="bar" :data="departmentChart" :options="chartOptions" class="min-h-[30rem]" />
       </div>
-      <div class="w-1/2 p-4">
-        <Chart type="bar" :data="chartData" :options="chartOptions" class="min-h-[30rem]" />
+
+      <div class="w-full p-4">
+        <Chart type="bar" :data="branchChart" :options="chartOptions" class="min-h-[30rem]" />
       </div>
-    </div> -->
+    </div>
   </div>
 </template>
