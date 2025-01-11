@@ -28,10 +28,10 @@ const menu = ref([
       router.push({ name: 'table' });
     }
   },
-   {
+  {
     separator: true
   },
-   {
+  {
     label: 'Надати звіт',
     icon: 'pi pi-plus-circle !text-primary !text-2xl !mr-2',
     command: () => {
@@ -66,7 +66,7 @@ const toggle = event => {
     @click="toggle"
   />
 
-  <Menu ref="refMenu" popup :model="menu" class="w-[20rem] px-6 py-4 text-xl">
+  <Menu ref="refMenu" popup :model="menu" class="w-[20rem] px-6 py-4 text-lg">
     <template #start>
       <div class="my-2 flex items-center text-base">
         <div class="flex items-center">
