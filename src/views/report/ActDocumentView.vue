@@ -1,18 +1,24 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watchEffect, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 
 import { useBranch } from '@/stores/api/branches';
 
 const toast = useToast();
-
 const Branch = useBranch();
 
 const loading = ref(false);
-const datepiker = ref();
+
 const records = ref([]);
+const datepiker = ref();
 const subdivision = ref();
 const subdivisions = ref([]);
+
+watchEffect(async () => {
+  if (subdivision.value && datepiker.value) {
+    console.log('subdivision and datepiker', subdivision.value, datepiker.value);
+  }
+});
 
 onMounted(async () => {
   try {
@@ -71,7 +77,8 @@ onMounted(async () => {
           <div class="flex w-full flex-wrap items-center justify-between gap-2 sm:w-max">
             <div class="flex w-full justify-between gap-2 sm:w-max">
               <DatePicker
-                v-model="datepiker"
+                ref="datePickerRef"
+                v-model:value="datepiker"
                 view="month"
                 dateFormat="mm/yy"
                 variant="filled"
@@ -140,12 +147,7 @@ onMounted(async () => {
       <Column field="currentMonthJobCount" style="width: 10%; text-align: center"> </Column>
     </DataTable>
 
-    <Tabs
-      scrollable
-      showNavigators
-      v-model="subdivision"
-      @update:value="value => console.log(value)"
-    >
+    <Tabs scrollable showNavigators lazy v-model:value="subdivision">
       <TabList>
         <Tab v-for="tab in subdivisions" :key="tab.id" :value="tab.id">
           {{ tab.name }}
