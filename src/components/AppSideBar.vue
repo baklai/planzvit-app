@@ -53,7 +53,7 @@ import AppLogoImg from '@/components/AppLogoImg.vue';
         class="bg-transparent text-muted-color hover:bg-emphasis"
         v-tooltip="'Звіти про надання послуг'"
         as="router-link"
-        to="/docs"
+        to="/sheet"
       />
 
       <Button

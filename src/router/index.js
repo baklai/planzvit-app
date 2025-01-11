@@ -39,19 +39,32 @@ const router = createRouter({
     },
 
     {
-      path: '/docs',
-      name: 'docs',
-      meta: { auth: true },
-      component: () => import('@/views/docs/DocumenView.vue'),
+      path: '/sheet',
+      name: 'sheet',
+      meta: {
+        auth: true,
+        title: 'Акти здавання-приймання послуг',
+        description: 'Акти здавання-приймання послуг, які надаються на вимогу'
+      },
+      component: () => import('@/views/sheet/MainSheetView.vue'),
       children: [
         {
-          path: 'subdivision-report',
-          name: 'subdivision-report',
+          path: 'branch',
+          name: 'sheet-branch',
           meta: {
-            title: 'Акт здавання-приймання послуг',
-            description: 'Акт здавання-приймання послуг, який надаються підрозділом'
+            title: 'Акт послуг службам (філіям)',
+            description: 'Акт послуг, який надаються службам (філіям)'
           },
-          component: () => import('@/views/docs/SubdivisionReportView.vue')
+          component: () => import('@/views/sheet/BranchSheetView.vue')
+        },
+        {
+          path: 'subdivision',
+          name: 'sheet-subdivision',
+          meta: {
+            title: 'Акт послуг підрозділам',
+            description: 'Акт послуг, який надаються підрозділам'
+          },
+          component: () => import('@/views/sheet/SubdivisionSheetView.vue')
         }
       ]
     },
@@ -61,7 +74,7 @@ const router = createRouter({
       name: 'table',
       meta: { auth: true },
       redirect: { name: 'table-statistics' },
-      component: () => import('@/views/table/TableView.vue'),
+      component: () => import('@/views/table/MainTableView.vue'),
       children: [
         {
           path: 'statistics',
@@ -107,7 +120,7 @@ const router = createRouter({
       name: 'core',
       meta: { auth: true },
       redirect: { name: 'core-statistics' },
-      component: () => import('@/views/core/CoreView.vue'),
+      component: () => import('@/views/core/MainCoreView.vue'),
       children: [
         {
           path: 'statistics',

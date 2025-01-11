@@ -3,8 +3,13 @@ import { ref } from 'vue';
 
 const items = ref([
   {
-    route: '/docs/subdivision-report',
-    label: 'Акт здавання-приймання послуг',
+    route: '/sheet/branch',
+    label: 'Акт послуг службам (філіям)',
+    icon: 'pi pi-file-excel'
+  },
+  {
+    route: '/sheet/subdivision',
+    label: 'Акт послуг підрозділам',
     icon: 'pi pi-file-excel'
   }
 ]);

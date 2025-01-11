@@ -72,7 +72,7 @@ const columns = ref([
     column: {
       field: 'price',
       render(value) {
-        return <Tag severity="secondary" class="min-w-[6rem]" value={value || '-'} />;
+        return <Tag severity="secondary" class="min-w-[6rem]" value={value} />;
       }
     },
     sorter: { field: 'price' },

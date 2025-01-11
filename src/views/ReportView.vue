@@ -286,12 +286,8 @@ onMounted(async () => {
       <Column field="service.name" style="width: 30%" />
       <Column field="branch.name" style="width: 10%" />
       <Column field="subdivision" style="width: 20%">
-        <template #body="slotProps">
-          {{
-            slotProps.data?.branch?.subdivisions?.find(
-              ({ id }) => id === slotProps.data.subdivision
-            )?.name || '-'
-          }}
+        <template #body="{ data }">
+          {{ data?.branch?.subdivisions?.find(({ id }) => id === data?.subdivision)?.name || '-' }}
         </template>
       </Column>
 

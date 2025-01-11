@@ -1,12 +1,12 @@
 import { inject } from 'vue';
 import { defineStore } from 'pinia';
 
-export const useDocument = defineStore('document', () => {
+export const useSheet = defineStore('sheet', () => {
   const $axios = inject('axios');
 
   async function findOneForBranches(id, params) {
     try {
-      return await $axios.get(`/documents/branches/${id}`, { params });
+      return await $axios.get(`/sheets/branches/${id}`, { params });
     } catch (err) {
       throw new Error(err.message);
     }
@@ -14,7 +14,7 @@ export const useDocument = defineStore('document', () => {
 
   async function findOneForSubdivision(id, params) {
     try {
-      return await $axios.get(`/documents/subdivisions/${id}`, { params });
+      return await $axios.get(`/sheets/subdivisions/${id}`, { params });
     } catch (err) {
       throw new Error(err.message);
     }

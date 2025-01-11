@@ -3,29 +3,29 @@ import { ref, computed, watchEffect, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 
 import AppLoading from '@/components/AppLoading.vue';
-import { useDocument } from '@/stores/api/documents';
+import { useSheet } from '@/stores/api/sheets';
 import { useBranch } from '@/stores/api/branches';
 import { dateToMonthStr } from '@/service/DataFilters.js';
 
 const toast = useToast();
 const Branch = useBranch();
-const Document = useDocument();
+const Sheet = useSheet();
 
 const loading = ref(false);
 
 const records = ref([]);
 const datepiker = ref();
 const totalRecords = ref();
-const subdivision = ref();
-const subdivisions = ref([]);
+const branch = ref();
+const branches = ref([]);
 
 const onUpdateRecords = async () => {
-  if (!subdivision.value || !datepiker.value) return;
+  if (!branch.value || !datepiker.value) return;
 
   try {
     loading.value = true;
 
-    records.value = await Document.findOneForSubdivision(subdivision.value, {
+    records.value = await Sheet.findOneForBranches(branch.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
@@ -44,12 +44,16 @@ const onUpdateRecords = async () => {
   }
 };
 
-const selectSubdivision = computed(() => {
-  return subdivisions.value.find(({ id }) => id === subdivision.value) || null;
+const selectBranch = computed(() => {
+  return branches.value.find(({ id }) => id === branch.value) || null;
+});
+
+const allCurrentMonthJobCount = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.currentMonthJobCount, 0);
 });
 
 watchEffect(async () => {
-  if (subdivision.value && datepiker.value) {
+  if (branch.value && datepiker.value) {
     await onUpdateRecords();
   }
 });
@@ -58,7 +62,9 @@ onMounted(async () => {
   try {
     const { docs } = await Branch.findAll({ offset: 0, limit: 1000 });
 
-    subdivisions.value = docs.flatMap(obj => obj.subdivisions);
+    branches.value = docs.map(({ id, name, description }) => {
+      return { id, name, description };
+    });
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -101,7 +107,7 @@ onMounted(async () => {
               <i class="pi pi-file-excel mr-2 hidden sm:block" style="font-size: 2.5rem" />
               <div class="flex flex-col">
                 <h3 class="text-2xl font-normal">
-                  {{ selectSubdivision?.name ? `${selectSubdivision.name} - ` : '' }}
+                  {{ selectBranch?.name ? `${selectBranch.name} - ` : '' }}
                   <span>{{ $route?.meta?.title }}</span>
                   {{ datepiker ? `за ${dateToMonthStr(datepiker)}` : '' }}
                 </h3>
@@ -156,11 +162,15 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <Column header="Код роботи" field="service.code" style="width: 10%" frozen />
+        <Column header="Код роботи" field="code" style="width: 10%" frozen />
 
-        <Column header="Назва системи" field="service.name" style="width: 40%" />
+        <Column header="Назва системи" field="name" style="width: 40%" />
 
-        <Column header="Структурний підрозділ" field="subdivision.name" style="width: 30%" />
+        <Column header="Назва служби (філії)" field="branch" style="width: 30%">
+          <template #body="{ data }">
+            {{ branches?.find(({ id }) => id === data?.branch)?.name || '-' }}
+          </template>
+        </Column>
 
         <Column
           header="Кількість робіт"
@@ -179,16 +189,16 @@ onMounted(async () => {
 
         <ColumnGroup type="footer" v-if="totalRecords">
           <Row>
-            <Column footer="Всього:" :colspan="5" footerStyle="text-align:right" />
+            <Column footer="Всього:" :colspan="4" footerStyle="text-align:right" />
             <Column :footer="allCurrentMonthJobCount" style="width: 10%; text-align: center" />
           </Row>
         </ColumnGroup>
       </DataTable>
     </div>
 
-    <Tabs scrollable showNavigators lazy v-model:value="subdivision">
+    <Tabs scrollable showNavigators lazy v-model:value="branch">
       <TabList>
-        <Tab v-for="tab in subdivisions" :key="tab.id" :value="tab.id">
+        <Tab v-for="tab in branches" :key="tab.id" :value="tab.id">
           {{ tab.name }}
         </Tab>
       </TabList>
