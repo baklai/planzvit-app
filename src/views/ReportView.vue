@@ -146,6 +146,7 @@ onMounted(async () => {
       rowHover
       scrollable
       dataKey="id"
+      size="small"
       showGridlines
       resizableColumns
       scrollHeight="flex"
@@ -181,30 +182,34 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="flex w-full flex-wrap items-center justify-between gap-2 sm:w-max">
-            <div class="flex w-full justify-between gap-2 sm:w-max">
-              <DatePicker
-                v-model="datepiker"
-                view="month"
-                showIcon
-                iconDisplay="input"
-                dateFormat="mm/yy"
-                variant="filled"
-                placeholder="Оберіть рік та місяць"
-                size="large"
-                @value-change="onUpdateRecords"
-              />
+          <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
+            <div class="flex w-full justify-between sm:w-max">
+              <FloatLabel class="w-[20rem]" variant="in">
+                <DatePicker
+                  inputId="datepiker"
+                  v-model="datepiker"
+                  view="month"
+                  showIcon
+                  iconDisplay="input"
+                  dateFormat="mm/yy"
+                  variant="filled"
+                  @value-change="onUpdateRecords"
+                />
+                <label for="datepiker">Оберіть рік та місяць</label>
+              </FloatLabel>
 
-              <Select
-                v-model="department"
-                variant="filled"
-                size="large"
-                :options="departments"
-                optionLabel="name"
-                placeholder="Оберіть відділ"
-                class="!min-w-[20rem] md:w-56"
-                @value-change="onUpdateRecords"
-              />
+              <FloatLabel class="w-[20rem]" variant="in">
+                <Select
+                  inputId="department"
+                  v-model="department"
+                  variant="filled"
+                  :options="departments"
+                  optionLabel="name"
+                  class="w-full"
+                  @value-change="onUpdateRecords"
+                />
+                <label for="department">Оберіть відділ</label>
+              </FloatLabel>
             </div>
           </div>
         </div>
@@ -309,7 +314,10 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column field="currentMonthJobChanges" style="width: 10%; text-align: center">
+      <Column
+        field="currentMonthJobChanges"
+        style="width: 10%; text-align: center; cursor: pointer"
+      >
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
