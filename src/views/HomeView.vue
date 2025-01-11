@@ -153,12 +153,12 @@ onMounted(async () => {
         <div class="mb-0 rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-xl font-bold">Кількість відділів</span>
+              <span class="mb-3 block text-xl font-bold">Підтримка відділів</span>
             </div>
             <div
               class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
             >
-              {{ statistic?.departmentsCount || '-' }}
+              {{ statistic?.departmentsServicesCount || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-green-500">Актуально на</span>
