@@ -12,7 +12,7 @@ import AxiosPlugin from '@/plugins/axios.plugin';
 import PlanzvitPlugin from '@/plugins/planzvit.plugin';
 
 import PrimeVue from 'primevue/config';
-import Lara from '@primevue/themes/lara';
+import Aura from '@primevue/themes/aura';
 import ConfirmationService from 'primevue/confirmationservice';
 import DialogService from 'primevue/dialogservice';
 import ToastService from 'primevue/toastservice';
@@ -31,7 +31,7 @@ app.use(createPinia());
 
 app.use(PrimeVue, {
   theme: {
-    preset: Lara,
+    preset: Aura,
     options: {
       prefix: 'p',
       darkModeSelector: '.dark',
