@@ -1,7 +1,8 @@
 <script setup lang="jsx">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watchEffect, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 
+import AppLoading from '@/components/AppLoading.vue';
 import { useReport } from '@/stores/api/reports';
 import { useDepartment } from '@/stores/api/departments';
 import { dateToMonthStr } from '@/service/DataFilters.js';
@@ -117,6 +118,12 @@ const onCellEditComplete = async event => {
   }
 };
 
+watchEffect(async () => {
+  if (department.value && datepiker.value) {
+    await onUpdateRecords();
+  }
+});
+
 onMounted(async () => {
   try {
     const response = await Department.findAll({ offset: 0, limit: 1000 });
@@ -124,10 +131,6 @@ onMounted(async () => {
     departments.value = response?.docs?.map(({ id, name, description }) => {
       return { id, name, description };
     });
-
-    if (department.value && datepiker.value) {
-      await onUpdateRecords();
-    }
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -173,11 +176,11 @@ onMounted(async () => {
             <div class="flex flex-col">
               <h3 class="text-2xl font-normal">
                 {{ department?.name ? `${department.name} - ` : '' }}
-                <span>Щомісячний звіт</span>
+                <span>{{ $route?.meta?.title }}</span>
                 {{ datepiker ? `за ${dateToMonthStr(datepiker)}` : '' }}
               </h3>
               <p class="text-base font-normal text-surface-500">
-                Звіт про надання послуг з програмно-технологічного супроводу
+                {{ $route?.meta?.description }}
               </p>
             </div>
           </div>
@@ -193,7 +196,6 @@ onMounted(async () => {
                   iconDisplay="input"
                   dateFormat="mm/yy"
                   variant="filled"
-                  @value-change="onUpdateRecords"
                 />
                 <label for="datepiker">Оберіть рік та місяць</label>
               </FloatLabel>
@@ -206,7 +208,6 @@ onMounted(async () => {
                   :options="departments"
                   optionLabel="name"
                   class="w-full"
-                  @value-change="onUpdateRecords"
                 />
                 <label for="department">Оберіть відділ</label>
               </FloatLabel>
@@ -217,12 +218,7 @@ onMounted(async () => {
 
       <template #loading>
         <div class="flex items-center justify-center">
-          <ProgressSpinner
-            style="width: 80px; height: 80px"
-            strokeWidth="3"
-            fill="transparent"
-            animationDuration=".8s"
-          />
+          <AppLoading />
         </div>
       </template>
 

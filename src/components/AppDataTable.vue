@@ -4,6 +4,7 @@ import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 
+import AppLoading from '@/components/AppLoading.vue';
 import { getObjField } from '@/service/ObjectMethods';
 
 const toast = useToast();
@@ -682,12 +683,7 @@ onMounted(async () => {
 
       <template #loading>
         <div class="flex items-center justify-center">
-          <ProgressSpinner
-            style="width: 80px; height: 80px"
-            strokeWidth="3"
-            fill="transparent"
-            animationDuration=".8s"
-          />
+          <AppLoading />
         </div>
       </template>
 
