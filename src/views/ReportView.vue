@@ -241,7 +241,7 @@ onMounted(async () => {
 
       <ColumnGroup type="header">
         <Row>
-          <Column header="" :rowspan="2" frozen />
+          <Column header="#" :rowspan="2" frozen :pt="{ columntitle: { class: ['m-auto'] } }" />
           <Column header="Код роботи" :rowspan="2" frozen />
           <Column header="Назва системи" :rowspan="2" />
           <Column header="Служба/філія" :rowspan="2" />

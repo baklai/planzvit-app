@@ -15,9 +15,9 @@ const loading = ref(false);
 
 const records = ref([]);
 const datepiker = ref();
-const totalRecords = ref();
 const branch = ref();
 const branches = ref([]);
+const totalJobCount = ref();
 
 const onUpdateRecords = async () => {
   if (!branch.value || !datepiker.value) return;
@@ -25,12 +25,21 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Sheet.findOneForBranches(branch.value, {
+    const [data] = await Sheet.findOneForBranches(branch.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    totalRecords.value = records.value.length;
+    totalJobCount.value = data.branchTotalJobCount;
+
+    records.value = data.subdivisions.flatMap(subdivision =>
+      subdivision.services.map(service => ({
+        ...service,
+        id: `${subdivision.id}-${service.id}`,
+        subdivision: subdivision.name,
+        totalCurrentMonthJobCount: subdivision.currentMonthJobCount
+      }))
+    );
   } catch (err) {
     records.value = [];
     toast.add({
@@ -80,20 +89,18 @@ onMounted(async () => {
   <div class="flex flex-col">
     <div class="flex w-full overflow-x-auto">
       <DataTable
-        lazy
         rowHover
         scrollable
         dataKey="id"
         showGridlines
-        resizableColumns
         scrollHeight="flex"
-        sortMode="multiple"
         responsiveLayout="scroll"
         columnResizeMode="expand"
         :loading="loading"
         style="height: calc(100vh - 15.5rem)"
         v-model:value="records"
-        :virtualScrollerOptions="{ itemSize: 46 }"
+        rowGroupMode="subheader"
+        groupRowsBy="totalCurrentMonthJobCount"
         class="min-w-full overflow-x-auto text-base"
         :pt="{
           mask: {
@@ -156,21 +163,21 @@ onMounted(async () => {
           </div>
         </template>
 
-        <Column header="" style="width: 5%; text-align: center" frozen>
+        <Column
+          header="#"
+          style="width: 5%; text-align: center"
+          :pt="{ columntitle: { class: ['m-auto'] } }"
+        >
           <template #body="slotProps">
             {{ slotProps.index + 1 }}
           </template>
         </Column>
 
-        <Column header="Код роботи" field="code" style="width: 10%" frozen />
+        <Column header="Код роботи" field="code" style="width: 10%" />
 
         <Column header="Назва системи" field="name" style="width: 40%" />
 
-        <Column header="Назва служби (філії)" field="branch" style="width: 30%">
-          <template #body="{ data }">
-            {{ branches?.find(({ id }) => id === data?.branch)?.name || '-' }}
-          </template>
-        </Column>
+        <Column header="Структурний підрозділ" field="subdivision" style="width: 30%" />
 
         <Column
           header="Кількість робіт"
@@ -188,10 +195,37 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <ColumnGroup type="footer" v-if="totalRecords">
+        <Column header="totalCurrentMonthJobCount" field="totalCurrentMonthJobCount" />
+
+        <template #groupheader="slotProps">
+          <div class="flex items-center gap-2">
+            <span class="uppercase text-primary">Структурний підрозділ:</span>
+            <span>{{ slotProps.data.subdivision }}</span>
+          </div>
+        </template>
+
+        <template #groupfooter="slotProps">
+          <div class="flex flex-row flex-nowrap justify-around">
+            <div class="w-[16%] text-center font-bold uppercase">Всього:</div>
+
+            <div class="w-full text-end">
+              {{ slotProps.data.totalCurrentMonthJobCount }}
+            </div>
+          </div>
+        </template>
+
+        <ColumnGroup type="footer" v-if="totalJobCount">
           <Row>
-            <Column footer="Всього:" :colspan="4" footerStyle="text-align:right" />
-            <Column :footer="allCurrentMonthJobCount" style="width: 10%; text-align: center" />
+            <Column
+              :colspan="2"
+              footer="Разом:"
+              footerStyle="text-align: center; text-transform: uppercase;"
+            />
+            <Column
+              :colspan="3"
+              :footer="allCurrentMonthJobCount"
+              footerStyle="width: 10%; text-align: end"
+            />
           </Row>
         </ColumnGroup>
       </DataTable>

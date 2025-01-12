@@ -91,7 +91,6 @@ onMounted(async () => {
         :loading="loading"
         style="height: calc(100vh - 15.5rem)"
         v-model:value="records"
-        :virtualScrollerOptions="{ itemSize: 46 }"
         class="min-w-full overflow-x-auto text-base"
         :pt="{
           mask: {
@@ -154,7 +153,12 @@ onMounted(async () => {
           </div>
         </template>
 
-        <Column header="" style="width: 5%; text-align: center" frozen>
+        <Column
+          header="#"
+          style="width: 5%; text-align: center"
+          frozen
+          :pt="{ columntitle: { class: ['m-auto'] } }"
+        >
           <template #body="slotProps">
             {{ slotProps.index + 1 }}
           </template>
