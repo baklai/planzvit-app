@@ -82,6 +82,7 @@ onMounted(async () => {
         rowHover
         scrollable
         dataKey="id"
+        size="small"
         showGridlines
         resizableColumns
         scrollHeight="flex"

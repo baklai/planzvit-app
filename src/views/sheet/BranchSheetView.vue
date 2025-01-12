@@ -89,10 +89,12 @@ onMounted(async () => {
   <div class="flex flex-col">
     <div class="flex w-full overflow-x-auto">
       <DataTable
+        lazy
         rowHover
         scrollable
         dataKey="id"
         showGridlines
+        size="small"
         scrollHeight="flex"
         responsiveLayout="scroll"
         columnResizeMode="expand"
