@@ -32,6 +32,7 @@ const router = createRouter({
       name: 'report',
       meta: {
         auth: true,
+        roles: ['user', 'moderator', 'administrator'],
         title: 'Щомісячний звіт',
         description: 'Звіт про надання послуг з програмно-технологічного супроводу'
       },
@@ -43,6 +44,7 @@ const router = createRouter({
       name: 'sheet',
       meta: {
         auth: true,
+        roles: ['moderator', 'administrator'],
         title: 'Акти здавання-приймання послуг',
         description: 'Акти здавання-приймання послуг, які надаються на вимогу'
       },
@@ -72,7 +74,7 @@ const router = createRouter({
     {
       path: '/table',
       name: 'table',
-      meta: { auth: true },
+      meta: { auth: true, roles: ['moderator', 'administrator'] },
       redirect: { name: 'table-statistics' },
       component: () => import('@/views/table/MainTableView.vue'),
       children: [
@@ -118,7 +120,7 @@ const router = createRouter({
     {
       path: '/core',
       name: 'core',
-      meta: { auth: true },
+      meta: { auth: true, roles: ['administrator'] },
       redirect: { name: 'core-statistics' },
       component: () => import('@/views/core/MainCoreView.vue'),
       children: [
@@ -223,7 +225,7 @@ router.beforeEach(async (to, from) => {
 
   if (to.name !== 'signin' && to.name !== 'signup' && to?.meta?.auth && !store.loggedIn) {
     return { name: 'signin' };
-  } else if (to?.meta?.admin && !store.isAdmin) {
+  } else if (to?.meta?.roles && !to?.meta?.roles.includes(store.profile.role)) {
     return { name: 'access-denied' };
   } else {
     return;

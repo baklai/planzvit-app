@@ -23,10 +23,6 @@ export const useApp = defineStore('app', () => {
     return profile.value?.isActivated;
   });
 
-  const isAdmin = computed(() => {
-    return profile.value?.isAdmin;
-  });
-
   function setProfile(value) {
     profile.value = value;
   }
@@ -66,9 +62,8 @@ export const useApp = defineStore('app', () => {
 
   return {
     profile,
-    isAdmin,
-    isActivated,
     loggedIn,
+    isActivated,
     setProfile,
     getAccessToken,
     setAccessToken,
