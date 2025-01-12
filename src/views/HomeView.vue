@@ -58,7 +58,7 @@ const setDepartmentReportChartData = data => {
         type: 'bar',
         label: 'Кількість виконаних робіт по відділах за поточний місяць',
         backgroundColor: documentStyle.getPropertyValue('--p-green-500'),
-        data: data.map(({ currentMonthJobCount }) => currentMonthJobCount)
+        data: data.map(({ currentJobCount }) => currentJobCount)
       }
     ]
   };
@@ -74,7 +74,7 @@ const setBranchReportChartData = data => {
         type: 'bar',
         label: 'Кількість виконаних робіт по службам(філіям) за поточний місяць',
         backgroundColor: documentStyle.getPropertyValue('--p-cyan-500'),
-        data: data.map(({ currentMonthJobCount }) => currentMonthJobCount)
+        data: data.map(({ currentJobCount }) => currentJobCount)
       }
     ]
   };
