@@ -1,6 +1,7 @@
 <script setup lang="jsx">
 import { ref, computed, watchEffect, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import ExcelJS from 'exceljs';
 
 import AppLoading from '@/components/AppLoading.vue';
 
@@ -83,6 +84,78 @@ const onCellEditComplete = async event => {
   } catch (err) {
     event.preventDefault();
   }
+};
+
+const onExportToExcel = async () => {
+  if (!records.value?.length || !department.value || !datepiker.value) return;
+
+  const data = records.value.map(item => {
+    return {
+      code: item.service.code,
+      name: item.service.name,
+      branch: item.branch.name,
+      subdivision:
+        item.branch?.subdivisions?.find(({ id }) => id === item?.subdivision)?.name || '-',
+      previousJobCount: item.previousJobCount,
+      changesJobCount: item.changesJobCount,
+      currentJobCount: item.currentJobCount
+    };
+  });
+
+  const workbook = new ExcelJS.Workbook();
+
+  const worksheet = workbook.addWorksheet(department.value.name);
+
+  worksheet.columns = [
+    { header: '№ роботи', key: 'code', width: 15 },
+    { header: 'Назва системи', key: 'name', width: 50 },
+    { header: 'Служба (філія)', key: 'branch', width: 25 },
+    { header: 'Структурний підрозділ', key: 'subdivision', width: 40 },
+    {
+      header: 'Кількість робочих місць (робіт) - попередній місяць',
+      key: 'previousJobCount',
+      width: 20
+    },
+    {
+      header: 'Кількість нових робочих місць (робіт) за теперешній місяць',
+      key: 'changesJobCount',
+      width: 20
+    },
+    { header: 'Кількість робочих місць (робіт) всього', key: 'currentJobCount', width: 20 }
+  ];
+
+  worksheet.addRows(data);
+
+  worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+  worksheet.getRow(1).font = { bold: true, size: 12 };
+  worksheet.getRow(1).height = 100;
+
+  worksheet.eachRow(row => {
+    row.eachCell(cell => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF000000' } },
+        left: { style: 'thin', color: { argb: 'FF000000' } },
+        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+        right: { style: 'thin', color: { argb: 'FF000000' } }
+      };
+      cell.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
+    });
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  });
+
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+  link.click();
+
+  URL.revokeObjectURL(url);
 };
 
 const onCreateReport = async () => {
@@ -188,6 +261,15 @@ onMounted(async () => {
 
           <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
             <div class="flex w-full justify-between sm:w-max">
+              <Button
+                severity="success"
+                icon="pi pi-download"
+                label="Завантажити звіт"
+                @click="onExportToExcel"
+                class="mx-4"
+                v-if="records?.length"
+              />
+
               <FloatLabel class="w-[20rem]" variant="in">
                 <DatePicker
                   inputId="datepiker"
