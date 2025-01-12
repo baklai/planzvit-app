@@ -3,6 +3,7 @@ import { ref, computed, watchEffect, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 
 import AppLoading from '@/components/AppLoading.vue';
+
 import { useReport } from '@/stores/api/reports';
 import { useDepartment } from '@/stores/api/departments';
 import { dateToMonthStr } from '@/service/DataFilters.js';
@@ -13,26 +14,78 @@ const Report = useReport();
 const Department = useDepartment();
 
 const records = ref([]);
-const totalRecords = ref();
 const datepiker = ref();
 const department = ref();
 const departments = ref([]);
 
-const allPreviousMonthJobCount = computed(() => {
-  return records.value.reduce((sum, item) => sum + item.previousMonthJobCount, 0);
+const previousJobCountAll = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.previousJobCount, 0);
 });
 
-const allCurrentMonthJobChanges = computed(() => {
-  return records.value.reduce((sum, item) => sum + item.currentMonthJobChanges, 0);
+const changesJobCountAll = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.changesJobCount, 0);
 });
 
-const allCurrentMonthJobCount = computed(() => {
-  return records.value.reduce((sum, item) => sum + item.currentMonthJobCount, 0);
+const currentJobCountAll = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.currentJobCount, 0);
 });
 
 const loading = ref(false);
 
-const initOneReport = async () => {
+const onUpdateRecords = async () => {
+  if (!department.value || !datepiker.value) return;
+
+  try {
+    loading.value = true;
+
+    const { docs, totalDocs } = await Report.findAll({
+      offset: 0,
+      limit: 10000,
+      filters: {
+        department: department.value.id,
+        monthOfReport: datepiker.value.getMonth() + 1,
+        yearOfReport: datepiker.value.getFullYear()
+      },
+      sortField: null,
+      sortOrder: null
+    });
+
+    records.value = docs;
+  } catch (err) {
+    records.value = [];
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onCellEditComplete = async event => {
+  const { data, newValue, field } = event;
+
+  try {
+    if (field === 'changesJobCount') {
+      data[field] = newValue;
+
+      data['currentJobCount'] = data['previousJobCount'] + data['changesJobCount'];
+
+      await Report.updateOne(data['id'], {
+        changesJobCount: data['changesJobCount'],
+        currentJobCount: data['currentJobCount']
+      });
+    } else {
+      event.preventDefault();
+    }
+  } catch (err) {
+    event.preventDefault();
+  }
+};
+
+const onCreateReport = async () => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
@@ -66,58 +119,6 @@ const initOneReport = async () => {
   }
 };
 
-const onUpdateRecords = async () => {
-  if (!department.value || !datepiker.value) return;
-
-  try {
-    loading.value = true;
-
-    const { docs, totalDocs } = await Report.findAll({
-      offset: 0,
-      limit: 10000,
-      filters: {
-        department: department.value.id,
-        monthOfReport: datepiker.value.getMonth() + 1,
-        yearOfReport: datepiker.value.getFullYear()
-      },
-      sortField: null,
-      sortOrder: null
-    });
-
-    records.value = docs;
-    totalRecords.value = totalDocs;
-  } catch (err) {
-    records.value = [];
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
-};
-
-const onCellEditComplete = async event => {
-  const { data, newValue, field } = event;
-
-  try {
-    data[field] = newValue;
-
-    if (field === 'currentMonthJobChanges') {
-      data['currentMonthJobCount'] = data['previousMonthJobCount'] + data['currentMonthJobChanges'];
-
-      await Report.updateOne(data['id'], {
-        currentMonthJobChanges: data['currentMonthJobChanges'],
-        currentMonthJobCount: data['currentMonthJobCount']
-      });
-    }
-  } catch (err) {
-    event.preventDefault();
-  }
-};
-
 watchEffect(async () => {
   if (department.value && datepiker.value) {
     await onUpdateRecords();
@@ -126,9 +127,9 @@ watchEffect(async () => {
 
 onMounted(async () => {
   try {
-    const response = await Department.findAll({ offset: 0, limit: 1000 });
+    const { docs } = await Department.findAll({ offset: 0, limit: 1000 });
 
-    departments.value = response?.docs?.map(({ id, name, description }) => {
+    departments.value = docs?.map(({ id, name, description }) => {
       return { id, name, description };
     });
   } catch (err) {
@@ -225,7 +226,7 @@ onMounted(async () => {
       <template #empty>
         <div
           v-if="!loading && !records?.length"
-          class="absolute left-0 z-20 flex h-full w-full items-stretch justify-center bg-none text-center"
+          class="absolute left-0 z-20 mt-6 flex h-full w-full items-stretch justify-center bg-none text-center"
           style="height: calc(100vh - 30rem)"
         >
           <div class="m-auto flex flex-col justify-center gap-4">
@@ -235,10 +236,11 @@ onMounted(async () => {
               Спробуйте змінити пошукові запити у фільтрі або зверніться до адміністратора для
               створення нового щомісячного звіту
             </p>
+
             <Button
               class="m-auto my-4 w-max"
               label="Створити звіт"
-              @click="initOneReport"
+              @click="onCreateReport"
               v-if="$planzvit.profile.role === 'administrator'"
             />
           </div>
@@ -249,7 +251,7 @@ onMounted(async () => {
         <Row>
           <Column header="#" :rowspan="2" frozen :pt="{ columntitle: { class: ['m-auto'] } }" />
           <Column header="Код роботи" :rowspan="2" frozen />
-          <Column header="Назва системи" :rowspan="2" />
+          <Column header="Назва роботи" :rowspan="2" />
           <Column header="Служба/філія" :rowspan="2" />
           <Column header="Структурний підрозділ" :rowspan="2" />
           <Column
@@ -266,17 +268,17 @@ onMounted(async () => {
         <Row>
           <Column
             header="Попередній місяць"
-            field="previousMonthJobCount"
+            field="previousJobCount"
             :pt="{ columntitle: { class: ['m-auto'] } }"
           />
           <Column
             header="Поточні зміни (+/-)"
-            field="currentMonthJobChanges"
+            field="changesJobCount"
             :pt="{ columntitle: { class: ['m-auto'] } }"
           />
           <Column
             header="Поточний місяць"
-            field="currentMonthJobCount"
+            field="currentJobCount"
             :pt="{ columntitle: { class: ['m-auto'] } }"
           />
         </Row>
@@ -297,7 +299,7 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column field="previousMonthJobCount" style="width: 10%; text-align: center">
+      <Column field="previousJobCount" style="width: 10%; text-align: center">
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -312,10 +314,7 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column
-        field="currentMonthJobChanges"
-        style="width: 10%; text-align: center; cursor: pointer"
-      >
+      <Column field="changesJobCount" style="width: 10%; text-align: center; cursor: pointer">
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -346,7 +345,7 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column field="currentMonthJobCount" style="width: 10%; text-align: center">
+      <Column field="currentJobCount" style="width: 10%; text-align: center">
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -361,12 +360,12 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <ColumnGroup type="footer" v-if="totalRecords">
+      <ColumnGroup type="footer" v-if="records.length">
         <Row>
           <Column footer="Всього:" :colspan="5" footerStyle="text-align:right" />
-          <Column :footer="allPreviousMonthJobCount" style="width: 10%; text-align: center" />
-          <Column :footer="allCurrentMonthJobChanges" style="width: 10%; text-align: center" />
-          <Column :footer="allCurrentMonthJobCount" style="width: 10%; text-align: center" />
+          <Column :footer="previousJobCountAll" style="width: 10%; text-align: center" />
+          <Column :footer="changesJobCountAll" style="width: 10%; text-align: center" />
+          <Column :footer="currentJobCountAll" style="width: 10%; text-align: center" />
         </Row>
       </ColumnGroup>
     </DataTable>

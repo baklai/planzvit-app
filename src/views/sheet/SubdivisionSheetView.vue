@@ -15,9 +15,15 @@ const loading = ref(false);
 
 const records = ref([]);
 const datepiker = ref();
-const totalRecords = ref();
 const subdivision = ref();
 const subdivisions = ref([]);
+
+const totalPriceAll = ref();
+const totalJobCountAll = ref();
+
+const selectSubdivision = computed(() => {
+  return subdivisions.value.find(({ id }) => id === subdivision.value) || null;
+});
 
 const onUpdateRecords = async () => {
   if (!subdivision.value || !datepiker.value) return;
@@ -25,14 +31,18 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Sheet.findOneForSubdivision(subdivision.value, {
+    const [response] = await Sheet.findOneForSubdivision(subdivision.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    totalRecords.value = records.value.length;
+    records.value = response?.services || [];
+    totalPriceAll.value = response?.totalPrice || 0;
+    totalJobCountAll.value = response?.totalJobCount || 0;
   } catch (err) {
     records.value = [];
+    totalPriceAll.value = 0;
+    totalJobCountAll.value = 0;
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
@@ -43,14 +53,6 @@ const onUpdateRecords = async () => {
     loading.value = false;
   }
 };
-
-const selectSubdivision = computed(() => {
-  return subdivisions.value.find(({ id }) => id === subdivision.value) || null;
-});
-
-const allCurrentMonthJobCount = computed(() => {
-  return records.value.reduce((sum, item) => sum + item.currentMonthJobCount, 0);
-});
 
 watchEffect(async () => {
   if (subdivision.value && datepiker.value) {
@@ -85,10 +87,10 @@ onMounted(async () => {
         size="small"
         showGridlines
         resizableColumns
+        columnResizeMode="expand"
         scrollHeight="flex"
         sortMode="multiple"
         responsiveLayout="scroll"
-        columnResizeMode="expand"
         :loading="loading"
         style="height: calc(100vh - 15.5rem)"
         v-model:value="records"
@@ -105,7 +107,7 @@ onMounted(async () => {
               <i class="pi pi-file-excel mr-2 hidden sm:block" style="font-size: 2.5rem" />
               <div class="flex flex-col">
                 <h3 class="text-xl font-normal">
-                  {{ selectSubdivision?.name ? `${selectSubdivision.name} - ` : '' }}
+                  {{ selectSubdivision?.name ? `${selectSubdivision.name} | ` : '' }}
                   <span>{{ $route?.meta?.title }}</span>
                   {{ datepiker ? `за ${dateToMonthStr(datepiker)}` : '' }}
                 </h3>
@@ -141,7 +143,7 @@ onMounted(async () => {
         <template #empty>
           <div
             v-if="!loading && !records?.length"
-            class="absolute left-0 z-20 flex h-full w-full items-stretch justify-center bg-none text-center"
+            class="absolute left-0 z-20 mt-6 flex h-full w-full items-stretch justify-center bg-none text-center"
             style="height: calc(100vh - 30rem)"
           >
             <div class="m-auto flex flex-col justify-center gap-4">
@@ -155,9 +157,10 @@ onMounted(async () => {
         </template>
 
         <Column
-          header="#"
-          style="width: 5%; text-align: center"
           frozen
+          header="#"
+          class="min-w-[4rem]"
+          style="text-align: center"
           :pt="{ columntitle: { class: ['m-auto'] } }"
         >
           <template #body="slotProps">
@@ -165,20 +168,21 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <Column header="Код роботи" field="code" style="width: 10%" frozen />
+        <Column frozen header="Код роботи" field="code" class="min-w-[12rem]" />
 
-        <Column header="Назва системи" field="name" style="width: 40%" />
+        <Column header="Назва роботи" field="name" class="min-w-[35rem]" />
 
-        <Column header="Структурний підрозділ" field="subdivision" style="width: 30%">
+        <Column header="Структурний підрозділ" field="subdivision" class="min-w-[25rem]">
           <template #body="{ data }">
-            {{ subdivisions?.find(({ id }) => id === data?.subdivision)?.name || '-' }}
+            {{ selectSubdivision?.name || '-' }}
           </template>
         </Column>
 
         <Column
           header="Кількість робіт"
-          field="currentMonthJobCount"
-          style="width: 15%; text-align: center"
+          field="totalJobCount"
+          class="min-w-[15rem]"
+          style="text-align: center"
           :pt="{ columntitle: { class: ['m-auto'] } }"
         >
           <template #body="{ data, field }">
@@ -191,10 +195,36 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <ColumnGroup type="footer" v-if="totalRecords">
+        <Column
+          header="Вартість роботи, грн."
+          field="price"
+          class="min-w-[15rem]"
+          style="text-align: center"
+          :pt="{ columntitle: { class: ['m-auto'] } }"
+        />
+
+        <Column
+          header="Сумарна вартість, грн."
+          field="totalPrice"
+          class="min-w-[15rem]"
+          style="text-align: center"
+          :pt="{ columntitle: { class: ['m-auto'] } }"
+        >
+          <template #body="{ data, field }">
+            <span v-if="data[field] === 0">
+              <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
+            </span>
+            <span v-else>
+              <Tag severity="success" class="min-w-[4rem]" :value="data[field] || 0" />
+            </span>
+          </template>
+        </Column>
+
+        <ColumnGroup type="footer" v-if="records.length">
           <Row>
-            <Column footer="Всього:" :colspan="4" footerStyle="text-align:right" />
-            <Column :footer="allCurrentMonthJobCount" style="width: 10%; text-align: center" />
+            <Column footer="Всього:" :colspan="4" class="uppercase" style="text-align: right" />
+            <Column :footer="totalJobCountAll" style="text-align: center" />
+            <Column :footer="totalPriceAll" :colspan="2" style="text-align: center" />
           </Row>
         </ColumnGroup>
       </DataTable>
