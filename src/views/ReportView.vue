@@ -239,9 +239,7 @@ onMounted(async () => {
               class="m-auto my-4 w-max"
               label="Створити звіт"
               @click="initOneReport"
-              v-if="
-                $planzvit.profile.role === 'moderator' || $planzvit.profile.role === 'administrator'
-              "
+              v-if="$planzvit.profile.role === 'administrator'"
             />
           </div>
         </div>
