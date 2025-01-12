@@ -232,9 +232,17 @@ onMounted(async () => {
             <i class="pi pi-search text-surface-500" style="font-size: 5rem"></i>
             <h5 class="text-2xl font-semibold">Записів не знайдено</h5>
             <p class="w-[30rem] text-wrap text-center text-base text-surface-500">
-              Спробуйте змінити пошукові запити у фільтрі або створіть новий щомісячний звіт
+              Спробуйте змінити пошукові запити у фільтрі або зверніться до адміністратора для
+              створення нового щомісячного звіту
             </p>
-            <Button class="m-auto my-4 w-max" label="Створити звіт" @click="initOneReport" />
+            <Button
+              class="m-auto my-4 w-max"
+              label="Створити звіт"
+              @click="initOneReport"
+              v-if="
+                $planzvit.profile.role === 'moderator' || $planzvit.profile.role === 'administrator'
+              "
+            />
           </div>
         </div>
       </template>
