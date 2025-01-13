@@ -44,5 +44,13 @@ export const useReport = defineStore('report', () => {
     }
   }
 
-  return { findAll, findOne, createOne, updateOne, removeOne };
+  async function findCollecrions() {
+    try {
+      return await $axios.get('/reports/collecrions/department/service/branch/subdivision');
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  return { findAll, findOne, createOne, updateOne, removeOne, findCollecrions };
 });

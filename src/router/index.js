@@ -51,6 +51,15 @@ const router = createRouter({
       component: () => import('@/views/sheet/MainSheetView.vue'),
       children: [
         {
+          path: 'service',
+          name: 'sheet-service',
+          meta: {
+            title: 'Вартість робіт',
+            description: 'Вартість робіт, що підтримуються'
+          },
+          component: () => import('@/views/sheet/ServiceSheetView.vue')
+        },
+        {
           path: 'branch',
           name: 'sheet-branch',
           meta: {

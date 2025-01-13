@@ -1,23 +1,32 @@
 <script setup lang="jsx">
 import { ref, computed, watchEffect, onMounted } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import ExcelJS from 'exceljs';
 
 import AppLoading from '@/components/AppLoading.vue';
 
 import { useReport } from '@/stores/api/reports';
-import { useDepartment } from '@/stores/api/departments';
 import { dateToMonthStr } from '@/service/DataFilters.js';
 
 const toast = useToast();
 
 const Report = useReport();
-const Department = useDepartment();
 
 const records = ref([]);
 const datepiker = ref();
 const department = ref();
 const departments = ref([]);
+const services = ref([]);
+const branches = ref([]);
+const subdivisions = ref([]);
+
+const filters = ref({
+  'service.code': { value: null, matchMode: FilterMatchMode.IN },
+  'service.name': { value: null, matchMode: FilterMatchMode.IN },
+  'branch.name': { value: null, matchMode: FilterMatchMode.IN },
+  subdivision: { value: null, matchMode: FilterMatchMode.IN }
+});
 
 const previousJobCountAll = computed(() => {
   return records.value.reduce((sum, item) => sum + item.previousJobCount, 0);
@@ -39,19 +48,11 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    const { docs, totalDocs } = await Report.findAll({
-      offset: 0,
-      limit: 10000,
-      filters: {
-        department: department.value.id,
-        monthOfReport: datepiker.value.getMonth() + 1,
-        yearOfReport: datepiker.value.getFullYear()
-      },
-      sortField: null,
-      sortOrder: null
+    records.value = await Report.findAll({
+      department: department.value.id,
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
     });
-
-    records.value = docs;
   } catch (err) {
     records.value = [];
     toast.add({
@@ -200,11 +201,12 @@ watchEffect(async () => {
 
 onMounted(async () => {
   try {
-    const { docs } = await Department.findAll({ offset: 0, limit: 1000 });
+    const response = await Report.findCollecrions();
 
-    departments.value = docs?.map(({ id, name, description }) => {
-      return { id, name, description };
-    });
+    departments.value = response.deparments;
+    services.value = response.services;
+    branches.value = response.branches;
+    subdivisions.value = response.subdivisions;
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -219,7 +221,7 @@ onMounted(async () => {
 <template>
   <div class="flex w-full overflow-x-auto">
     <DataTable
-      lazy
+      :lazy="false"
       rowHover
       scrollable
       dataKey="id"
@@ -231,9 +233,11 @@ onMounted(async () => {
       responsiveLayout="scroll"
       columnResizeMode="expand"
       editMode="cell"
+      :filterDisplay="records.length ? 'row' : null"
       :loading="loading"
       style="height: calc(100vh - 8rem)"
       v-model:value="records"
+      v-model:filters="filters"
       :virtualScrollerOptions="{ itemSize: 46 }"
       @cell-edit-complete="onCellEditComplete"
       class="min-w-full overflow-x-auto text-base"
@@ -338,7 +342,7 @@ onMounted(async () => {
           <Column header="Структурний підрозділ" :rowspan="2" />
           <Column
             header="Кількість робіт"
-            :colspan="3"
+            :colspan="6"
             :pt="{
               columntitle: {
                 class: ['m-auto', 'uppercase']
@@ -351,16 +355,19 @@ onMounted(async () => {
           <Column
             header="Попередній місяць"
             field="previousJobCount"
+            :colspan="1"
             :pt="{ columntitle: { class: ['m-auto'] } }"
           />
           <Column
             header="Поточні зміни (+/-)"
             field="changesJobCount"
+            :colspan="1"
             :pt="{ columntitle: { class: ['m-auto'] } }"
           />
           <Column
             header="Поточний місяць"
             field="currentJobCount"
+            :colspan="1"
             :pt="{ columntitle: { class: ['m-auto'] } }"
           />
         </Row>
@@ -372,12 +379,136 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column field="service.code" style="width: 10%" frozen />
-      <Column field="service.name" style="width: 30%" />
-      <Column field="branch.name" style="width: 10%" />
-      <Column field="subdivision" style="width: 20%">
+      <Column
+        frozen
+        field="service.code"
+        filterField="service.code"
+        :showFilterMenu="false"
+        style="width: 10%"
+      >
+        <template #filter="{ filterModel, filterCallback }" v-if="records.length">
+          <MultiSelect
+            @change="filterCallback()"
+            v-model="filterModel.value"
+            :options="services || []"
+            optionLabel="code"
+            optionValue="code"
+            dataKey="id"
+            placeholder="Код роботи"
+            :selectionLimit="10"
+            :maxSelectedLabels="1"
+            filter
+            class="w-full"
+            display="chip"
+            autoFilterFocus
+            resetFilterOnHide
+          >
+            <template #option="slotProps">
+              <div class="flex items-center gap-2">
+                <span>{{ slotProps.option.code }}</span>
+              </div>
+            </template>
+          </MultiSelect>
+        </template>
+      </Column>
+
+      <Column
+        field="service.name"
+        filterField="service.name"
+        :showFilterMenu="false"
+        style="width: 30%"
+      >
+        <template #filter="{ filterModel, filterCallback }" v-if="records.length">
+          <MultiSelect
+            @change="filterCallback()"
+            v-model="filterModel.value"
+            :options="services || []"
+            optionLabel="name"
+            optionValue="name"
+            dataKey="id"
+            placeholder="Назва роботи"
+            :selectionLimit="10"
+            :maxSelectedLabels="1"
+            filter
+            class="w-full"
+            display="chip"
+            autoFilterFocus
+            resetFilterOnHide
+          >
+            <template #option="slotProps">
+              <div class="flex items-center gap-2">
+                <span>{{ slotProps.option.name }}</span>
+              </div>
+            </template>
+          </MultiSelect>
+        </template>
+      </Column>
+
+      <Column
+        field="branch.name"
+        filterField="branch.name"
+        :showFilterMenu="false"
+        style="width: 10%"
+      >
+        <template #filter="{ filterModel, filterCallback }" v-if="records.length">
+          <MultiSelect
+            @change="filterCallback()"
+            v-model="filterModel.value"
+            :options="branches || []"
+            optionLabel="name"
+            optionValue="name"
+            dataKey="id"
+            placeholder="Служба/філія"
+            :selectionLimit="10"
+            :maxSelectedLabels="1"
+            filter
+            class="w-full"
+            display="chip"
+            autoFilterFocus
+            resetFilterOnHide
+          >
+            <template #option="slotProps">
+              <div class="flex items-center gap-2">
+                <span>{{ slotProps.option.name }}</span>
+              </div>
+            </template>
+          </MultiSelect>
+        </template>
+      </Column>
+
+      <Column
+        field="subdivision"
+        filterField="subdivision"
+        :showFilterMenu="false"
+        style="width: 20%"
+      >
         <template #body="{ data }">
-          {{ data?.branch?.subdivisions?.find(({ id }) => id === data?.subdivision)?.name || '-' }}
+          {{ subdivisions?.find(({ id }) => id === data?.subdivision)?.name || '-' }}
+        </template>
+
+        <template #filter="{ filterModel, filterCallback }" v-if="records.length">
+          <MultiSelect
+            @change="filterCallback()"
+            v-model="filterModel.value"
+            :options="subdivisions || []"
+            optionLabel="name"
+            optionValue="id"
+            dataKey="id"
+            placeholder="Служба/філія"
+            :selectionLimit="10"
+            :maxSelectedLabels="1"
+            filter
+            class="w-full"
+            display="chip"
+            autoFilterFocus
+            resetFilterOnHide
+          >
+            <template #option="slotProps">
+              <div class="flex items-center gap-2">
+                <span>{{ slotProps.option.name }}</span>
+              </div>
+            </template>
+          </MultiSelect>
         </template>
       </Column>
 

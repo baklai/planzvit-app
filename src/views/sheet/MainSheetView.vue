@@ -3,6 +3,11 @@ import { ref } from 'vue';
 
 const items = ref([
   {
+    route: '/sheet/service',
+    label: 'Вартість робіт',
+    icon: 'pi pi-file-excel'
+  },
+  {
     route: '/sheet/branch',
     label: 'Акт послуг службам (філіям)',
     icon: 'pi pi-file-excel'

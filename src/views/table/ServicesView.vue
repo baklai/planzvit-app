@@ -68,7 +68,7 @@ const columns = ref([
   },
 
   {
-    header: { text: 'Вартість підтримки (грн/шт)', width: '10rem' },
+    header: { text: 'Вартість підтримки (грн)', width: '10rem' },
     column: {
       field: 'price',
       render(value) {

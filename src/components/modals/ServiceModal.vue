@@ -233,11 +233,15 @@ const onCloseModal = async () => {
 
       <div class="flex flex-col space-y-4 md:w-1/2 md:pl-2">
         <div class="flex flex-col gap-2">
-          <label for="price" class="font-bold"> Вартість підтримки (грн/шт) </label>
+          <label for="price" class="font-bold"> Вартість підтримки (грн) </label>
           <InputNumber
             id="price"
+            fluid
+            autofocus
             v-model="price"
             v-bind="priceAttrs"
+            inputId="locale-user"
+            :maxFractionDigits="2"
             placeholder="Вартість підтримки"
             :invalid="!!errors?.price"
             aria-describedby="price-help"
