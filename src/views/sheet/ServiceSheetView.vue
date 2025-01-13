@@ -84,18 +84,15 @@ onMounted(async () => {
       columnResizeMode="expand"
       :loading="loading"
       editMode="cell"
-      style="height: calc(100vh - 8rem)"
+      style="height: calc(100vh - 12rem)"
       v-model:value="records"
       v-model:filters="filters"
-      :globalFilterFields="['code']"
       :virtualScrollerOptions="{ itemSize: 46 }"
+      :globalFilterFields="['code', 'name']"
       @cell-edit-complete="onCellEditComplete"
+      tableStyle="min-width: 50rem"
       class="min-w-full overflow-x-auto text-base"
-      :pt="{
-        mask: {
-          class: ['!bg-transparent', 'dark:!bg-transparent']
-        }
-      }"
+      :pt="{ mask: { class: ['!bg-transparent', 'dark:!bg-transparent'] } }"
     >
       <template #header>
         <div class="flex flex-wrap items-center justify-between gap-4">
@@ -112,22 +109,23 @@ onMounted(async () => {
           </div>
 
           <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
-            <IconField v-if="filters['global']" class="relative w-full sm:w-max">
-              <InputIcon class="pi pi-search" />
-
-              <InputText
-                id="name"
-                class="w-full sm:w-max"
-                placeholder="Пошук за кодом сервісу"
-                v-model="filters['global'].value"
-              />
-
-              <InputIcon
-                class="pi pi-times cursor-pointer"
-                v-tooltip.bottom="'Очистити фільтр'"
-                @click="filters['global'].value = null"
-              />
-            </IconField>
+            <FloatLabel variant="in" v-if="filters['global']">
+              <IconField>
+                <InputIcon class="pi pi-search" />
+                <InputText
+                  id="in_search"
+                  v-model="filters['global'].value"
+                  autocomplete="off"
+                  variant="filled"
+                />
+                <InputIcon
+                  class="pi pi-times cursor-pointer"
+                  v-tooltip.bottom="'Очистити фільтр'"
+                  @click="filters['global'].value = null"
+                />
+              </IconField>
+              <label for="in_search">Пошук за кодом та назвою</label>
+            </FloatLabel>
           </div>
         </div>
       </template>
@@ -161,25 +159,43 @@ onMounted(async () => {
         </div>
       </template>
 
-      <Column header="#" style="width: 10%; text-align: start">
+      <Column
+        frozen
+        header="#"
+        :reorderableColumn="false"
+        style="width: 3rem !important; text-align: center"
+        :pt="{ columntitle: { class: ['m-auto'] } }"
+      >
         <template #body="slotProps">
           {{ slotProps.index + 1 }}
         </template>
       </Column>
 
-      <Column header="Код сервісу" field="code" style="width: 25%" />
+      <Column
+        header="Код сервісу"
+        field="code"
+        style="width: 15rem"
+        :pt="{ columntitle: { class: ['m-auto'] } }"
+      >
+        <template #body="{ data, field }">
+          <div class="w-full text-center">
+            <Tag severity="secondary" class="min-w-[10rem]" :value="data[field]" />
+          </div>
+        </template>
+      </Column>
 
       <Column
-        header="Вартість підтримки (грн)"
         field="price"
-        style="width: 25%; text-align: center"
+        header="Вартість підтримки (грн)"
+        style="width: 20rem; text-align: center"
+        :pt="{ columntitle: { class: ['m-auto'] } }"
       >
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
               :severity="data[field] > 0 ? 'success' : 'warn'"
               :value="data[field]"
-              class="min-w-[4rem]"
+              class="min-w-[4rem] !text-lg"
             />
           </span>
           <span v-else>
@@ -200,7 +216,13 @@ onMounted(async () => {
         </template>
       </Column>
 
-      <Column header="Назва сервісу" field="name" style="width: 40%" />
+      <Column header="Назва сервісу" field="name" style="max-width: 50rem">
+        <template #body="{ data, field }">
+          <div class="overflow-hidden text-ellipsis whitespace-nowrap px-2">
+            <span>{{ data[field] }}</span>
+          </div>
+        </template>
+      </Column>
     </DataTable>
   </div>
 </template>

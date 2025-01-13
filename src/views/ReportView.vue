@@ -221,7 +221,6 @@ onMounted(async () => {
 <template>
   <div class="flex w-full overflow-x-auto">
     <DataTable
-      :lazy="false"
       rowHover
       scrollable
       dataKey="id"
