@@ -8,6 +8,7 @@ import AppLoading from '@/components/AppLoading.vue';
 
 import { useReport } from '@/stores/api/reports';
 import { dateToMonthStr } from '@/service/DataFilters.js';
+import { getObjField } from '@/service/ObjectMethods';
 
 const toast = useToast();
 
@@ -240,11 +241,7 @@ onMounted(async () => {
       :virtualScrollerOptions="{ itemSize: 46 }"
       @cell-edit-complete="onCellEditComplete"
       class="min-w-full overflow-x-auto text-base"
-      :pt="{
-        mask: {
-          class: ['!bg-transparent', 'dark:!bg-transparent']
-        }
-      }"
+      :pt="{ mask: { class: ['!bg-transparent', 'dark:!bg-transparent'] } }"
     >
       <template #header>
         <div class="flex flex-wrap items-center justify-between gap-4">
@@ -372,14 +369,19 @@ onMounted(async () => {
         </Row>
       </ColumnGroup>
 
-      <Column style="width: 3rem; text-align: center" frozen>
+      <Column
+        frozen
+        header="#"
+        :reorderableColumn="false"
+        style="width: 3rem; text-align: center"
+        :pt="{ columntitle: { class: ['m-auto'] } }"
+      >
         <template #body="slotProps">
           {{ slotProps.index + 1 }}
         </template>
       </Column>
 
       <Column
-        frozen
         field="service.code"
         filterField="service.code"
         :showFilterMenu="false"
@@ -394,16 +396,18 @@ onMounted(async () => {
             optionValue="code"
             dataKey="id"
             placeholder="Код роботи"
-            :selectionLimit="10"
             :maxSelectedLabels="1"
             filter
-            class="w-full"
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            filterMatchMode="contains"
+            filterPlaceholder="Пошук у списку"
+            :virtualScrollerOptions="{ itemSize: 32 }"
+            class="w-full"
           >
             <template #option="slotProps">
-              <div class="flex items-center gap-2">
+              <div class="flex h-full items-center text-base">
                 <span>{{ slotProps.option.code }}</span>
               </div>
             </template>
@@ -415,8 +419,17 @@ onMounted(async () => {
         field="service.name"
         filterField="service.name"
         :showFilterMenu="false"
-        style="width: 30%"
+        style="max-width: 20rem"
       >
+        <template #body="{ data, field }">
+          <div
+            class="overflow-hidden text-ellipsis whitespace-nowrap px-2"
+            v-tooltip.bottom="getObjField(data, field)"
+          >
+            <span>{{ getObjField(data, field) }}</span>
+          </div>
+        </template>
+
         <template #filter="{ filterModel, filterCallback }" v-if="records.length">
           <MultiSelect
             @change="filterCallback()"
@@ -426,16 +439,18 @@ onMounted(async () => {
             optionValue="name"
             dataKey="id"
             placeholder="Назва роботи"
-            :selectionLimit="10"
-            :maxSelectedLabels="1"
+            :maxSelectedLabels="0"
             filter
-            class="w-full"
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            filterMatchMode="contains"
+            filterPlaceholder="Пошук у списку"
+            :virtualScrollerOptions="{ itemSize: 32 }"
+            class="w-full"
           >
             <template #option="slotProps">
-              <div class="flex items-center gap-2">
+              <div class="flex h-full items-center text-base">
                 <span>{{ slotProps.option.name }}</span>
               </div>
             </template>
@@ -458,16 +473,18 @@ onMounted(async () => {
             optionValue="name"
             dataKey="id"
             placeholder="Служба/філія"
-            :selectionLimit="10"
-            :maxSelectedLabels="1"
+            :maxSelectedLabels="0"
             filter
-            class="w-full"
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            filterMatchMode="contains"
+            filterPlaceholder="Пошук у списку"
+            :virtualScrollerOptions="{ itemSize: 32 }"
+            class="w-full"
           >
             <template #option="slotProps">
-              <div class="flex items-center gap-2">
+              <div class="flex h-full items-center text-base">
                 <span>{{ slotProps.option.name }}</span>
               </div>
             </template>
@@ -493,17 +510,19 @@ onMounted(async () => {
             optionLabel="name"
             optionValue="id"
             dataKey="id"
-            placeholder="Служба/філія"
-            :selectionLimit="10"
-            :maxSelectedLabels="1"
+            placeholder="Структурний підрозділ"
+            :maxSelectedLabels="0"
             filter
-            class="w-full"
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            filterMatchMode="contains"
+            filterPlaceholder="Пошук у списку"
+            :virtualScrollerOptions="{ itemSize: 32 }"
+            class="w-full"
           >
             <template #option="slotProps">
-              <div class="flex items-center gap-2">
+              <div class="flex h-full items-center text-base">
                 <span>{{ slotProps.option.name }}</span>
               </div>
             </template>

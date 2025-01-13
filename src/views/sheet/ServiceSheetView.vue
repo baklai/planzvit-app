@@ -163,7 +163,7 @@ onMounted(async () => {
         frozen
         header="#"
         :reorderableColumn="false"
-        style="width: 3rem !important; text-align: center"
+        style="width: 3rem; text-align: center"
         :pt="{ columntitle: { class: ['m-auto'] } }"
       >
         <template #body="slotProps">
