@@ -103,45 +103,122 @@ const onExportToExcel = async () => {
     };
   });
 
-  const workbook = new ExcelJS.Workbook();
+  const tabName = department?.value?.name || 'Лист 1';
 
-  const worksheet = workbook.addWorksheet(department.value.name);
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet(tabName);
+
+  worksheet.mergeCells('A1:G1');
+  worksheet.getCell('A1').value = 'Додаток 1 до розпорядження';
+  worksheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'rigth' };
+  worksheet.getCell('A1').font = { name: 'Times New Roman', size: 14 };
+
+  worksheet.mergeCells('A2:G2');
+  worksheet.getCell('A2').value = 'ЗВІТ';
+  worksheet.getCell('A2').alignment = {
+    name: 'Times New Roman',
+    size: 14,
+    bold: true,
+    vertical: 'middle',
+    horizontal: 'center'
+  };
+
+  worksheet.mergeCells('A3:G3');
+  worksheet.getCell('A3').value = 'про надання послуг з програмно-технологічного супроводу';
+  worksheet.getCell('A3').alignment = {
+    name: 'Times New Roman',
+    size: 14,
+    bold: true,
+    vertical: 'middle',
+    horizontal: 'center'
+  };
+
+  worksheet.mergeCells('A4:G4');
+  worksheet.getCell('A4').value = 'інформаційних систем та АРМів';
+  worksheet.getCell('A4').alignment = {
+    name: 'Times New Roman',
+    size: 14,
+    bold: true,
+    vertical: 'middle',
+    horizontal: 'center'
+  };
+
+  worksheet.mergeCells('A5:G5');
+  worksheet.getCell('A5').value = 'відділом СПК';
+  worksheet.getCell('A5').alignment = {
+    name: 'Times New Roman',
+    size: 14,
+    bold: true,
+    vertical: 'middle',
+    horizontal: 'center'
+  };
+
+  // worksheet.getRow(7).values = [
+  //   '№ роботи',
+  //   'Назва системи',
+  //   'Служба (філія)',
+  //   'Структурний підрозділ',
+  //   'Кількість робочих місць (робіт) - попередній місяць',
+  //   'Кількість нових робочих місць (робіт) за теперешній місяць',
+  //   'Кількість робочих місць (робіт) всього'
+  // ];
+
+  worksheet.addRow([
+    '№ роботи',
+    'Назва системи',
+    'Служба (філія)',
+    'Структурний підрозділ',
+    'Кількість робочих місць (робіт) - попередній місяць',
+    'Кількість нових робочих місць (робіт) за теперешний місяць',
+    'Кількість робочих місць (робіт) всього'
+  ]);
 
   worksheet.columns = [
-    { header: '№ роботи', key: 'code', width: 15 },
-    { header: 'Назва системи', key: 'name', width: 50 },
-    { header: 'Служба (філія)', key: 'branch', width: 25 },
-    { header: 'Структурний підрозділ', key: 'subdivision', width: 40 },
+    { header: '№ роботи', key: 'code', width: 15, height: 100 },
+    { header: 'Назва системи', key: 'name', width: 50, height: 100 },
+    { header: 'Служба (філія)', key: 'branch', width: 25, height: 100 },
+    { header: 'Структурний підрозділ', key: 'subdivision', width: 40, height: 100 },
     {
       header: 'Кількість робочих місць (робіт) - попередній місяць',
       key: 'previousJobCount',
-      width: 20
+      width: 20,
+      height: 100
     },
     {
       header: 'Кількість нових робочих місць (робіт) за теперешній місяць',
       key: 'changesJobCount',
-      width: 20
+      width: 20,
+      height: 100
     },
-    { header: 'Кількість робочих місць (робіт) всього', key: 'currentJobCount', width: 20 }
+    {
+      header: 'Кількість робочих місць (робіт) всього',
+      key: 'currentJobCount',
+      width: 20,
+      height: 100
+    }
   ];
 
-  worksheet.addRows(data);
+  worksheet.insertRows(8, data);
 
-  worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
-  worksheet.getRow(1).font = { bold: true, size: 12 };
-  worksheet.getRow(1).height = 100;
+  worksheet.mergeCells(`A${data.length + 9}:G${data.length + 9}`);
+  worksheet.getCell(`A${data.length + 9}`).value = 'Начальник відділу  ________________';
+  worksheet.getCell(`A${data.length + 9}`).font = { name: 'Times New Roman', size: 12 };
 
-  worksheet.eachRow(row => {
-    row.eachCell(cell => {
-      cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
-      };
-      cell.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
-    });
-  });
+  // worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+  // worksheet.getRow(1).font = { bold: true, size: 12 };
+  // worksheet.getRow(1).height = 100;
+
+  // worksheet.eachRow(row => {
+  //   row.eachCell(cell => {
+  //     cell.border = {
+  //       top: { style: 'thin', color: { argb: 'FF000000' } },
+  //       left: { style: 'thin', color: { argb: 'FF000000' } },
+  //       bottom: { style: 'thin', color: { argb: 'FF000000' } },
+  //       right: { style: 'thin', color: { argb: 'FF000000' } }
+  //     };
+  //     cell.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
+  //   });
+  // });
 
   const buffer = await workbook.xlsx.writeBuffer();
 
