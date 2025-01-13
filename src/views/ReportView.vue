@@ -96,8 +96,7 @@ const onExportToExcel = async () => {
       code: item.service.code,
       name: item.service.name,
       branch: item.branch.name,
-      subdivision:
-        item.branch?.subdivisions?.find(({ id }) => id === item?.subdivision)?.name || '-',
+      subdivision: subdivisions.value?.find(({ id }) => id === item?.subdivision)?.name || '-',
       previousJobCount: item.previousJobCount,
       changesJobCount: item.changesJobCount,
       currentJobCount: item.currentJobCount
