@@ -88,8 +88,8 @@ const setBranchReportChartData = data => {
       {
         type: 'bar',
         label: 'Кількість виконаних робіт',
-        backgroundColor: data.map(item => 'rgba(6, 182, 212, 0.2)'),
-        borderColor: data.map(item => 'rgb(6, 182, 212)'),
+        backgroundColor: data.map(item => 'rgba(249, 115, 22, 0.2)'),
+        borderColor: data.map(item => 'rgb(249, 115, 22)'),
         borderWidth: 1,
         data: data.map(({ currentJobCount }) => currentJobCount)
       }
