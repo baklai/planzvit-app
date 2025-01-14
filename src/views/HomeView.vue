@@ -110,7 +110,7 @@ const setChartOptions = titleText => {
     plugins: {
       title: {
         display: true,
-        color: primaryColor,
+        color: textColor,
         font: { weight: 'bold', size: 14 },
         text: titleText || ''
       },
