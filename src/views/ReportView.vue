@@ -8,7 +8,7 @@ import AppLoading from '@/components/AppLoading.vue';
 import { useReport } from '@/stores/api/reports';
 import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
-import { monthlyReport } from '@/service/ReportSheetToXlsx';
+import { monthlyReport } from '@/service/ReportsSheetToXlsx';
 
 const toast = useToast();
 

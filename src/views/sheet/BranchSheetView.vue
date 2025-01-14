@@ -21,6 +21,22 @@ const branches = ref([]);
 const totalPriceAll = ref();
 const totalJobCountAll = ref();
 
+const savemenu = [
+  {
+    label: 'Завантажити звіт',
+    icon: 'pi pi-download',
+    command: () => onExportToExcel()
+  },
+  {
+    separator: true
+  },
+  {
+    label: 'Завантажити усі звіти',
+    icon: 'pi pi-download',
+    command: () => onExportAllToExcel()
+  }
+];
+
 const selectBranch = computed(() => {
   return branches.value.find(({ id }) => id === branch.value) || null;
 });
@@ -58,6 +74,122 @@ const onUpdateRecords = async () => {
     });
   } finally {
     loading.value = false;
+  }
+};
+
+const onExportToExcel = async () => {
+  return;
+
+  if (!department.value || !datepiker.value) return;
+
+  loading.value = true;
+
+  try {
+    const response = await Report.findAll({
+      department: department.value,
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
+    });
+
+    const data = response.map(item => {
+      return {
+        code: item.service.code,
+        name: item.service.name,
+        branch: item.branch.name,
+        subdivision: item.subdivision.name,
+        previousJobCount: item.previousJobCount,
+        changesJobCount: item.changesJobCount,
+        currentJobCount: item.currentJobCount
+      };
+    });
+
+    const buffer = await monthlySubdivisionReport([
+      {
+        department: { ...departments.value.find(({ id }) => id === department.value) },
+        datetime: datepiker.value,
+        data
+      }
+    ]);
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onExportAllToExcel = async () => {
+  return;
+
+  if (!departments?.value?.length || !datepiker?.value) return;
+
+  try {
+    const deparmentsRecords = await Promise.all([
+      ...departments.value.map(({ id }) =>
+        Report.findAll({
+          department: id,
+          monthOfReport: datepiker.value.getMonth() + 1,
+          yearOfReport: datepiker.value.getFullYear()
+        })
+      )
+    ]);
+
+    const reports = deparmentsRecords.map((records, index) => {
+      return {
+        department: { ...departments.value[index] },
+        datetime: datepiker.value,
+        data: records.map(item => {
+          return {
+            code: item.service.code,
+            name: item.service.name,
+            branch: item.branch.name,
+            subdivision: item.subdivision.name,
+            previousJobCount: item.previousJobCount,
+            changesJobCount: item.changesJobCount,
+            currentJobCount: item.currentJobCount
+          };
+        })
+      };
+    });
+
+    const buffer = await monthlySubdivisionReport(reports);
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
   }
 };
 
@@ -126,16 +258,26 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
-              <FloatLabel class="w-[20rem]" variant="in">
+            <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
+              <SplitButton
+                outlined
+                size="large"
+                icon="pi pi-download"
+                label="ЗВІТИ"
+                :model="savemenu"
+                :loading="loading"
+              />
+
+              <FloatLabel variant="in">
                 <DatePicker
+                  showIcon
+                  :disabled="loading"
                   inputId="datepiker"
                   v-model="datepiker"
-                  view="month"
-                  showIcon
                   iconDisplay="input"
                   dateFormat="mm/yy"
                   variant="filled"
+                  view="month"
                 />
                 <label for="datepiker">Оберіть рік та місяць</label>
               </FloatLabel>

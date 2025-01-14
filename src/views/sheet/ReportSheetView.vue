@@ -9,7 +9,7 @@ import { useReport } from '@/stores/api/reports';
 import { useDepartment } from '@/stores/api/departments';
 import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
-import { monthlyReport } from '@/service/ReportSheetToXlsx';
+import { monthlyReport } from '@/service/ReportsSheetToXlsx';
 
 const toast = useToast();
 
@@ -244,7 +244,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
+            <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
               <SplitButton
                 outlined
                 size="large"
@@ -252,19 +252,18 @@ onMounted(async () => {
                 label="ЗВІТИ"
                 :model="savemenu"
                 :loading="loading"
-                class="mx-4"
               />
 
-              <FloatLabel class="w-[20rem]" variant="in">
+              <FloatLabel variant="in">
                 <DatePicker
+                  showIcon
+                  :disabled="loading"
                   inputId="datepiker"
                   v-model="datepiker"
-                  view="month"
-                  showIcon
                   iconDisplay="input"
                   dateFormat="mm/yy"
                   variant="filled"
-                  :disabled="loading"
+                  view="month"
                 />
                 <label for="datepiker">Оберіть рік та місяць</label>
               </FloatLabel>
