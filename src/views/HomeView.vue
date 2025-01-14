@@ -181,70 +181,70 @@ onMounted(async () => {
   <div class="flex h-full w-full flex-wrap overflow-auto">
     <div class="flex w-full flex-wrap">
       <div class="w-full p-4 lg:w-1/4 xl:w-1/4">
-        <div class="mb-0 rounded-lg border p-6">
+        <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
               <span class="mb-3 block text-xl font-bold">Підтримка відділів</span>
             </div>
             <div
-              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
             >
               {{ statistic?.departmentsServicesCount || '-' }}
             </div>
           </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
+          <span class="mr-2 font-medium text-primary">Актуально на</span>
+          <span>{{ dateToStr(Date.now()) }}</span>
         </div>
       </div>
 
       <div class="w-full p-4 lg:w-1/4 xl:w-1/4">
-        <div class="mb-0 rounded-lg border p-6">
+        <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
               <span class="mb-3 block text-xl font-bold">Кількість сервісів</span>
             </div>
             <div
-              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
             >
               {{ statistic?.servicesCount || '-' }}
             </div>
           </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
+          <span class="mr-2 font-medium text-primary">Актуально на</span>
+          <span>{{ dateToStr(Date.now()) }}</span>
         </div>
       </div>
 
       <div class="w-full p-4 lg:w-1/4 xl:w-1/4">
-        <div class="mb-0 rounded-lg border p-6">
+        <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
               <span class="mb-3 block text-xl font-bold">Кількість служб (філій)</span>
             </div>
             <div
-              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
             >
               {{ statistic?.branchesCount || '-' }}
             </div>
           </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
+          <span class="mr-2 font-medium text-primary">Актуально на</span>
+          <span>{{ dateToStr(Date.now()) }}</span>
         </div>
       </div>
 
       <div class="w-full p-4 lg:w-1/4 xl:w-1/4">
-        <div class="mb-0 rounded-lg border p-6">
+        <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
               <span class="mb-3 block text-xl font-bold">Кількість підрозділів</span>
             </div>
             <div
-              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary-500/50 p-2 text-2xl font-bold"
+              class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
             >
               {{ statistic?.subdivisionsCount || '-' }}
             </div>
           </div>
-          <span class="mr-2 font-medium text-green-500">Актуально на</span>
-          <span class="">{{ dateToStr(Date.now()) }}</span>
+          <span class="mr-2 font-medium text-primary">Актуально на</span>
+          <span>{{ dateToStr(Date.now()) }}</span>
         </div>
       </div>
     </div>
