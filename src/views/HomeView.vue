@@ -99,6 +99,7 @@ const setBranchReportChartData = data => {
 
 const setChartOptions = titleText => {
   const documentStyle = getComputedStyle(document.documentElement);
+  const primaryColor = documentStyle.getPropertyValue('--p-primary-color');
   const textColor = documentStyle.getPropertyValue('--p-text-color');
   const textColorSecondary = documentStyle.getPropertyValue('--p-text-muted-color');
   const surfaceBorder = documentStyle.getPropertyValue('--p-content-border-color');
@@ -109,6 +110,7 @@ const setChartOptions = titleText => {
     plugins: {
       title: {
         display: true,
+        color: primaryColor,
         font: { weight: 'bold', size: 14 },
         text: titleText || ''
       },
@@ -186,7 +188,7 @@ onMounted(async () => {
         <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-xl font-bold">Підтримка відділів</span>
+              <span class="mb-3 block text-lg font-bold">Підтримка відділів</span>
             </div>
             <div
               class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
@@ -203,7 +205,7 @@ onMounted(async () => {
         <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-xl font-bold">Кількість сервісів</span>
+              <span class="mb-3 block text-lg font-bold">Кількість сервісів</span>
             </div>
             <div
               class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
@@ -220,7 +222,7 @@ onMounted(async () => {
         <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-xl font-bold">Кількість служб (філій)</span>
+              <span class="mb-3 block text-lg font-bold">Кількість служб (філій)</span>
             </div>
             <div
               class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
@@ -237,7 +239,7 @@ onMounted(async () => {
         <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-xl font-bold">Кількість підрозділів</span>
+              <span class="mb-3 block text-lg font-bold">Кількість підрозділів</span>
             </div>
             <div
               class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
