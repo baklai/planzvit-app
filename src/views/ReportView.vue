@@ -237,7 +237,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
+          <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
             <Button
               size="large"
               severity="success"
@@ -246,12 +246,12 @@ onMounted(async () => {
               label="Завантажити звіт"
               :loading="loading"
               :disabled="loading"
-              class="mx-4 !py-4"
+              class="!px-4 !py-4"
               @click="onExportToExcel"
               v-if="records?.length"
             />
 
-            <FloatLabel class="w-[20rem]" variant="in">
+            <FloatLabel variant="in">
               <DatePicker
                 inputId="datepiker"
                 v-model="datepiker"

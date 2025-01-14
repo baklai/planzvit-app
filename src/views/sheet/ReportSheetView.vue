@@ -17,7 +17,7 @@ const Report = useReport();
 const Department = useDepartment();
 
 const records = ref([]);
-const datepiker = ref();
+const datepiker = ref(new Date());
 const department = ref();
 const departments = ref([]);
 
