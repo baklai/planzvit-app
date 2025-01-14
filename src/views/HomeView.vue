@@ -109,6 +109,7 @@ const setChartOptions = titleText => {
     plugins: {
       title: {
         display: true,
+        font: { weight: 'bold', size: 14 },
         text: titleText || ''
       },
       tooltips: {
@@ -117,6 +118,7 @@ const setChartOptions = titleText => {
       },
       legend: {
         display: false,
+
         labels: {
           color: textColor
         }
