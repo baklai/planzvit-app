@@ -2,13 +2,13 @@
 import { ref, computed, watchEffect, onMounted } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import ExcelJS from 'exceljs';
 
 import AppLoading from '@/components/AppLoading.vue';
 
 import { useReport } from '@/stores/api/reports';
-import { dateToMonthStr } from '@/service/DataFilters.js';
+import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
+import { monthlyReport } from '@/service/ReportSheetToXlsx';
 
 const toast = useToast();
 
@@ -26,7 +26,7 @@ const filters = ref({
   'service.code': { value: null, matchMode: FilterMatchMode.IN },
   'service.name': { value: null, matchMode: FilterMatchMode.IN },
   'branch.name': { value: null, matchMode: FilterMatchMode.IN },
-  subdivision: { value: null, matchMode: FilterMatchMode.IN }
+  'subdivision.name': { value: null, matchMode: FilterMatchMode.IN }
 });
 
 const previousJobCountAll = computed(() => {
@@ -89,151 +89,53 @@ const onCellEditComplete = async event => {
 };
 
 const onExportToExcel = async () => {
-  if (!records.value?.length || !department.value || !datepiker.value) return;
+  loading.value = true;
 
-  const data = records.value.map(item => {
-    return {
-      code: item.service.code,
-      name: item.service.name,
-      branch: item.branch.name,
-      subdivision: subdivisions.value?.find(({ id }) => id === item?.subdivision)?.name || '-',
-      previousJobCount: item.previousJobCount,
-      changesJobCount: item.changesJobCount,
-      currentJobCount: item.currentJobCount
-    };
-  });
+  try {
+    const response = await Report.findAll({
+      department: department.value.id,
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
+    });
 
-  const tabName = department?.value?.name || 'Лист 1';
+    const data = response.map(item => {
+      return {
+        code: item.service.code,
+        name: item.service.name,
+        branch: item.branch.name,
+        subdivision: item.subdivision.name,
+        previousJobCount: item.previousJobCount,
+        changesJobCount: item.changesJobCount,
+        currentJobCount: item.currentJobCount
+      };
+    });
 
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet(tabName);
+    const buffer = await monthlyReport([
+      { department: { ...department.value }, datetime: datepiker.value, data }
+    ]);
 
-  worksheet.mergeCells('A1:G1');
-  worksheet.getCell('A1').value = 'Додаток 1 до розпорядження';
-  worksheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'rigth' };
-  worksheet.getCell('A1').font = { name: 'Times New Roman', size: 14 };
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
 
-  worksheet.mergeCells('A2:G2');
-  worksheet.getCell('A2').value = 'ЗВІТ';
-  worksheet.getCell('A2').alignment = {
-    name: 'Times New Roman',
-    size: 14,
-    bold: true,
-    vertical: 'middle',
-    horizontal: 'center'
-  };
+    const url = URL.createObjectURL(blob);
 
-  worksheet.mergeCells('A3:G3');
-  worksheet.getCell('A3').value = 'про надання послуг з програмно-технологічного супроводу';
-  worksheet.getCell('A3').alignment = {
-    name: 'Times New Roman',
-    size: 14,
-    bold: true,
-    vertical: 'middle',
-    horizontal: 'center'
-  };
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.click();
 
-  worksheet.mergeCells('A4:G4');
-  worksheet.getCell('A4').value = 'інформаційних систем та АРМів';
-  worksheet.getCell('A4').alignment = {
-    name: 'Times New Roman',
-    size: 14,
-    bold: true,
-    vertical: 'middle',
-    horizontal: 'center'
-  };
-
-  worksheet.mergeCells('A5:G5');
-  worksheet.getCell('A5').value = 'відділом СПК';
-  worksheet.getCell('A5').alignment = {
-    name: 'Times New Roman',
-    size: 14,
-    bold: true,
-    vertical: 'middle',
-    horizontal: 'center'
-  };
-
-  // worksheet.getRow(7).values = [
-  //   '№ роботи',
-  //   'Назва системи',
-  //   'Служба (філія)',
-  //   'Структурний підрозділ',
-  //   'Кількість робочих місць (робіт) - попередній місяць',
-  //   'Кількість нових робочих місць (робіт) за теперешній місяць',
-  //   'Кількість робочих місць (робіт) всього'
-  // ];
-
-  worksheet.addRow([
-    '№ роботи',
-    'Назва системи',
-    'Служба (філія)',
-    'Структурний підрозділ',
-    'Кількість робочих місць (робіт) - попередній місяць',
-    'Кількість нових робочих місць (робіт) за теперешний місяць',
-    'Кількість робочих місць (робіт) всього'
-  ]);
-
-  worksheet.columns = [
-    { header: '№ роботи', key: 'code', width: 15, height: 100 },
-    { header: 'Назва системи', key: 'name', width: 50, height: 100 },
-    { header: 'Служба (філія)', key: 'branch', width: 25, height: 100 },
-    { header: 'Структурний підрозділ', key: 'subdivision', width: 40, height: 100 },
-    {
-      header: 'Кількість робочих місць (робіт) - попередній місяць',
-      key: 'previousJobCount',
-      width: 20,
-      height: 100
-    },
-    {
-      header: 'Кількість нових робочих місць (робіт) за теперешній місяць',
-      key: 'changesJobCount',
-      width: 20,
-      height: 100
-    },
-    {
-      header: 'Кількість робочих місць (робіт) всього',
-      key: 'currentJobCount',
-      width: 20,
-      height: 100
-    }
-  ];
-
-  worksheet.insertRows(8, data);
-
-  worksheet.mergeCells(`A${data.length + 9}:G${data.length + 9}`);
-  worksheet.getCell(`A${data.length + 9}`).value = 'Начальник відділу  ________________';
-  worksheet.getCell(`A${data.length + 9}`).font = { name: 'Times New Roman', size: 12 };
-
-  // worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
-  // worksheet.getRow(1).font = { bold: true, size: 12 };
-  // worksheet.getRow(1).height = 100;
-
-  // worksheet.eachRow(row => {
-  //   row.eachCell(cell => {
-  //     cell.border = {
-  //       top: { style: 'thin', color: { argb: 'FF000000' } },
-  //       left: { style: 'thin', color: { argb: 'FF000000' } },
-  //       bottom: { style: 'thin', color: { argb: 'FF000000' } },
-  //       right: { style: 'thin', color: { argb: 'FF000000' } }
-  //     };
-  //     cell.alignment = { wrapText: true, vertical: 'top', horizontal: 'left' };
-  //   });
-  // });
-
-  const buffer = await workbook.xlsx.writeBuffer();
-
-  const blob = new Blob([buffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-  });
-
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
-  link.click();
-
-  URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
 };
 
 const onCreateReport = async () => {
@@ -336,41 +238,45 @@ onMounted(async () => {
           </div>
 
           <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
-            <div class="flex w-full justify-between sm:w-max">
-              <Button
-                severity="success"
-                icon="pi pi-download"
-                label="Завантажити звіт"
-                @click="onExportToExcel"
-                class="mx-4"
-                v-if="records?.length"
+            <Button
+              size="large"
+              severity="success"
+              variant="outlined"
+              icon="pi pi-download"
+              label="Завантажити звіт"
+              :loading="loading"
+              :disabled="loading"
+              class="mx-4 !py-4"
+              @click="onExportToExcel"
+              v-if="records?.length"
+            />
+
+            <FloatLabel class="w-[20rem]" variant="in">
+              <DatePicker
+                inputId="datepiker"
+                v-model="datepiker"
+                view="month"
+                showIcon
+                iconDisplay="input"
+                dateFormat="mm/yy"
+                variant="filled"
+                :disabled="loading"
               />
+              <label for="datepiker">Оберіть рік та місяць</label>
+            </FloatLabel>
 
-              <FloatLabel class="w-[20rem]" variant="in">
-                <DatePicker
-                  inputId="datepiker"
-                  v-model="datepiker"
-                  view="month"
-                  showIcon
-                  iconDisplay="input"
-                  dateFormat="mm/yy"
-                  variant="filled"
-                />
-                <label for="datepiker">Оберіть рік та місяць</label>
-              </FloatLabel>
-
-              <FloatLabel class="w-[20rem]" variant="in">
-                <Select
-                  inputId="department"
-                  v-model="department"
-                  variant="filled"
-                  :options="departments"
-                  optionLabel="name"
-                  class="w-full"
-                />
-                <label for="department">Оберіть відділ</label>
-              </FloatLabel>
-            </div>
+            <FloatLabel class="w-[20rem]" variant="in">
+              <Select
+                inputId="department"
+                v-model="department"
+                variant="filled"
+                :options="departments"
+                optionLabel="name"
+                class="w-full"
+                :disabled="loading"
+              />
+              <label for="department">Оберіть відділ</label>
+            </FloatLabel>
           </div>
         </div>
       </template>
@@ -569,22 +475,18 @@ onMounted(async () => {
       </Column>
 
       <Column
-        field="subdivision"
-        filterField="subdivision"
+        field="subdivision.name"
+        filterField="subdivision.name"
         :showFilterMenu="false"
         style="width: 20%"
       >
-        <template #body="{ data }">
-          {{ subdivisions?.find(({ id }) => id === data?.subdivision)?.name || '-' }}
-        </template>
-
         <template #filter="{ filterModel, filterCallback }" v-if="records.length">
           <MultiSelect
             @change="filterCallback()"
             v-model="filterModel.value"
             :options="subdivisions || []"
             optionLabel="name"
-            optionValue="id"
+            optionValue="name"
             dataKey="id"
             placeholder="Структурний підрозділ"
             :maxSelectedLabels="0"

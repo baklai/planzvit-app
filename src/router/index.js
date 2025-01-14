@@ -60,6 +60,15 @@ const router = createRouter({
           component: () => import('@/views/sheet/ServiceSheetView.vue')
         },
         {
+          path: 'report',
+          name: 'sheet-report',
+          meta: {
+            title: 'Щомісячні звіти',
+            description: 'Звіти про надання послуг з програмно-технологічного супроводу'
+          },
+          component: () => import('@/views/sheet/ReportSheetView.vue')
+        },
+        {
           path: 'branch',
           name: 'sheet-branch',
           meta: {

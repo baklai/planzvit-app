@@ -7,6 +7,11 @@ const items = ref([
     label: 'Вартість робіт',
     icon: 'pi pi-file-excel'
   },
+   {
+    route: '/sheet/report',
+    label: 'Щомісячні звіти',
+    icon: 'pi pi-file-excel'
+  },
   {
     route: '/sheet/branch',
     label: 'Акт послуг службам (філіям)',

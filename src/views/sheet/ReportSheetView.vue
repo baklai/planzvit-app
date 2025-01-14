@@ -1,0 +1,454 @@
+<script setup lang="jsx">
+import { ref, computed, watchEffect, onMounted } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
+
+import AppLoading from '@/components/AppLoading.vue';
+
+import { useReport } from '@/stores/api/reports';
+import { useDepartment } from '@/stores/api/departments';
+import { dateToMonthStr } from '@/service/DataFilters';
+import { getObjField } from '@/service/ObjectMethods';
+import { monthlyReport } from '@/service/ReportSheetToXlsx';
+
+const toast = useToast();
+
+const Report = useReport();
+const Department = useDepartment();
+
+const records = ref([]);
+const datepiker = ref();
+const department = ref();
+const departments = ref([]);
+
+const savemenu = [
+  {
+    label: 'Завантажити звіт',
+    icon: 'pi pi-download',
+    command: () => onExportToExcel()
+  },
+  {
+    separator: true
+  },
+  {
+    label: 'Завантажити усі звіти',
+    icon: 'pi pi-download',
+    command: () => onExportAllToExcel()
+  }
+];
+
+const previousJobCountAll = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.previousJobCount, 0);
+});
+
+const changesJobCountAll = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.changesJobCount, 0);
+});
+
+const currentJobCountAll = computed(() => {
+  return records.value.reduce((sum, item) => sum + item.currentJobCount, 0);
+});
+
+const loading = ref(false);
+
+const onUpdateRecords = async () => {
+  if (!department.value || !datepiker.value) return;
+
+  try {
+    loading.value = true;
+
+    records.value = await Report.findAll({
+      department: department.value,
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
+    });
+  } catch (err) {
+    records.value = [];
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onExportToExcel = async () => {
+  if (!department.value || !datepiker.value) return;
+
+  loading.value = true;
+
+  try {
+    const response = await Report.findAll({
+      department: department.value,
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
+    });
+
+    const data = response.map(item => {
+      return {
+        code: item.service.code,
+        name: item.service.name,
+        branch: item.branch.name,
+        subdivision: item.subdivision.name,
+        previousJobCount: item.previousJobCount,
+        changesJobCount: item.changesJobCount,
+        currentJobCount: item.currentJobCount
+      };
+    });
+
+    const buffer = await monthlyReport([
+      {
+        department: { ...departments.value.find(({ id }) => id === department.value) },
+        datetime: datepiker.value,
+        data
+      }
+    ]);
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onExportAllToExcel = async () => {
+  if (!departments?.value?.length || !datepiker?.value) return;
+
+  try {
+    const deparmentsRecords = await Promise.all([
+      ...departments.value.map(({ id }) =>
+        Report.findAll({
+          department: id,
+          monthOfReport: datepiker.value.getMonth() + 1,
+          yearOfReport: datepiker.value.getFullYear()
+        })
+      )
+    ]);
+
+    const reports = deparmentsRecords.map((records, index) => {
+      return {
+        department: { ...departments.value[index] },
+        datetime: datepiker.value,
+        data: records.map(item => {
+          return {
+            code: item.service.code,
+            name: item.service.name,
+            branch: item.branch.name,
+            subdivision: item.subdivision.name,
+            previousJobCount: item.previousJobCount,
+            changesJobCount: item.changesJobCount,
+            currentJobCount: item.currentJobCount
+          };
+        })
+      };
+    });
+
+    const buffer = await monthlyReport(reports);
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  }
+};
+
+watchEffect(async () => {
+  if (department.value && datepiker.value) {
+    await onUpdateRecords();
+  }
+});
+
+onMounted(async () => {
+  try {
+    const { docs } = await Department.findAll({ offset: 0, limit: 1000 });
+
+    departments.value = docs;
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  }
+});
+</script>
+
+<template>
+  <div class="flex flex-col">
+    <div class="flex w-full overflow-x-auto">
+      <DataTable
+        rowHover
+        scrollable
+        dataKey="id"
+        size="small"
+        showGridlines
+        resizableColumns
+        scrollHeight="flex"
+        sortMode="multiple"
+        responsiveLayout="scroll"
+        columnResizeMode="expand"
+        :loading="loading"
+        style="height: calc(100vh - 15.5rem)"
+        v-model:value="records"
+        :virtualScrollerOptions="{ itemSize: 46 }"
+        class="min-w-full overflow-x-auto text-base"
+        :pt="{ mask: { class: ['!bg-transparent', 'dark:!bg-transparent'] } }"
+      >
+        <template #header>
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-1">
+              <i class="pi pi-file-excel mr-2 hidden sm:block" style="font-size: 2.5rem" />
+              <div class="flex flex-col">
+                <h3 class="text-2xl font-normal">
+                  <span>{{ $route?.meta?.title }}</span>
+                </h3>
+                <p class="text-base font-normal text-surface-500">
+                  {{ $route?.meta?.description }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
+              <SplitButton
+                outlined
+                size="large"
+                icon="pi pi-download"
+                label="ЗВІТИ"
+                :model="savemenu"
+                :loading="loading"
+                class="mx-4"
+              />
+
+              <FloatLabel class="w-[20rem]" variant="in">
+                <DatePicker
+                  inputId="datepiker"
+                  v-model="datepiker"
+                  view="month"
+                  showIcon
+                  iconDisplay="input"
+                  dateFormat="mm/yy"
+                  variant="filled"
+                  :disabled="loading"
+                />
+                <label for="datepiker">Оберіть рік та місяць</label>
+              </FloatLabel>
+            </div>
+          </div>
+        </template>
+
+        <template #loading>
+          <div class="flex items-center justify-center">
+            <AppLoading />
+          </div>
+        </template>
+
+        <template #empty>
+          <div
+            v-if="!loading && !records?.length"
+            class="absolute left-0 z-20 mt-6 flex h-full w-full items-stretch justify-center bg-none text-center"
+            style="height: calc(100vh - 30rem)"
+          >
+            <div class="m-auto flex flex-col justify-center gap-4">
+              <i class="pi pi-search text-surface-500" style="font-size: 5rem"></i>
+              <h5 class="text-2xl font-semibold">Записів не знайдено</h5>
+              <p class="w-[30rem] text-wrap text-center text-base text-surface-500">
+                Спробуйте змінити пошукові запити у фільтрі або зверніться до адміністратора для
+                створення нового щомісячного звіту
+              </p>
+            </div>
+          </div>
+        </template>
+
+        <ColumnGroup type="header">
+          <Row>
+            <Column header="#" :rowspan="2" frozen :pt="{ columntitle: { class: ['m-auto'] } }" />
+            <Column header="Код роботи" :rowspan="2" frozen />
+            <Column header="Назва роботи" :rowspan="2" />
+            <Column header="Служба/філія" :rowspan="2" />
+            <Column header="Структурний підрозділ" :rowspan="2" />
+            <Column
+              header="Кількість робіт"
+              :colspan="6"
+              :pt="{
+                columntitle: {
+                  class: ['m-auto', 'uppercase']
+                }
+              }"
+            />
+          </Row>
+
+          <Row>
+            <Column
+              header="Попередній місяць"
+              field="previousJobCount"
+              :colspan="1"
+              :pt="{ columntitle: { class: ['m-auto'] } }"
+            />
+            <Column
+              header="Поточні зміни (+/-)"
+              field="changesJobCount"
+              :colspan="1"
+              :pt="{ columntitle: { class: ['m-auto'] } }"
+            />
+            <Column
+              header="Поточний місяць"
+              field="currentJobCount"
+              :colspan="1"
+              :pt="{ columntitle: { class: ['m-auto'] } }"
+            />
+          </Row>
+        </ColumnGroup>
+
+        <Column
+          frozen
+          header="#"
+          :reorderableColumn="false"
+          style="width: 3rem; text-align: center"
+          :pt="{ columntitle: { class: ['m-auto'] } }"
+        >
+          <template #body="slotProps">
+            {{ slotProps.index + 1 }}
+          </template>
+        </Column>
+
+        <Column
+          field="service.code"
+          filterField="service.code"
+          :showFilterMenu="false"
+          style="width: 10%"
+        >
+        </Column>
+
+        <Column
+          field="service.name"
+          filterField="service.name"
+          :showFilterMenu="false"
+          style="max-width: 20rem"
+        >
+          <template #body="{ data, field }">
+            <div
+              class="overflow-hidden text-ellipsis whitespace-nowrap px-2"
+              v-tooltip.bottom="getObjField(data, field)"
+            >
+              <span>{{ getObjField(data, field) }}</span>
+            </div>
+          </template>
+        </Column>
+
+        <Column
+          field="branch.name"
+          filterField="branch.name"
+          :showFilterMenu="false"
+          style="width: 10%"
+        >
+        </Column>
+
+        <Column
+          field="subdivision.name"
+          filterField="subdivision.name"
+          :showFilterMenu="false"
+          style="width: 20%"
+        >
+        </Column>
+
+        <Column field="previousJobCount" style="width: 10%; text-align: center">
+          <template #body="{ data, field }">
+            <span v-if="data[field] !== 0">
+              <Tag
+                :severity="data[field] > 0 ? 'success' : 'warn'"
+                class="min-w-[4rem]"
+                :value="data[field] || '-'"
+              />
+            </span>
+            <span v-else>
+              <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
+            </span>
+          </template>
+        </Column>
+
+        <Column field="changesJobCount" style="width: 10%; text-align: center; cursor: pointer">
+          <template #body="{ data, field }">
+            <span v-if="data[field] !== 0">
+              <Tag
+                :severity="data[field] > 0 ? 'success' : 'warn'"
+                class="min-w-[4rem] font-bold"
+                :value="data[field] || '-'"
+              />
+            </span>
+            <span v-else>
+              <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
+            </span>
+          </template>
+        </Column>
+
+        <Column field="currentJobCount" style="width: 10%; text-align: center">
+          <template #body="{ data, field }">
+            <span v-if="data[field] !== 0">
+              <Tag
+                :severity="data[field] > 0 ? 'success' : 'warn'"
+                class="min-w-[4rem]"
+                :value="data[field] || '-'"
+              />
+            </span>
+            <span v-else>
+              <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
+            </span>
+          </template>
+        </Column>
+
+        <ColumnGroup type="footer" v-if="records.length">
+          <Row>
+            <Column footer="Всього:" :colspan="5" footerStyle="text-align:right" />
+            <Column :footer="previousJobCountAll" style="width: 10%; text-align: center" />
+            <Column :footer="changesJobCountAll" style="width: 10%; text-align: center" />
+            <Column :footer="currentJobCountAll" style="width: 10%; text-align: center" />
+          </Row>
+        </ColumnGroup>
+      </DataTable>
+    </div>
+
+    <Tabs scrollable showNavigators lazy v-model:value="department">
+      <TabList>
+        <Tab v-for="tab in departments" :key="tab.id" :value="tab.id">
+          {{ tab.name }}
+        </Tab>
+      </TabList>
+    </Tabs>
+  </div>
+</template>
