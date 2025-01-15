@@ -1,5 +1,5 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
 import { inject } from 'vue';
+import { createRouter, createWebHashHistory } from 'vue-router';
 
 import PrivateLayout from '@/layout/PrivateLayout.vue';
 import PublicLayout from '@/layout/PublicLayout.vue';
@@ -131,6 +131,15 @@ const router = createRouter({
             description: 'Перелік служб (філії), що обслуговуються'
           },
           component: () => import('@/views/table/BranchesView.vue')
+        },
+        {
+          path: 'subdivisions',
+          name: 'table-subdivisions',
+          meta: {
+            title: 'Перелік структурних підрозділів)',
+            description: 'Перелік структурних підрозділів, що обслуговуються'
+          },
+          component: () => import('@/views/table/SubdivisionsView.vue')
         }
       ]
     },

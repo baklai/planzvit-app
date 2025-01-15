@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from 'vue';
-import { useForm } from 'vee-validate';
-import * as yup from 'yup';
-import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
+import { useForm } from 'vee-validate';
+import { ref } from 'vue';
+import * as yup from 'yup';
 
 import { useDepartment } from '@/stores/api/departments';
 import { useService } from '@/stores/api/services';
@@ -78,6 +78,7 @@ const [services, servicesAttrs] = defineField('services');
 
 const onCreateRecord = async () => {
   resetForm({ values: {} }, { force: true });
+
   toast.add({
     severity: 'success',
     summary: 'Інформація',
@@ -127,6 +128,8 @@ const onRemoveRecord = async () => {
         }
       },
       reject: () => {
+        visible.value = false;
+
         toast.add({
           severity: 'info',
           summary: 'Інформація',
@@ -155,13 +158,13 @@ const onSaveRecord = handleSubmit(async values => {
     } else {
       await createOne(controlledValues.value);
     }
+
     toast.add({
       severity: 'success',
       summary: 'Інформація',
       detail: values?.id ? 'Запис оновлено' : 'Запис створено',
       life: 5000
     });
-    visible.value = false;
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -223,8 +226,6 @@ const onCloseModal = async () => {
         </div>
       </div>
     </template>
-
-    <ProgressBar mode="indeterminate" style="height: 6px" v-if="loading" />
 
     <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
       <div class="flex flex-col space-y-4 md:w-1/2 md:pr-2">

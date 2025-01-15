@@ -5,19 +5,18 @@ import { useForm } from 'vee-validate';
 import { ref } from 'vue';
 import * as yup from 'yup';
 
-import { useService } from '@/stores/api/services';
+import { useSubdivision } from '@/stores/api/subdivisions';
 
 const toast = useToast();
 const confirm = useConfirm();
 
-const { findOne, createOne, updateOne, removeOne } = useService();
+const { findOne, createOne, updateOne, removeOne } = useSubdivision();
 
 const { values, errors, handleSubmit, controlledValues, setValues, resetForm, defineField } =
   useForm({
     validationSchema: yup.object({
-      code: yup.string().required('Потрібно вказати значення'),
       name: yup.string().required('Потрібно вказати значення'),
-      price: yup.number()
+      description: yup.string().required('Потрібно вказати значення')
     }),
     initialValues: {}
   });
@@ -30,6 +29,7 @@ defineExpose({
       if (id) {
         setValues(await findOne({ id }));
       }
+
       visible.value = true;
     } catch (err) {
       visible.value = false;
@@ -59,9 +59,8 @@ const options = ref([
   }
 ]);
 
-const [code, codeAttrs] = defineField('code');
 const [name, nameAttrs] = defineField('name');
-const [price, priceAttrs] = defineField('price');
+const [description, descriptionAttrs] = defineField('description');
 
 const onCreateRecord = async () => {
   resetForm({ values: {} }, { force: true });
@@ -141,6 +140,7 @@ const onRemoveRecord = async () => {
 const onSaveRecord = handleSubmit(async values => {
   try {
     loading.value = true;
+
     if (values?.id) {
       await updateOne(values.id, controlledValues.value);
     } else {
@@ -187,7 +187,7 @@ const onCloseModal = async () => {
     closable
     :draggable="false"
     v-model:visible="visible"
-    class="mx-auto w-[90vw] md:w-[80vw] lg:w-[60vw] xl:w-[50vw] 2xl:w-[30vw]"
+    class="mx-auto w-[90vw] md:w-[80vw] lg:w-[50vw] xl:w-[40vw] 2xl:w-[30vw]"
     @hide="onCloseModal"
   >
     <template #header>
@@ -195,9 +195,9 @@ const onCloseModal = async () => {
         <div class="flex items-center justify-center">
           <Avatar icon="pi pi-file" class="mr-4" size="large" />
           <div>
-            <p class="line-height-2 text-lg font-bold">Сервіс підтримки</p>
+            <p class="line-height-2 text-lg font-bold">Структурний підрозділ</p>
             <p class="line-height-2 text-base font-normal text-surface-500">
-              {{ values?.id ? 'Редагування обраного запису' : 'Створення нового запису' }}
+              {{ values?.id ? 'Редагуваня обраного запису' : 'Створення нового запису' }}
             </p>
           </div>
         </div>
@@ -216,58 +216,37 @@ const onCloseModal = async () => {
     </template>
 
     <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
-      <div class="flex flex-col space-y-4 md:w-1/2 md:pr-2">
+      <div class="flex w-full flex-col space-y-4">
         <div class="flex flex-col gap-2">
-          <label for="code" class="font-bold"> Код сервісу </label>
+          <label for="name" class="font-bold"> Назва структурного підрозділу </label>
           <InputText
-            id="code"
-            v-model="code"
-            v-bind="codeAttrs"
-            placeholder="Код сервісу"
-            :invalid="!!errors?.code"
-            aria-describedby="code-help"
+            id="name"
+            v-model="name"
+            v-bind="nameAttrs"
+            placeholder="Назва структурного підрозділу"
+            :invalid="!!errors?.name"
+            aria-describedby="name-help"
           />
-          <small id="code-help" class="text-red-500" v-if="errors?.code">
-            {{ errors.code }}
-          </small>
-        </div>
-      </div>
-
-      <div class="flex flex-col space-y-4 md:w-1/2 md:pl-2">
-        <div class="flex flex-col gap-2">
-          <label for="price" class="font-bold"> Вартість підтримки (грн) </label>
-          <InputNumber
-            id="price"
-            fluid
-            autofocus
-            v-model="price"
-            v-bind="priceAttrs"
-            inputId="locale-user"
-            :maxFractionDigits="2"
-            placeholder="Вартість підтримки"
-            :invalid="!!errors?.price"
-            aria-describedby="price-help"
-          />
-          <small id="price-help" class="text-red-500" v-if="errors?.price">
-            {{ errors.price }}
+          <small id="name-help" class="text-red-500" v-if="errors?.name">
+            {{ errors.name }}
           </small>
         </div>
       </div>
 
       <div class="flex w-full flex-col space-y-4">
         <div class="flex flex-col gap-2">
-          <label for="name" class="font-bold"> Назва сервісу </label>
+          <label for="description" class="font-bold"> Повна назва структурного підрозділу </label>
           <Textarea
-            rows="5"
-            id="name"
-            v-model="name"
-            v-bind="nameAttrs"
-            placeholder="Назва сервісу"
-            :invalid="!!errors?.name"
-            aria-describedby="name-help"
+            id="description"
+            rows="3"
+            v-model="description"
+            v-bind="descriptionAttrs"
+            placeholder="Повна назва структурного підрозділу"
+            :invalid="!!errors?.description"
+            aria-describedby="description-help"
           />
-          <small id="name-help" class="text-red-500" v-if="errors?.name">
-            {{ errors.name }}
+          <small id="description-help" class="text-red-500" v-if="errors?.description">
+            {{ errors.description }}
           </small>
         </div>
       </div>

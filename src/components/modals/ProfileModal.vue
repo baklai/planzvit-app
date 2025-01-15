@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from 'vue';
-import { useForm } from 'vee-validate';
-import * as yup from 'yup';
-import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
+import { useForm } from 'vee-validate';
+import { ref } from 'vue';
+import * as yup from 'yup';
 
 import { useProfile } from '@/stores/api/profiles';
 
@@ -217,8 +217,6 @@ const onCloseModal = async () => {
         </div>
       </div>
     </template>
-
-    <ProgressBar mode="indeterminate" style="height: 6px" v-if="loading" />
 
     <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
       <div class="flex w-full flex-col gap-2">
