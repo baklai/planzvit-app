@@ -9,6 +9,16 @@ export const dateToMonthStr = value => {
   return formatter.format(date);
 };
 
+export const dateToMonthPeriodStr = value => {
+  if (!value) return;
+
+  const currentDate = new Date(value);
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+
+  return `з 01.${month}.${year} по ${new Date(year, month, 0).toISOString().slice(8, 10)}.${month}.${year} р.`;
+};
+
 export const dateToLocaleStr = (value, locale) => {
   return value
     ? new Date(value).toLocaleDateString(locale, {

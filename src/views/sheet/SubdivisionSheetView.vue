@@ -1,26 +1,25 @@
 <script setup>
 import { useToast } from 'primevue/usetoast';
-import { computed, onMounted, ref, watchEffect } from 'vue';
+import { onMounted, ref, watchEffect } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
+
 import { dateToMonthStr } from '@/service/DataFilters.js';
 import { monthlySubdivisionReport } from '@/service/ReportsSheetToXlsx';
 import { useBranch } from '@/stores/api/branches';
 import { useSheet } from '@/stores/api/sheets';
 
 const toast = useToast();
+
 const Branch = useBranch();
 const Sheet = useSheet();
 
 const loading = ref(false);
 
-const records = ref([]);
-const datepiker = ref(new Date());
 const subdivision = ref();
+const subdivisionId = ref();
 const subdivisions = ref([]);
-
-const totalPriceAll = ref();
-const totalJobCountAll = ref();
+const datepiker = ref(new Date());
 
 const exportmenu = ref();
 const exportmenuitems = ref([]);
@@ -29,28 +28,32 @@ const toggle = event => {
   exportmenu.value.toggle(event);
 };
 
-const selectSubdivision = computed(() => {
-  return subdivisions.value.find(({ id }) => id === subdivision.value) || null;
-});
-
 const onUpdateRecords = async () => {
-  if (!subdivision.value || !datepiker.value) return;
+  if (!subdivisionId.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть дату та підрозділ',
+      life: 3000
+    });
+
+    return;
+  }
 
   try {
     loading.value = true;
 
-    const [response] = await Sheet.findOneForSubdivision(subdivision.value, {
+    const [response] = await Sheet.findOneForSubdivision({
+      // ids: [subdivisionId.value],
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    records.value = response?.services || [];
-    totalPriceAll.value = response?.totalPrice || 0;
-    totalJobCountAll.value = response?.totalJobCount || 0;
+    console.log(response);
+
+    subdivision.value = response;
   } catch (err) {
-    records.value = [];
-    totalPriceAll.value = 0;
-    totalJobCountAll.value = 0;
+    subdivision.value = null;
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
@@ -63,51 +66,49 @@ const onUpdateRecords = async () => {
 };
 
 const onExportToExcel = async () => {
-  return;
-
-  if (!department.value || !datepiker.value) return;
+  if (!subdivisionId.value || !datepiker.value) return;
 
   loading.value = true;
 
   try {
-    const response = await Report.findAll({
-      department: department.value,
+    const [response] = await Sheet.findOneForSubdivision(subdivisionId.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    const data = response.map(item => {
+    const data = response.services.map(item => {
       return {
-        code: item.service.code,
-        name: item.service.name,
-        branch: item.branch.name,
-        subdivision: item.subdivision.name,
-        previousJobCount: item.previousJobCount,
-        changesJobCount: item.changesJobCount,
-        currentJobCount: item.currentJobCount
+        code: item.code,
+        name: item.name,
+        subdivision: response.subdivision.name,
+        totalJobCount: item.totalJobCount,
+        department: `${item.department.manager} ${item.department.phone}`
       };
     });
 
-    const buffer = await monthlySubdivisionReport([
-      {
-        department: { ...departments.value.find(({ id }) => id === department.value) },
-        datetime: datepiker.value,
-        data
-      }
-    ]);
+    const buffer = await monthlySubdivisionReport(
+      [
+        {
+          data,
+          branch: response.branch,
+          subdivision: response.subdivision
+        }
+      ],
+      datepiker.value
+    );
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
 
-    const url = URL.createObjectURL(blob);
+    const objectURL = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
-    link.click();
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `${response.subdivision.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
 
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(objectURL);
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -121,15 +122,14 @@ const onExportToExcel = async () => {
 };
 
 const onExportAllToExcel = async () => {
-  return;
+  if (!subdivisions?.value?.length || !datepiker?.value) return;
 
-  if (!departments?.value?.length || !datepiker?.value) return;
+  loading.value = true;
 
   try {
     const deparmentsRecords = await Promise.all([
-      ...departments.value.map(({ id }) =>
-        Report.findAll({
-          department: id,
+      ...subdivisions.value.map(({ id }) =>
+        Sheet.findOneForSubdivision(id, {
           monthOfReport: datepiker.value.getMonth() + 1,
           yearOfReport: datepiker.value.getFullYear()
         })
@@ -154,7 +154,7 @@ const onExportAllToExcel = async () => {
       };
     });
 
-    const buffer = await monthlySubdivisionReport(reports);
+    const buffer = await monthlyReport(reports);
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -175,11 +175,13 @@ const onExportAllToExcel = async () => {
       detail: err.message,
       life: 3000
     });
+  } finally {
+    loading.value = false;
   }
 };
 
 watchEffect(async () => {
-  if (subdivision.value && datepiker.value) {
+  if (subdivisionId.value && datepiker.value) {
     await onUpdateRecords();
   }
 });
@@ -197,12 +199,12 @@ onMounted(async () => {
           {
             label: 'Кількісний звіт',
             icon: 'pi pi-download',
-            command: () => false
+            command: () => onExportToExcel()
           },
           {
             label: 'Економічний звіт',
             icon: 'pi pi-download',
-            command: () => false
+            command: () => onExportToExcel()
           }
         ]
       },
@@ -212,12 +214,12 @@ onMounted(async () => {
           {
             label: 'Кількісний звіт',
             icon: 'pi pi-download',
-            command: () => false
+            command: () => onExportAllToExcel()
           },
           {
             label: 'Економічний звіт',
             icon: 'pi pi-download',
-            command: () => false
+            command: () => onExportAllToExcel()
           }
         ]
       }
@@ -250,7 +252,7 @@ onMounted(async () => {
         responsiveLayout="scroll"
         :loading="loading"
         style="height: calc(100vh - 15.5rem)"
-        v-model:value="records"
+        :value="subdivision?.services || []"
         class="min-w-full overflow-x-auto text-base"
         :pt="{
           mask: {
@@ -264,7 +266,7 @@ onMounted(async () => {
               <i class="pi pi-file-excel mr-2 hidden sm:block" style="font-size: 2.5rem" />
               <div class="flex flex-col">
                 <h3 class="text-xl font-normal">
-                  {{ selectSubdivision?.name ? `${selectSubdivision.name} | ` : '' }}
+                  {{ subdivision?.subdivision?.name ? `${subdivision?.subdivision?.name} | ` : '' }}
                   <span>{{ $route?.meta?.title }}</span>
                   {{ datepiker ? `за ${dateToMonthStr(datepiker)}` : '' }}
                 </h3>
@@ -319,7 +321,7 @@ onMounted(async () => {
 
         <template #empty>
           <div
-            v-if="!loading && !records?.length"
+            v-if="!loading && !subdivision?.services && !subdivision?.services?.length"
             class="absolute left-0 z-20 mt-6 flex h-full w-full items-stretch justify-center bg-none text-center"
             style="height: calc(100vh - 30rem)"
           >
@@ -350,8 +352,8 @@ onMounted(async () => {
         <Column header="Назва роботи" field="name" class="min-w-[35rem]" />
 
         <Column header="Структурний підрозділ" field="subdivision" class="min-w-[25rem]">
-          <template #body="{ data }">
-            {{ selectSubdivision?.name || '-' }}
+          <template #body>
+            {{ subdivision?.subdivision?.name || '-' }}
           </template>
         </Column>
 
@@ -397,17 +399,21 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <ColumnGroup type="footer" v-if="records.length">
+        <ColumnGroup type="footer" v-if="subdivision?.services?.length">
           <Row>
             <Column footer="Всього:" :colspan="4" class="uppercase" style="text-align: right" />
-            <Column :footer="totalJobCountAll" style="text-align: center" />
-            <Column :footer="totalPriceAll" :colspan="2" style="text-align: center" />
+            <Column :footer="subdivision?.totalJobCount || 0" style="text-align: center" />
+            <Column
+              :footer="subdivision?.totalPrice || 0"
+              :colspan="2"
+              style="text-align: center"
+            />
           </Row>
         </ColumnGroup>
       </DataTable>
     </div>
 
-    <Tabs scrollable showNavigators lazy v-model:value="subdivision">
+    <Tabs scrollable showNavigators lazy v-model:value="subdivisionId">
       <TabList>
         <Tab v-for="tab in subdivisions" :key="tab.id" :value="tab.id">
           {{ tab.name }}

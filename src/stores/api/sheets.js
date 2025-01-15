@@ -1,5 +1,5 @@
-import { inject } from 'vue';
 import { defineStore } from 'pinia';
+import { inject } from 'vue';
 
 export const useSheet = defineStore('sheet', () => {
   const $axios = inject('axios');
@@ -12,9 +12,9 @@ export const useSheet = defineStore('sheet', () => {
     }
   }
 
-  async function findOneForSubdivision(id, params) {
+  async function findOneForSubdivision(params) {
     try {
-      return await $axios.get(`/sheets/subdivisions/${id}`, { params });
+      return await $axios.get(`/sheets/subdivisions`, { params });
     } catch (err) {
       throw new Error(err.message);
     }
