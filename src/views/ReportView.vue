@@ -1,14 +1,14 @@
 <script setup lang="jsx">
-import { ref, computed, watchEffect, onMounted } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
 
-import { useReport } from '@/stores/api/reports';
 import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
 import { monthlyReport } from '@/service/ReportsSheetToXlsx';
+import { useReport } from '@/stores/api/reports';
 
 const toast = useToast();
 
@@ -240,7 +240,6 @@ onMounted(async () => {
           <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
             <Button
               size="large"
-              severity="success"
               variant="outlined"
               icon="pi pi-download"
               label="Завантажити звіт"
