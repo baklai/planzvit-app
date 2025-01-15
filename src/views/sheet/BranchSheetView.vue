@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed, watchEffect, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
-import { useSheet } from '@/stores/api/sheets';
-import { useBranch } from '@/stores/api/branches';
 import { dateToMonthStr } from '@/service/DataFilters.js';
+import { useBranch } from '@/stores/api/branches';
+import { useSheet } from '@/stores/api/sheets';
 
 const toast = useToast();
 const Branch = useBranch();
@@ -21,21 +21,12 @@ const branches = ref([]);
 const totalPriceAll = ref();
 const totalJobCountAll = ref();
 
-const savemenu = [
-  {
-    label: 'Завантажити звіт',
-    icon: 'pi pi-download',
-    command: () => onExportToExcel()
-  },
-  {
-    separator: true
-  },
-  {
-    label: 'Завантажити усі звіти',
-    icon: 'pi pi-download',
-    command: () => onExportAllToExcel()
-  }
-];
+const exportmenu = ref();
+const exportmenuitems = ref([]);
+
+const toggle = event => {
+  exportmenu.value.toggle(event);
+};
 
 const selectBranch = computed(() => {
   return branches.value.find(({ id }) => id === branch.value) || null;
@@ -77,122 +68,6 @@ const onUpdateRecords = async () => {
   }
 };
 
-const onExportToExcel = async () => {
-  return;
-
-  if (!department.value || !datepiker.value) return;
-
-  loading.value = true;
-
-  try {
-    const response = await Report.findAll({
-      department: department.value,
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
-
-    const data = response.map(item => {
-      return {
-        code: item.service.code,
-        name: item.service.name,
-        branch: item.branch.name,
-        subdivision: item.subdivision.name,
-        previousJobCount: item.previousJobCount,
-        changesJobCount: item.changesJobCount,
-        currentJobCount: item.currentJobCount
-      };
-    });
-
-    const buffer = await monthlySubdivisionReport([
-      {
-        department: { ...departments.value.find(({ id }) => id === department.value) },
-        datetime: datepiker.value,
-        data
-      }
-    ]);
-
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    });
-
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
-    link.click();
-
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
-};
-
-const onExportAllToExcel = async () => {
-  return;
-
-  if (!departments?.value?.length || !datepiker?.value) return;
-
-  try {
-    const deparmentsRecords = await Promise.all([
-      ...departments.value.map(({ id }) =>
-        Report.findAll({
-          department: id,
-          monthOfReport: datepiker.value.getMonth() + 1,
-          yearOfReport: datepiker.value.getFullYear()
-        })
-      )
-    ]);
-
-    const reports = deparmentsRecords.map((records, index) => {
-      return {
-        department: { ...departments.value[index] },
-        datetime: datepiker.value,
-        data: records.map(item => {
-          return {
-            code: item.service.code,
-            name: item.service.name,
-            branch: item.branch.name,
-            subdivision: item.subdivision.name,
-            previousJobCount: item.previousJobCount,
-            changesJobCount: item.changesJobCount,
-            currentJobCount: item.currentJobCount
-          };
-        })
-      };
-    });
-
-    const buffer = await monthlySubdivisionReport(reports);
-
-    const blob = new Blob([buffer], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    });
-
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
-    link.click();
-
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  }
-};
-
 watchEffect(async () => {
   if (branch.value && datepiker.value) {
     await onUpdateRecords();
@@ -206,6 +81,39 @@ onMounted(async () => {
     branches.value = docs.map(({ id, name, description }) => {
       return { id, name, description };
     });
+
+    exportmenuitems.value = [
+      {
+        label: 'Поточні звіти',
+        items: [
+          {
+            label: 'Кількісний звіт',
+            icon: 'pi pi-download',
+            command: () => false
+          },
+          {
+            label: 'Економічний звіт',
+            icon: 'pi pi-download',
+            command: () => false
+          }
+        ]
+      },
+      {
+        label: 'Комплексні звіти',
+        items: [
+          {
+            label: 'Кількісний звіт',
+            icon: 'pi pi-download',
+            command: () => false
+          },
+          {
+            label: 'Економічний звіт',
+            icon: 'pi pi-download',
+            command: () => false
+          }
+        ]
+      }
+    ];
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -259,15 +167,6 @@ onMounted(async () => {
             </div>
 
             <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
-              <SplitButton
-                outlined
-                size="large"
-                icon="pi pi-download"
-                label="ЗВІТИ"
-                :model="savemenu"
-                :loading="loading"
-              />
-
               <FloatLabel variant="in">
                 <DatePicker
                   showIcon
@@ -281,6 +180,25 @@ onMounted(async () => {
                 />
                 <label for="datepiker">Оберіть рік та місяць</label>
               </FloatLabel>
+
+              <Button
+                size="large"
+                type="button"
+                icon="pi pi-ellipsis-v"
+                @click="toggle"
+                aria-haspopup="true"
+                severity="secondary"
+                aria-controls="exports_menu"
+                v-tooltip.bottom="'Експорт звітів'"
+                :pt="{ root: { class: ['h-14'] } }"
+              />
+              <Menu
+                ref="exportmenu"
+                id="exports_menu"
+                :model="exportmenuitems"
+                :popup="true"
+                :pt="{ list: { class: ['!gap-y-2'] }, itemcontent: { class: ['py-2'] } }"
+              />
             </div>
           </div>
         </template>

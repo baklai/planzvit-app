@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed, watchEffect, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
-import { useSheet } from '@/stores/api/sheets';
-import { useBranch } from '@/stores/api/branches';
 import { dateToMonthStr } from '@/service/DataFilters.js';
 import { monthlySubdivisionReport } from '@/service/ReportsSheetToXlsx';
+import { useBranch } from '@/stores/api/branches';
+import { useSheet } from '@/stores/api/sheets';
 
 const toast = useToast();
 const Branch = useBranch();
@@ -22,21 +22,12 @@ const subdivisions = ref([]);
 const totalPriceAll = ref();
 const totalJobCountAll = ref();
 
-const savemenu = [
-  {
-    label: 'Завантажити звіт',
-    icon: 'pi pi-download',
-    command: () => onExportToExcel()
-  },
-  {
-    separator: true
-  },
-  {
-    label: 'Завантажити усі звіти',
-    icon: 'pi pi-download',
-    command: () => onExportAllToExcel()
-  }
-];
+const exportmenu = ref();
+const exportmenuitems = ref([]);
+
+const toggle = event => {
+  exportmenu.value.toggle(event);
+};
 
 const selectSubdivision = computed(() => {
   return subdivisions.value.find(({ id }) => id === subdivision.value) || null;
@@ -198,6 +189,39 @@ onMounted(async () => {
     const { docs } = await Branch.findAll({ offset: 0, limit: 1000 });
 
     subdivisions.value = docs.flatMap(obj => obj.subdivisions);
+
+    exportmenuitems.value = [
+      {
+        label: 'Поточні звіти',
+        items: [
+          {
+            label: 'Кількісний звіт',
+            icon: 'pi pi-download',
+            command: () => false
+          },
+          {
+            label: 'Економічний звіт',
+            icon: 'pi pi-download',
+            command: () => false
+          }
+        ]
+      },
+      {
+        label: 'Комплексні звіти',
+        items: [
+          {
+            label: 'Кількісний звіт',
+            icon: 'pi pi-download',
+            command: () => false
+          },
+          {
+            label: 'Економічний звіт',
+            icon: 'pi pi-download',
+            command: () => false
+          }
+        ]
+      }
+    ];
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -251,15 +275,6 @@ onMounted(async () => {
             </div>
 
             <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
-              <SplitButton
-                outlined
-                size="large"
-                icon="pi pi-download"
-                label="ЗВІТИ"
-                :model="savemenu"
-                :loading="loading"
-              />
-
               <FloatLabel variant="in">
                 <DatePicker
                   showIcon
@@ -273,6 +288,25 @@ onMounted(async () => {
                 />
                 <label for="datepiker">Оберіть рік та місяць</label>
               </FloatLabel>
+
+              <Button
+                size="large"
+                type="button"
+                icon="pi pi-ellipsis-v"
+                @click="toggle"
+                aria-haspopup="true"
+                severity="secondary"
+                aria-controls="exports_menu"
+                v-tooltip.bottom="'Експорт звітів'"
+                :pt="{ root: { class: ['h-14'] } }"
+              />
+              <Menu
+                ref="exportmenu"
+                id="exports_menu"
+                :model="exportmenuitems"
+                :popup="true"
+                :pt="{ list: { class: ['!gap-y-2'] }, itemcontent: { class: ['py-2'] } }"
+              />
             </div>
           </div>
         </template>

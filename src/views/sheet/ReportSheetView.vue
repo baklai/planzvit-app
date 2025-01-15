@@ -126,6 +126,8 @@ const onExportToExcel = async departmentId => {
 const onExportAllToExcel = async () => {
   if (!departments?.value?.length || !datepiker?.value) return;
 
+  loading.value = true;
+
   try {
     const deparmentsRecords = await Promise.all([
       ...departments.value.map(({ id }) =>
@@ -176,6 +178,8 @@ const onExportAllToExcel = async () => {
       detail: err.message,
       life: 3000
     });
+  } finally {
+    loading.value = false;
   }
 };
 
