@@ -1,5 +1,5 @@
-import { inject } from 'vue';
 import { defineStore } from 'pinia';
+import { inject } from 'vue';
 
 export const useReport = defineStore('report', () => {
   const $axios = inject('axios');
@@ -46,7 +46,7 @@ export const useReport = defineStore('report', () => {
 
   async function findCollecrions() {
     try {
-      return await $axios.get('/reports/collecrions/department/service/branch/subdivision');
+      return await $axios.get('/reports/collections/data');
     } catch (err) {
       throw new Error(err.message);
     }
