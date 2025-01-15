@@ -22,6 +22,44 @@ const services = ref([]);
 const branches = ref([]);
 const subdivisions = ref([]);
 
+const loading = ref(false);
+
+const exportmenu = ref();
+const exportmenuitems = ref([
+  {
+    label: 'Експорт звітів',
+    items: [
+      {
+        label: 'Щомісячний звіт',
+        icon: 'pi pi-download',
+        command: () => onExportToExcel()
+      },
+
+      {
+        label: 'Щомісячний оптимізований звіт',
+        icon: 'pi pi-download',
+        command: () => onExportToExcel(true)
+      }
+    ]
+  },
+
+  {
+    label: 'Генерація звітів',
+    items: [
+      {
+        label: 'Оновити щомісячний звіт',
+        icon: 'pi pi-replay',
+        command: () => onCreateReport()
+      },
+      {
+        label: 'Створити щомісячний звіт',
+        icon: 'pi pi-sparkles',
+        command: () => onCreateReport()
+      }
+    ]
+  }
+]);
+
 const filters = ref({
   'service.code': { value: null, matchMode: FilterMatchMode.IN },
   'service.name': { value: null, matchMode: FilterMatchMode.IN },
@@ -41,7 +79,9 @@ const currentJobCountAll = computed(() => {
   return records.value.reduce((sum, item) => sum + item.currentJobCount, 0);
 });
 
-const loading = ref(false);
+const toggle = event => {
+  exportmenu.value.toggle(event);
+};
 
 const onUpdateRecords = async () => {
   if (!department.value || !datepiker.value) return;
@@ -88,7 +128,18 @@ const onCellEditComplete = async event => {
   }
 };
 
-const onExportToExcel = async () => {
+const onExportToExcel = async (optimized = false) => {
+  if (!department.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та відділ!',
+      life: 5000
+    });
+
+    return;
+  }
+
   loading.value = true;
 
   try {
@@ -98,17 +149,25 @@ const onExportToExcel = async () => {
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    const data = response.map(item => {
-      return {
-        code: item.service.code,
-        name: item.service.name,
-        branch: item.branch.name,
-        subdivision: item.subdivision.name,
-        previousJobCount: item.previousJobCount,
-        changesJobCount: item.changesJobCount,
-        currentJobCount: item.currentJobCount
-      };
-    });
+    const data = response
+      .map(item => {
+        return {
+          code: item.service.code,
+          name: item.service.name,
+          branch: item.branch.name,
+          subdivision: item.subdivision.name,
+          previousJobCount: item?.previousJobCount || 0,
+          changesJobCount: item?.changesJobCount || 0,
+          currentJobCount: item?.currentJobCount || 0
+        };
+      })
+      .filter(item => {
+        if (!optimized) return true;
+
+        return (
+          item.previousJobCount !== 0 || item.changesJobCount !== 0 || item.currentJobCount !== 0
+        );
+      });
 
     const buffer = await monthlyReport([
       { department: { ...department.value }, datetime: datepiker.value, data }
@@ -143,7 +202,7 @@ const onCreateReport = async () => {
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
-      detail: 'Вкажіть місяць, рік та відділ підрозділу!',
+      detail: 'Оберіть місяць, рік та відділ!',
       life: 5000
     });
 
@@ -238,18 +297,6 @@ onMounted(async () => {
           </div>
 
           <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
-            <Button
-              size="large"
-              variant="outlined"
-              icon="pi pi-download"
-              label="Завантажити звіт"
-              :loading="loading"
-              :disabled="loading"
-              class="!px-4 !py-4"
-              @click="onExportToExcel"
-              v-if="records?.length"
-            />
-
             <FloatLabel variant="in">
               <DatePicker
                 inputId="datepiker"
@@ -276,6 +323,25 @@ onMounted(async () => {
               />
               <label for="department">Оберіть відділ</label>
             </FloatLabel>
+
+            <Button
+              size="large"
+              type="button"
+              icon="pi pi-ellipsis-v"
+              @click="toggle"
+              aria-haspopup="true"
+              severity="secondary"
+              aria-controls="exports_menu"
+              v-tooltip.bottom="'Експорт звітів'"
+              :pt="{ root: { class: ['h-14'] } }"
+            />
+            <Menu
+              ref="exportmenu"
+              id="exports_menu"
+              :model="exportmenuitems"
+              :popup="true"
+              :pt="{ list: { class: ['!gap-y-2'] }, itemcontent: { class: ['py-2'] } }"
+            />
           </div>
         </div>
       </template>
@@ -299,13 +365,6 @@ onMounted(async () => {
               Спробуйте змінити пошукові запити у фільтрі або зверніться до адміністратора для
               створення нового щомісячного звіту
             </p>
-
-            <Button
-              class="m-auto my-4 w-max"
-              label="Створити звіт"
-              @click="onCreateReport"
-              v-if="$planzvit.profile.role === 'administrator'"
-            />
           </div>
         </div>
       </template>

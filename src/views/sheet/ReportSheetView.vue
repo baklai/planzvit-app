@@ -66,7 +66,16 @@ const onUpdateRecords = async () => {
 };
 
 const onExportToExcel = async departmentId => {
-  if (!departmentId || !departments.value?.length || !datepiker.value) return;
+  if (!departmentId || !departments.value?.length || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть дату та підрозділ',
+      life: 3000
+    });
+
+    return;
+  }
 
   loading.value = true;
 
