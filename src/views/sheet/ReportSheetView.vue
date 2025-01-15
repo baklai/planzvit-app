@@ -1,15 +1,14 @@
 <script setup lang="jsx">
-import { ref, computed, watchEffect, onMounted } from 'vue';
-import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
 
-import { useReport } from '@/stores/api/reports';
-import { useDepartment } from '@/stores/api/departments';
 import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
 import { monthlyReport } from '@/service/ReportsSheetToXlsx';
+import { useDepartment } from '@/stores/api/departments';
+import { useReport } from '@/stores/api/reports';
 
 const toast = useToast();
 
@@ -21,21 +20,10 @@ const datepiker = ref(new Date());
 const department = ref();
 const departments = ref([]);
 
-const savemenu = [
-  {
-    label: 'Завантажити звіт',
-    icon: 'pi pi-download',
-    command: () => onExportToExcel()
-  },
-  {
-    separator: true
-  },
-  {
-    label: 'Завантажити усі звіти',
-    icon: 'pi pi-download',
-    command: () => onExportAllToExcel()
-  }
-];
+const exportmenu = ref();
+const exportmenuitems = ref([]);
+
+const loading = ref(false);
 
 const previousJobCountAll = computed(() => {
   return records.value.reduce((sum, item) => sum + item.previousJobCount, 0);
@@ -49,7 +37,9 @@ const currentJobCountAll = computed(() => {
   return records.value.reduce((sum, item) => sum + item.currentJobCount, 0);
 });
 
-const loading = ref(false);
+const toggle = event => {
+  exportmenu.value.toggle(event);
+};
 
 const onUpdateRecords = async () => {
   if (!department.value || !datepiker.value) return;
@@ -75,14 +65,14 @@ const onUpdateRecords = async () => {
   }
 };
 
-const onExportToExcel = async () => {
-  if (!department.value || !datepiker.value) return;
+const onExportToExcel = async departmentId => {
+  if (!departmentId || !departments.value?.length || !datepiker.value) return;
 
   loading.value = true;
 
   try {
     const response = await Report.findAll({
-      department: department.value,
+      department: departmentId,
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
@@ -99,9 +89,11 @@ const onExportToExcel = async () => {
       };
     });
 
+    const selectDepartment = departments.value.find(({ id }) => id === departmentId);
+
     const buffer = await monthlyReport([
       {
-        department: { ...departments.value.find(({ id }) => id === department.value) },
+        department: selectDepartment,
         datetime: datepiker.value,
         data
       }
@@ -111,14 +103,14 @@ const onExportToExcel = async () => {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
 
-    const url = URL.createObjectURL(blob);
+    const objectURL = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
-    link.click();
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `${selectDepartment.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
 
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(objectURL);
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -198,6 +190,29 @@ onMounted(async () => {
     const { docs } = await Department.findAll({ offset: 0, limit: 1000 });
 
     departments.value = docs;
+
+    exportmenuitems.value = [
+      {
+        label: 'Щомісячні звіти',
+        items: [
+          ...departments.value.map(department => {
+            return {
+              label: `${department.name} Щомісячний звіт`,
+              icon: 'pi pi-download',
+              command: () => onExportToExcel(department.id)
+            };
+          })
+        ]
+      },
+      {
+        separator: true
+      },
+      {
+        label: 'Комплексний звіт',
+        icon: 'pi pi-download',
+        command: () => onExportAllToExcel()
+      }
+    ];
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -245,15 +260,6 @@ onMounted(async () => {
             </div>
 
             <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
-              <SplitButton
-                outlined
-                size="large"
-                icon="pi pi-download"
-                label="ЗВІТИ"
-                :model="savemenu"
-                :loading="loading"
-              />
-
               <FloatLabel variant="in">
                 <DatePicker
                   showIcon
@@ -267,6 +273,25 @@ onMounted(async () => {
                 />
                 <label for="datepiker">Оберіть рік та місяць</label>
               </FloatLabel>
+
+              <Button
+                size="large"
+                type="button"
+                icon="pi pi-ellipsis-v"
+                @click="toggle"
+                aria-haspopup="true"
+                severity="secondary"
+                aria-controls="exports_menu"
+                v-tooltip.bottom="'Експорт звітів'"
+                :pt="{ root: { class: ['h-14'] } }"
+              />
+              <Menu
+                ref="exportmenu"
+                id="exports_menu"
+                :model="exportmenuitems"
+                :popup="true"
+                :pt="{ list: { class: ['!gap-y-2'] }, itemcontent: { class: ['py-2'] } }"
+              />
             </div>
           </div>
         </template>

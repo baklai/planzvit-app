@@ -58,9 +58,7 @@ export const monthlyReport = async reports => {
 
     worksheet.getRow(7).height = 125;
 
-    const headerRow = worksheet.getRow(7);
-
-    headerRow.eachCell(cell => {
+    worksheet.getRow(7).eachCell(cell => {
       cell.font = { name: 'Times New Roman', size: 12, bold: true };
       cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
       cell.border = {
@@ -71,33 +69,37 @@ export const monthlyReport = async reports => {
       };
     });
 
+    headers.forEach((h, index) => {
+      worksheet.getColumn(index + 1).width = h.width;
+    });
+
     const rowStyles = [
       {
-        font: { name: 'Times New Roman', size: 12 },
+        font: { name: 'Times New Roman', size: 11 },
         alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }
       },
       {
-        font: { name: 'Times New Roman', size: 12 },
+        font: { name: 'Times New Roman', size: 11 },
         alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }
       },
       {
-        font: { name: 'Times New Roman', size: 12 },
+        font: { name: 'Times New Roman', size: 11 },
         alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }
       },
       {
-        font: { name: 'Times New Roman', size: 12 },
+        font: { name: 'Times New Roman', size: 11 },
         alignment: { vertical: 'middle', horizontal: 'center', wrapText: true }
       },
       {
-        font: { name: 'Times New Roman', size: 12, bold: true },
+        font: { name: 'Times New Roman', size: 14 },
         alignment: { vertical: 'middle', horizontal: 'center' }
       },
       {
-        font: { name: 'Times New Roman', size: 12, bold: true },
+        font: { name: 'Times New Roman', size: 14 },
         alignment: { vertical: 'middle', horizontal: 'center' }
       },
       {
-        font: { name: 'Times New Roman', size: 12, bold: true },
+        font: { name: 'Times New Roman', size: 14 },
         alignment: { vertical: 'middle', horizontal: 'center' }
       }
     ];
@@ -118,8 +120,22 @@ export const monthlyReport = async reports => {
       });
     });
 
-    headers.forEach((h, index) => {
-      worksheet.getColumn(index + 1).width = h.width;
+    data.forEach((item, index) => {
+      const rowIndex = 8 + index;
+      const row = worksheet.getRow(rowIndex);
+
+      let maxLines = 1;
+      headers.forEach((header, colIndex) => {
+        const value = item[header.key];
+        if (value) {
+          const text = value.toString();
+          const columnWidth = worksheet.getColumn(colIndex + 1).width || 10;
+          const estimatedLines = Math.ceil(text.length / columnWidth);
+          maxLines = Math.max(maxLines, estimatedLines);
+        }
+      });
+
+      row.height = maxLines * 15;
     });
 
     worksheet.mergeCells(`A${data.length + 10}:G${data.length + 10}`);
