@@ -38,7 +38,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    const [response] = await Sheet.findOneForBranches(branch.value, {
+    const [response] = await Sheet.getBranchesById(branch.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });

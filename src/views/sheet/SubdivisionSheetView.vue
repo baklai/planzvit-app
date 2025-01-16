@@ -43,13 +43,10 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    const [response] = await Sheet.findOneForSubdivision({
-      // ids: [subdivisionId.value],
+    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
-
-    console.log(response);
 
     subdivision.value = response;
   } catch (err) {
@@ -71,7 +68,7 @@ const onExportToExcel = async () => {
   loading.value = true;
 
   try {
-    const [response] = await Sheet.findOneForSubdivision(subdivisionId.value, {
+    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
@@ -129,7 +126,7 @@ const onExportAllToExcel = async () => {
   try {
     const deparmentsRecords = await Promise.all([
       ...subdivisions.value.map(({ id }) =>
-        Sheet.findOneForSubdivision(id, {
+        Sheet.getSubdivisionsById(id, {
           monthOfReport: datepiker.value.getMonth() + 1,
           yearOfReport: datepiker.value.getFullYear()
         })

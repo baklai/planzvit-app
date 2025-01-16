@@ -20,7 +20,7 @@ export const useSheet = defineStore('sheet', () => {
     }
   }
 
-  async function findOneForBranches(id, params) {
+  async function getBranchesById(id, params) {
     try {
       return await $axios.get(`/sheets/branches/${id}`, { params });
     } catch (err) {
@@ -28,7 +28,23 @@ export const useSheet = defineStore('sheet', () => {
     }
   }
 
-  async function findOneForSubdivision(params) {
+  async function getBranchesByIds(params) {
+    try {
+      return await $axios.get(`/sheets/branches`, { params });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async function getSubdivisionsById(id, params) {
+    try {
+      return await $axios.get(`/sheets/subdivisions/${id}`, { params });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async function getSubdivisionsByIds(params) {
     try {
       return await $axios.get(`/sheets/subdivisions`, { params });
     } catch (err) {
@@ -36,5 +52,12 @@ export const useSheet = defineStore('sheet', () => {
     }
   }
 
-  return { getReportsById, getReportsByIds, findOneForBranches, findOneForSubdivision };
+  return {
+    getReportsById,
+    getReportsByIds,
+    getBranchesById,
+    getBranchesByIds,
+    getSubdivisionsById,
+    getSubdivisionsByIds
+  };
 });
