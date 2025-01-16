@@ -398,7 +398,12 @@ onMounted(async () => {
 
         <ColumnGroup type="footer" v-if="subdivision?.services?.length">
           <Row>
-            <Column footer="Всього:" :colspan="4" class="uppercase" style="text-align: right" />
+            <Column
+              :footer="subdivision.services.length"
+              style="text-align: center"
+              class="!text-xs !text-muted-color"
+            />
+            <Column footer="Всього:" :colspan="3" class="uppercase" style="text-align: right" />
             <Column :footer="subdivision?.totalJobCount || 0" style="text-align: center" />
             <Column
               :footer="subdivision?.totalPrice || 0"

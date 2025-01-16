@@ -303,7 +303,12 @@ onMounted(async () => {
 
         <ColumnGroup type="footer" v-if="records.length">
           <Row>
-            <Column :colspan="4" footer="Разом:" class="uppercase" style="text-align: end" />
+            <Column
+              :footer="records.length"
+              style="text-align: center"
+              class="!text-xs !text-muted-color"
+            />
+            <Column :colspan="3" footer="Разом:" class="uppercase" style="text-align: end" />
             <Column :colspan="1" :footer="totalJobCountAll" style="text-align: center" />
             <Column :colspan="2" :footer="totalPriceAll" style="text-align: center" />
           </Row>
