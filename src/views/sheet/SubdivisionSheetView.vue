@@ -354,7 +354,7 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <Column header="Структурний підрозділ" class="min-w-[20rem]">
+        <Column header="Структурний підрозділ" field="subdivision" class="min-w-[20rem]">
           <template #body>
             <span class="px-2">
               {{ subdivision?.name || '-' }}
