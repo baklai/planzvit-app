@@ -17,18 +17,16 @@ export default {
         return store?.loggedIn;
       },
 
-      get isAdmin() {
-        return store?.isAdmin;
+      get isModerator() {
+        return store?.isModerator;
+      },
+
+      get isAdministrator() {
+        return store?.isAdministrator;
       },
 
       get isActivated() {
         return store?.isActivated;
-      },
-
-      hasScope(scope) {
-        if (store?.isAdmin) return true;
-        if (options?.unless?.includes(scope)) return true;
-        return store?.profile?.scope?.includes(scope);
       },
 
       notImplemented() {

@@ -53,13 +53,13 @@ const exportmenuitems = ref([
       {
         label: 'Оновити щомісячний звіт',
         icon: 'pi pi-replay',
-        disabled: $planzvit?.profile?.role !== 'administrator',
+        disabled: !$planzvit?.isAdministrator,
         command: () => onCreateReport()
       },
       {
         label: 'Створити щомісячний звіт',
         icon: 'pi pi-sparkles',
-        disabled: $planzvit?.profile?.role !== 'administrator',
+        disabled: !$planzvit?.isAdministrator,
         command: () => onCreateReport()
       }
     ]
@@ -71,7 +71,7 @@ const exportmenuitems = ref([
       {
         label: 'Видалити поточний звіт',
         icon: 'pi pi-trash',
-        disabled: $planzvit?.profile?.role !== 'administrator',
+        disabled: !$planzvit?.isAdministrator,
         command: () => onDeleteReport()
       }
     ]

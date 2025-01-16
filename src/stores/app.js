@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
 
 import useLocalStorage from '@/service/LocalStorage';
 
@@ -21,6 +21,14 @@ export const useApp = defineStore('app', () => {
 
   const isActivated = computed(() => {
     return profile.value?.isActivated;
+  });
+
+  const isModerator = computed(() => {
+    return profile.value?.role === 'moderator';
+  });
+
+  const isAdministrator = computed(() => {
+    return profile.value?.role === 'administrator';
   });
 
   function setProfile(value) {
@@ -64,6 +72,8 @@ export const useApp = defineStore('app', () => {
     profile,
     loggedIn,
     isActivated,
+    isModerator,
+    isAdministrator,
     setProfile,
     getAccessToken,
     setAccessToken,
