@@ -352,8 +352,8 @@ export const subdivisionJobsReport = async (reports, datetime) => {
 export const branchJobsReport = async (reports, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const { branch, subdivision, data } of reports) {
-    const worksheet = workbook.addWorksheet(subdivision.name);
+  for (const { branch, data } of reports) {
+    const worksheet = workbook.addWorksheet(branch.name);
 
     worksheet.mergeCells('A1:E1');
     worksheet.getCell('A1').value = 'Перелік';

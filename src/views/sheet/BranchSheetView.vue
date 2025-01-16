@@ -3,7 +3,9 @@ import { useToast } from 'primevue/usetoast';
 import { computed, onMounted, ref, watchEffect } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
+
 import { dateToMonthStr } from '@/service/DataFilters.js';
+import { branchJobsReport } from '@/service/ReportsSheetToXlsx';
 import { useBranch } from '@/stores/api/branches';
 import { useSheet } from '@/stores/api/sheets';
 
@@ -24,7 +26,28 @@ const totalPriceAll = ref();
 const totalJobCountAll = ref();
 
 const exportmenu = ref();
-const exportmenuitems = ref([]);
+const exportmenuitems = ref([
+  {
+    label: 'Поточні звіти',
+    items: [
+      {
+        label: 'Кількісний звіт',
+        icon: 'pi pi-download',
+        command: () => onExportToExcel()
+      }
+    ]
+  },
+  {
+    label: 'Комплексні звіти',
+    items: [
+      {
+        label: 'Кількісний звіт',
+        icon: 'pi pi-download',
+        command: () => onExportAllToExcel()
+      }
+    ]
+  }
+]);
 
 const toggle = event => {
   exportmenu.value.toggle(event);
@@ -70,6 +93,115 @@ const onUpdateRecords = async () => {
   }
 };
 
+const onExportToExcel = async () => {
+  if (!branch.value || !datepiker.value) return;
+
+  loading.value = true;
+
+  try {
+    const [response] = await Sheet.getBranchesById(branch.value, {
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
+    });
+
+    const data = response.subdivisions.flatMap(subdivision =>
+      subdivision.services.map(service => ({
+        code: service.code,
+        name: service.name,
+        subdivision: subdivision.name,
+        totalJobCount: service.totalJobCount,
+        department: `${service.department.manager} ${service.department.phone}`
+      }))
+    );
+
+    const buffer = await branchJobsReport(
+      [
+        {
+          data,
+          branch: { name: response.name, description: response.description }
+        }
+      ],
+      datepiker.value
+    );
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const objectURL = URL.createObjectURL(blob);
+
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `${response.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
+
+    URL.revokeObjectURL(objectURL);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onExportAllToExcel = async () => {
+  if (!branches?.value?.length || !datepiker?.value) return;
+
+  loading.value = true;
+
+  try {
+    const response = await Sheet.getBranchesByIds({
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
+    });
+
+    const reports = response
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(record => {
+        return {
+          branch: { name: record.name, description: record.description },
+          data: record.subdivisions.flatMap(subdivision =>
+            subdivision.services.map(service => ({
+              code: service.code,
+              name: service.name,
+              subdivision: subdivision.name,
+              totalJobCount: service.totalJobCount,
+              department: `${service.department.manager} ${service.department.phone}`
+            }))
+          )
+        };
+      });
+
+    const buffer = await branchJobsReport(reports, datepiker.value);
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const objectURL = URL.createObjectURL(blob);
+
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
+
+    URL.revokeObjectURL(objectURL);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
 watchEffect(async () => {
   if (branch.value && datepiker.value) {
     await onUpdateRecords();
@@ -83,39 +215,6 @@ onMounted(async () => {
     branches.value = docs.map(({ id, name, description }) => {
       return { id, name, description };
     });
-
-    exportmenuitems.value = [
-      {
-        label: 'Поточні звіти',
-        items: [
-          {
-            label: 'Кількісний звіт',
-            icon: 'pi pi-download',
-            command: () => false
-          },
-          {
-            label: 'Економічний звіт',
-            icon: 'pi pi-download',
-            command: () => false
-          }
-        ]
-      },
-      {
-        label: 'Комплексні звіти',
-        items: [
-          {
-            label: 'Кількісний звіт',
-            icon: 'pi pi-download',
-            command: () => false
-          },
-          {
-            label: 'Економічний звіт',
-            icon: 'pi pi-download',
-            command: () => false
-          }
-        ]
-      }
-    ];
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -214,7 +313,7 @@ onMounted(async () => {
         <template #empty>
           <div
             v-if="!loading && !records?.length"
-            class="absolute left-0 z-20 flex h-full w-full items-stretch justify-center bg-none text-center"
+            class="absolute left-0 z-20 mt-6 flex h-full w-full items-stretch justify-center bg-none text-center"
             style="height: calc(100vh - 30rem)"
           >
             <div class="m-auto flex flex-col justify-center gap-4">
