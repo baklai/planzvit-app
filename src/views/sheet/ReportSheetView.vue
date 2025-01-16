@@ -23,7 +23,7 @@ const datepiker = ref(new Date());
 const exportmenu = ref();
 const exportmenuitems = ref([
   {
-    label: 'Щомісячні звіти',
+    label: 'Поточні звіти',
     items: [
       {
         label: 'Щомісячний звіт',

@@ -27,7 +27,7 @@ const exportmenuitems = ref([
     label: 'Поточні звіти',
     items: [
       {
-        label: 'Кількісний звіт',
+        label: 'Щомісячний планзвіт',
         icon: 'pi pi-download',
         command: () => onExportToExcel()
       }
@@ -37,7 +37,7 @@ const exportmenuitems = ref([
     label: 'Комплексні звіти',
     items: [
       {
-        label: 'Кількісний звіт',
+        label: 'Щомісячний планзвіт',
         icon: 'pi pi-download',
         command: () => onExportAllToExcel()
       }
