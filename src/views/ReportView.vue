@@ -84,7 +84,16 @@ const toggle = event => {
 };
 
 const onUpdateRecords = async () => {
-  if (!department.value || !datepiker.value) return;
+  if (!department.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та відділ',
+      life: 5000
+    });
+
+    return;
+  }
 
   try {
     loading.value = true;
@@ -95,7 +104,6 @@ const onUpdateRecords = async () => {
       yearOfReport: datepiker.value.getFullYear()
     });
   } catch (err) {
-    records.value = [];
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
@@ -178,14 +186,14 @@ const onExportToExcel = async (optimized = false) => {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
 
-    const url = URL.createObjectURL(blob);
+    const objectURL = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
-    link.click();
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `${department.value.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
 
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(objectURL);
   } catch (err) {
     toast.add({
       severity: 'warn',
