@@ -133,7 +133,7 @@ const onExportToExcel = async (optimized = false) => {
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
-      detail: 'Оберіть місяць, рік та відділ!',
+      detail: 'Оберіть місяць, рік та відділ',
       life: 5000
     });
 
@@ -202,7 +202,7 @@ const onCreateReport = async () => {
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
-      detail: 'Оберіть місяць, рік та відділ!',
+      detail: 'Оберіть місяць, рік та відділ',
       life: 5000
     });
 

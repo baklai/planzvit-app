@@ -42,7 +42,16 @@ const toggle = event => {
 };
 
 const onUpdateRecords = async () => {
-  if (!department.value || !datepiker.value) return;
+  if (!department.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та відділ',
+      life: 5000
+    });
+
+    return;
+  }
 
   try {
     loading.value = true;
@@ -51,9 +60,16 @@ const onUpdateRecords = async () => {
       department: department.value,
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
-    });
+    }).then(items =>
+      items.filter(item => {
+        return (
+          item.previousJobCount !== 0 || item.changesJobCount !== 0 || item.currentJobCount !== 0
+        );
+      })
+    );
   } catch (err) {
     records.value = [];
+
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
@@ -70,8 +86,8 @@ const onExportToExcel = async departmentId => {
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
-      detail: 'Оберіть дату та підрозділ',
-      life: 3000
+      detail: 'Оберіть місяць, рік та відділ',
+      life: 5000
     });
 
     return;
@@ -86,17 +102,23 @@ const onExportToExcel = async departmentId => {
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    const data = response.map(item => {
-      return {
-        code: item.service.code,
-        name: item.service.name,
-        branch: item.branch.name,
-        subdivision: item.subdivision.name,
-        previousJobCount: item.previousJobCount,
-        changesJobCount: item.changesJobCount,
-        currentJobCount: item.currentJobCount
-      };
-    });
+    const data = response
+      .map(item => {
+        return {
+          code: item.service.code,
+          name: item.service.name,
+          branch: item.branch.name,
+          subdivision: item.subdivision.name,
+          previousJobCount: item.previousJobCount,
+          changesJobCount: item.changesJobCount,
+          currentJobCount: item.currentJobCount
+        };
+      })
+      .filter(item => {
+        return (
+          item.previousJobCount !== 0 || item.changesJobCount !== 0 || item.currentJobCount !== 0
+        );
+      });
 
     const selectDepartment = departments.value.find(({ id }) => id === departmentId);
 
@@ -152,17 +174,25 @@ const onExportAllToExcel = async () => {
       return {
         department: { ...departments.value[index] },
         datetime: datepiker.value,
-        data: records.map(item => {
-          return {
-            code: item.service.code,
-            name: item.service.name,
-            branch: item.branch.name,
-            subdivision: item.subdivision.name,
-            previousJobCount: item.previousJobCount,
-            changesJobCount: item.changesJobCount,
-            currentJobCount: item.currentJobCount
-          };
-        })
+        data: records
+          .map(item => {
+            return {
+              code: item.service.code,
+              name: item.service.name,
+              branch: item.branch.name,
+              subdivision: item.subdivision.name,
+              previousJobCount: item.previousJobCount,
+              changesJobCount: item.changesJobCount,
+              currentJobCount: item.currentJobCount
+            };
+          })
+          .filter(item => {
+            return (
+              item.previousJobCount !== 0 ||
+              item.changesJobCount !== 0 ||
+              item.currentJobCount !== 0
+            );
+          })
       };
     });
 
@@ -172,12 +202,12 @@ const onExportAllToExcel = async () => {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
 
-    const url = URL.createObjectURL(blob);
+    const objectURL = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
-    link.click();
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
 
     URL.revokeObjectURL(url);
   } catch (err) {
