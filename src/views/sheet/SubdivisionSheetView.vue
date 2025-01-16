@@ -263,7 +263,7 @@ onMounted(async () => {
               <i class="pi pi-file-excel mr-2 hidden sm:block" style="font-size: 2.5rem" />
               <div class="flex flex-col">
                 <h3 class="text-xl font-normal">
-                  {{ subdivision?.subdivision?.name ? `${subdivision?.subdivision?.name} | ` : '' }}
+                  {{ subdivision?.name ? `${subdivision?.name} | ` : '' }}
                   <span>{{ $route?.meta?.title }}</span>
                   {{ datepiker ? `за ${dateToMonthStr(datepiker)}` : '' }}
                 </h3>
@@ -346,11 +346,19 @@ onMounted(async () => {
 
         <Column frozen header="Код роботи" field="code" class="min-w-[12rem]" />
 
-        <Column header="Назва роботи" field="name" class="min-w-[35rem]" />
+        <Column header="Назва роботи" field="name" class="max-w-[40rem]">
+          <template #body="{ data, field }">
+            <p class="min-w-[35rem] overflow-hidden text-ellipsis px-2">
+              {{ data[field] }}
+            </p>
+          </template>
+        </Column>
 
-        <Column header="Структурний підрозділ" field="subdivision" class="min-w-[25rem]">
+        <Column header="Структурний підрозділ" class="min-w-[20rem]">
           <template #body>
-            {{ subdivision?.subdivision?.name || '-' }}
+            <span class="px-2">
+              {{ subdivision?.name || '-' }}
+            </span>
           </template>
         </Column>
 
