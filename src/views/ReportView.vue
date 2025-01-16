@@ -53,13 +53,15 @@ const exportmenuitems = ref([
       {
         label: 'Оновити щомісячний звіт',
         icon: 'pi pi-replay',
-        disabled: $planzvit?.profile?.role !== 'administrator',
+        disabled:
+          $planzvit?.profile?.role !== 'administrator' || $planzvit?.profile?.role !== 'moderator',
         command: () => onCreateReport()
       },
       {
         label: 'Створити щомісячний звіт',
         icon: 'pi pi-sparkles',
-        disabled: $planzvit?.profile?.role !== 'administrator',
+        disabled:
+          $planzvit?.profile?.role !== 'administrator' || $planzvit?.profile?.role !== 'moderator',
         command: () => onCreateReport()
       }
     ]
@@ -70,8 +72,9 @@ const exportmenuitems = ref([
     items: [
       {
         label: 'Видалити поточний звіт',
-        icon: 'pi pi-replay',
-        disabled: $planzvit?.profile?.role !== 'administrator',
+        icon: 'pi pi-trash',
+        disabled:
+          $planzvit?.profile?.role !== 'administrator' || $planzvit?.profile?.role !== 'moderator',
         command: () => onDeleteReport()
       }
     ]
@@ -168,8 +171,7 @@ const onExportToExcel = async (optimized = false) => {
   loading.value = true;
 
   try {
-    const records = await Report.findAll({
-      department: department.value.id,
+    const records = await Report.findAll(department.value.id, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     })
