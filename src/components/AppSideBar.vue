@@ -1,6 +1,6 @@
 <script setup>
-import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
 import AppLogoImg from '@/components/AppLogoImg.vue';
+import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
 </script>
 
 <template>
@@ -24,7 +24,7 @@ import AppLogoImg from '@/components/AppLogoImg.vue';
               height="42"
               fill="currentColor"
               class="cursor-pointer"
-              @click="$router.push({ name: 'homr' })"
+              @click="$router.push({ name: 'home' })"
             />
           </div>
         </div>

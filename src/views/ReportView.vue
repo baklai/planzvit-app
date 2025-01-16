@@ -1,16 +1,20 @@
 <script setup lang="jsx">
 import { FilterMatchMode } from '@primevue/core/api';
+import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
-import { computed, onMounted, ref, watchEffect } from 'vue';
+import { computed, inject, onMounted, ref, watchEffect } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
 
 import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
-import { monthlyReport } from '@/service/ReportsSheetToXlsx';
+import { departmentJobsReport } from '@/service/ReportsSheetToXlsx';
 import { useReport } from '@/stores/api/reports';
 
 const toast = useToast();
+const confirm = useConfirm();
+
+const $planzvit = inject('planzvit');
 
 const Report = useReport();
 
@@ -36,7 +40,7 @@ const exportmenuitems = ref([
       },
 
       {
-        label: 'Щомісячний оптимізований звіт',
+        label: 'Щомісячний оптзвіт',
         icon: 'pi pi-download',
         command: () => onExportToExcel(true)
       }
@@ -49,12 +53,26 @@ const exportmenuitems = ref([
       {
         label: 'Оновити щомісячний звіт',
         icon: 'pi pi-replay',
+        disabled: $planzvit?.profile?.role !== 'administrator',
         command: () => onCreateReport()
       },
       {
         label: 'Створити щомісячний звіт',
         icon: 'pi pi-sparkles',
+        disabled: $planzvit?.profile?.role !== 'administrator',
         command: () => onCreateReport()
+      }
+    ]
+  },
+
+  {
+    label: 'Видалення звітів',
+    items: [
+      {
+        label: 'Видалити поточний звіт',
+        icon: 'pi pi-replay',
+        disabled: $planzvit?.profile?.role !== 'administrator',
+        command: () => onDeleteReport()
       }
     ]
   }
@@ -98,8 +116,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Report.findAll({
-      department: department.value.id,
+    records.value = await Report.findAll(department.value.id, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
@@ -151,34 +168,36 @@ const onExportToExcel = async (optimized = false) => {
   loading.value = true;
 
   try {
-    const response = await Report.findAll({
+    const records = await Report.findAll({
       department: department.value.id,
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
-    });
+    })
+      .then(items =>
+        items.filter(item => {
+          if (!optimized) return true;
 
-    const data = response
-      .map(item => {
-        return {
-          code: item.service.code,
-          name: item.service.name,
-          branch: item.branch.name,
-          subdivision: item.subdivision.name,
-          previousJobCount: item?.previousJobCount || 0,
-          changesJobCount: item?.changesJobCount || 0,
-          currentJobCount: item?.currentJobCount || 0
-        };
-      })
-      .filter(item => {
-        if (!optimized) return true;
+          return (
+            item.previousJobCount !== 0 || item.changesJobCount !== 0 || item.currentJobCount !== 0
+          );
+        })
+      )
+      .then(items =>
+        items.map(item => {
+          return {
+            code: item.service.code,
+            name: item.service.name,
+            branch: item.branch.name,
+            subdivision: item.subdivision.name,
+            previousJobCount: item?.previousJobCount || 0,
+            changesJobCount: item?.changesJobCount || 0,
+            currentJobCount: item?.currentJobCount || 0
+          };
+        })
+      );
 
-        return (
-          item.previousJobCount !== 0 || item.changesJobCount !== 0 || item.currentJobCount !== 0
-        );
-      });
-
-    const buffer = await monthlyReport(
-      [{ department: { ...department.value }, records: data }],
+    const buffer = await departmentJobsReport(
+      [{ department: { ...department.value }, records }],
       datepiker.value
     );
 
@@ -221,13 +240,121 @@ const onCreateReport = async () => {
   try {
     loading.value = true;
 
-    await Report.createOne({
-      department: department.value.id,
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
+    confirm.require({
+      message: 'Ви бажаєте створити/оновити цей щомісячний звіт?',
+      header: 'Підтвердити зміну щомісячного звіту',
+      icon: 'pi pi-question',
+      acceptIcon: 'pi pi-check',
+      acceptClass: '',
+      rejectIcon: 'pi pi-times',
+      accept: async () => {
+        try {
+          await Report.createOne(department.value.id, {
+            monthOfReport: datepiker.value.getMonth() + 1,
+            yearOfReport: datepiker.value.getFullYear()
+          });
+
+          await onUpdateRecords();
+
+          toast.add({
+            severity: 'success',
+            summary: 'Інформація',
+            detail: 'Щомісячний звіт створено/оновлено',
+            life: 5000
+          });
+        } catch (err) {
+          toast.add({
+            severity: 'warn',
+            summary: 'Попередження',
+            detail: 'Запис не видалено',
+            life: 5000
+          });
+        } finally {
+          loading.value = false;
+        }
+      },
+      reject: async () => {
+        loading.value = false;
+        await onUpdateRecords();
+        toast.add({
+          severity: 'info',
+          summary: 'Інформація',
+          detail: 'Зміну щомісячного звіту не підтверджено',
+          life: 5000
+        });
+      }
+    });
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onDeleteReport = async () => {
+  if (!department.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та відділ',
+      life: 5000
     });
 
-    await onUpdateRecords();
+    return;
+  }
+
+  try {
+    loading.value = true;
+
+    confirm.require({
+      message: 'Ви бажаєте видалити цей щомісячний звіт?',
+      header: 'Підтвердити видалення щомісячного звіту',
+      icon: 'pi pi-question',
+      acceptIcon: 'pi pi-check',
+      acceptClass: '',
+      rejectIcon: 'pi pi-times',
+      accept: async () => {
+        try {
+          await Report.removeOne(department.value.id, {
+            monthOfReport: datepiker.value.getMonth() + 1,
+            yearOfReport: datepiker.value.getFullYear()
+          });
+
+          await onUpdateRecords();
+
+          toast.add({
+            severity: 'success',
+            summary: 'Інформація',
+            detail: 'Щомісячного звіт видалено',
+            life: 5000
+          });
+        } catch (err) {
+          toast.add({
+            severity: 'warn',
+            summary: 'Попередження',
+            detail: 'Запис не видалено',
+            life: 5000
+          });
+        } finally {
+          loading.value = false;
+        }
+      },
+      reject: async () => {
+        loading.value = false;
+        await onUpdateRecords();
+        toast.add({
+          severity: 'info',
+          summary: 'Інформація',
+          detail: 'Видалення щомісячного звіту не підтверджено',
+          life: 5000
+        });
+      }
+    });
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -248,12 +375,12 @@ watchEffect(async () => {
 
 onMounted(async () => {
   try {
-    const response = await Report.findCollecrions();
+    const collections = await Report.findCollecrions();
 
-    departments.value = response.deparments;
-    services.value = response.services;
-    branches.value = response.branches;
-    subdivisions.value = response.subdivisions;
+    departments.value = collections.deparments;
+    services.value = collections.services;
+    branches.value = collections.branches;
+    subdivisions.value = collections.subdivisions;
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -638,7 +765,12 @@ onMounted(async () => {
 
       <ColumnGroup type="footer" v-if="records.length">
         <Row>
-          <Column footer="Всього:" :colspan="5" footerStyle="text-align:right" />
+          <Column
+            :footer="records.length"
+            style="text-align: center"
+            class="!text-xs !text-muted-color"
+          />
+          <Column footer="Всього:" :colspan="4" footerStyle="text-align:right" />
           <Column :footer="previousJobCountAll" style="width: 10%; text-align: center" />
           <Column :footer="changesJobCountAll" style="width: 10%; text-align: center" />
           <Column :footer="currentJobCountAll" style="width: 10%; text-align: center" />

@@ -2,10 +2,10 @@ import ExcelJS from 'exceljs';
 
 import { dateToMonthPeriodStr, dateToMonthStr } from '@/service/DataFilters';
 
-export const monthlyReport = async (dataarr, datetime) => {
+export const departmentJobsReport = async (worksheets, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const { department, records } of dataarr) {
+  for (const { department, records } of worksheets) {
     const worksheet = workbook.addWorksheet(department.name);
 
     worksheet.mergeCells('A1:G1');

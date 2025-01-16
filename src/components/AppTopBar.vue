@@ -1,8 +1,8 @@
 <script setup>
-import BtnToggleTheme from '@/components/buttons/BtnToggleTheme.vue';
+import AppLogoImg from '@/components/AppLogoImg.vue';
 import BtnFullScreen from '@/components/buttons/BtnFullScreen.vue';
 import BtnMainMenu from '@/components/buttons/BtnMainMenu.vue';
-import AppLogoImg from '@/components/AppLogoImg.vue';
+import BtnToggleTheme from '@/components/buttons/BtnToggleTheme.vue';
 </script>
 
 <template>
@@ -30,7 +30,7 @@ import AppLogoImg from '@/components/AppLogoImg.vue';
       height="32"
       fill="currentColor"
       class="cursor-pointer text-primary md:hidden"
-      @click="$router.push({ name: 'homr' })"
+      @click="$router.push({ name: 'home' })"
     />
 
     <div class="flex flex-nowrap gap-x-4 whitespace-nowrap">

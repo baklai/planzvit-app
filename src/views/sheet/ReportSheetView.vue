@@ -6,7 +6,7 @@ import AppLoading from '@/components/AppLoading.vue';
 
 import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
-import { monthlyReport } from '@/service/ReportsSheetToXlsx';
+import { departmentJobsReport } from '@/service/ReportsSheetToXlsx';
 import { useDepartment } from '@/stores/api/departments';
 import { useSheet } from '@/stores/api/sheets';
 
@@ -108,7 +108,7 @@ const onExportToExcel = async departmentId => {
 
     const selectDepartment = departments.value.find(({ id }) => id === departmentId);
 
-    const buffer = await monthlyReport(
+    const buffer = await departmentJobsReport(
       [{ department: selectDepartment, records }],
       datepiker.value
     );
@@ -174,7 +174,7 @@ const onExportAllToExcel = async () => {
       };
     });
 
-    const buffer = await monthlyReport(reports, datepiker.value);
+    const buffer = await departmentJobsReport(reports, datepiker.value);
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -229,7 +229,7 @@ onMounted(async () => {
         separator: true
       },
       {
-        label: 'Комплексний звіт',
+        label: 'Щомісячний загальний звіт',
         icon: 'pi pi-download',
         command: () => onExportAllToExcel()
       }
@@ -479,7 +479,12 @@ onMounted(async () => {
 
         <ColumnGroup type="footer" v-if="records.length">
           <Row>
-            <Column footer="Всього:" :colspan="5" footerStyle="text-align:right" />
+            <Column
+              :footer="records.length"
+              style="text-align: center"
+              class="!text-xs !text-muted-color"
+            />
+            <Column footer="Всього:" :colspan="4" footerStyle="text-align:right" />
             <Column :footer="previousJobCountAll" style="width: 10%; text-align: center" />
             <Column :footer="changesJobCountAll" style="width: 10%; text-align: center" />
             <Column :footer="currentJobCountAll" style="width: 10%; text-align: center" />

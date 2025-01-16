@@ -6,12 +6,12 @@ import AppLoading from '@/components/AppLoading.vue';
 
 import { dateToMonthStr } from '@/service/DataFilters.js';
 import { monthlySubdivisionReport } from '@/service/ReportsSheetToXlsx';
-import { useBranch } from '@/stores/api/branches';
 import { useSheet } from '@/stores/api/sheets';
+import { useSubdivision } from '@/stores/api/subdivisions';
 
 const toast = useToast();
 
-const Branch = useBranch();
+const Subdivision = useSubdivision();
 const Sheet = useSheet();
 
 const loading = ref(false);
@@ -151,7 +151,7 @@ const onExportAllToExcel = async () => {
       };
     });
 
-    const buffer = await monthlyReport(reports);
+    const buffer = await departmentJobsReport(reports);
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -185,9 +185,9 @@ watchEffect(async () => {
 
 onMounted(async () => {
   try {
-    const { docs } = await Branch.findAll({ offset: 0, limit: 1000 });
+    const { docs } = await Subdivision.findAll({ offset: 0, limit: 10000 });
 
-    subdivisions.value = docs.flatMap(obj => obj.subdivisions);
+    subdivisions.value = docs;
 
     exportmenuitems.value = [
       {

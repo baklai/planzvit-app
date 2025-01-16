@@ -1,7 +1,6 @@
 <script setup>
-import Tag from 'primevue/tag';
-import AppTopBar from '@/components/AppTopBar.vue';
 import AppSideBar from '@/components/AppSideBar.vue';
+import AppTopBar from '@/components/AppTopBar.vue';
 </script>
 
 <template>
@@ -25,10 +24,10 @@ import AppSideBar from '@/components/AppSideBar.vue';
         >
           <i :class="[message?.icon || 'pi pi-question', '!text-4xl']"></i>
         </div>
-        <span class="mb-2 mt-4 block text-center text-2xl font-bold">
+        <span class="mb-2 mt-4 block text-center text-lg font-semibold">
           {{ message.message }}
         </span>
-        <p>{{ message.header }}</p>
+        <p class="text-sm">{{ message.header }}</p>
         <div class="mt-4 flex items-center gap-2">
           <Button
             label="Так"

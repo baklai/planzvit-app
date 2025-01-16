@@ -4,25 +4,17 @@ import { inject } from 'vue';
 export const useReport = defineStore('report', () => {
   const $axios = inject('axios');
 
-  async function findAll(params) {
+  async function findAll(department, params) {
     try {
-      return await $axios.get('/reports', { params });
+      return await $axios.get(`/reports/${department}`, { params });
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-  async function findOne({ id }) {
+  async function createOne(department, { ...payload }) {
     try {
-      return await $axios.get(`/reports/${id}`);
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
-
-  async function createOne({ ...payload }) {
-    try {
-      return await $axios.post('/reports', { ...payload });
+      return await $axios.post(`/reports/${department}`, { ...payload });
     } catch (err) {
       throw new Error(err.message);
     }
@@ -36,9 +28,9 @@ export const useReport = defineStore('report', () => {
     }
   }
 
-  async function removeOne({ id }) {
+  async function removeOne(department, params) {
     try {
-      return await $axios.delete(`/reports/${id}`);
+      return await $axios.delete(`/reports/${department}`, { params });
     } catch (err) {
       throw new Error(err.message);
     }
@@ -52,5 +44,5 @@ export const useReport = defineStore('report', () => {
     }
   }
 
-  return { findAll, findOne, createOne, updateOne, removeOne, findCollecrions };
+  return { findAll, createOne, updateOne, removeOne, findCollecrions };
 });
