@@ -136,20 +136,22 @@ const onCellEditComplete = async event => {
   const { data, newValue, field } = event;
 
   try {
-    if (field === 'changesJobCount') {
-      data[field] = newValue;
+    const { previousJobCount, changesJobCount, currentJobCount } = await Report.updateOne(
+      data['id'],
+      { changesJobCount: newValue }
+    );
 
-      data['currentJobCount'] = data['previousJobCount'] + data['changesJobCount'];
-
-      await Report.updateOne(data['id'], {
-        changesJobCount: data['changesJobCount'],
-        currentJobCount: data['currentJobCount']
-      });
-    } else {
-      event.preventDefault();
-    }
+    data['previousJobCount'] = previousJobCount;
+    data['changesJobCount'] = changesJobCount;
+    data['currentJobCount'] = currentJobCount;
   } catch (err) {
     event.preventDefault();
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Не вдалося оновити запис',
+      life: 5000
+    });
   }
 };
 
