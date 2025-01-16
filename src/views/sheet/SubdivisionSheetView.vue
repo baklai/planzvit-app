@@ -5,7 +5,7 @@ import { onMounted, ref, watchEffect } from 'vue';
 import AppLoading from '@/components/AppLoading.vue';
 
 import { dateToMonthStr } from '@/service/DataFilters.js';
-import { monthlySubdivisionReport } from '@/service/ReportsSheetToXlsx';
+import { subdivisionJobsReport } from '@/service/ReportsSheetToXlsx';
 import { useSheet } from '@/stores/api/sheets';
 import { useSubdivision } from '@/stores/api/subdivisions';
 
@@ -22,7 +22,28 @@ const subdivisions = ref([]);
 const datepiker = ref(new Date());
 
 const exportmenu = ref();
-const exportmenuitems = ref([]);
+const exportmenuitems = ref([
+  {
+    label: 'Поточні звіти',
+    items: [
+      {
+        label: 'Кількісний звіт',
+        icon: 'pi pi-download',
+        command: () => onExportToExcel()
+      }
+    ]
+  },
+  {
+    label: 'Комплексні звіти',
+    items: [
+      {
+        label: 'Кількісний звіт',
+        icon: 'pi pi-download',
+        command: () => onExportAllToExcel()
+      }
+    ]
+  }
+]);
 
 const toggle = event => {
   exportmenu.value.toggle(event);
@@ -77,18 +98,18 @@ const onExportToExcel = async () => {
       return {
         code: item.code,
         name: item.name,
-        subdivision: response.subdivision.name,
+        subdivision: response.name,
         totalJobCount: item.totalJobCount,
         department: `${item.department.manager} ${item.department.phone}`
       };
     });
 
-    const buffer = await monthlySubdivisionReport(
+    const buffer = await subdivisionJobsReport(
       [
         {
           data,
           branch: response.branch,
-          subdivision: response.subdivision
+          subdivision: { name: response.name, description: response.description }
         }
       ],
       datepiker.value
@@ -102,7 +123,7 @@ const onExportToExcel = async () => {
 
     const aLink = document.createElement('a');
     aLink.href = objectURL;
-    aLink.download = `${response.subdivision.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.download = `${response.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
     aLink.click();
 
     URL.revokeObjectURL(objectURL);
@@ -124,34 +145,30 @@ const onExportAllToExcel = async () => {
   loading.value = true;
 
   try {
-    const deparmentsRecords = await Promise.all([
-      ...subdivisions.value.map(({ id }) =>
-        Sheet.getSubdivisionsById(id, {
-          monthOfReport: datepiker.value.getMonth() + 1,
-          yearOfReport: datepiker.value.getFullYear()
-        })
-      )
-    ]);
-
-    const reports = deparmentsRecords.map((records, index) => {
-      return {
-        department: { ...departments.value[index] },
-        datetime: datepiker.value,
-        data: records.map(item => {
-          return {
-            code: item.service.code,
-            name: item.service.name,
-            branch: item.branch.name,
-            subdivision: item.subdivision.name,
-            previousJobCount: item.previousJobCount,
-            changesJobCount: item.changesJobCount,
-            currentJobCount: item.currentJobCount
-          };
-        })
-      };
+    const response = await Sheet.getSubdivisionsByIds({
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
     });
 
-    const buffer = await departmentJobsReport(reports);
+    const reports = response
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(record => {
+        return {
+          branch: record.branch,
+          subdivision: { name: record.name, description: record.description },
+          data: record.services.map(item => {
+            return {
+              code: item.code,
+              name: item.name,
+              subdivision: record.name,
+              totalJobCount: item.totalJobCount,
+              department: `${item.department.manager} ${item.department.phone}`
+            };
+          })
+        };
+      });
+
+    const buffer = await subdivisionJobsReport(reports, datepiker.value);
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -188,39 +205,6 @@ onMounted(async () => {
     const { docs } = await Subdivision.findAll({ offset: 0, limit: 10000 });
 
     subdivisions.value = docs;
-
-    exportmenuitems.value = [
-      {
-        label: 'Поточні звіти',
-        items: [
-          {
-            label: 'Кількісний звіт',
-            icon: 'pi pi-download',
-            command: () => onExportToExcel()
-          },
-          {
-            label: 'Економічний звіт',
-            icon: 'pi pi-download',
-            command: () => onExportToExcel()
-          }
-        ]
-      },
-      {
-        label: 'Комплексні звіти',
-        items: [
-          {
-            label: 'Кількісний звіт',
-            icon: 'pi pi-download',
-            command: () => onExportAllToExcel()
-          },
-          {
-            label: 'Економічний звіт',
-            icon: 'pi pi-download',
-            command: () => onExportAllToExcel()
-          }
-        ]
-      }
-    ];
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -412,12 +396,16 @@ onMounted(async () => {
               class="!text-xs !text-muted-color"
             />
             <Column footer="Всього:" :colspan="3" class="uppercase" style="text-align: right" />
-            <Column :footer="subdivision?.totalJobCount || 0" style="text-align: center" />
-            <Column
-              :footer="subdivision?.totalPrice || 0"
-              :colspan="2"
-              style="text-align: center"
-            />
+            <Column style="text-align: center">
+              <template #footer>
+                <Tag severity="info" class="min-w-[4rem]" :value="subdivision?.totalJobCount" />
+              </template>
+            </Column>
+            <Column :footer="subdivision?.totalPrice || 0" :colspan="2" style="text-align: center">
+              <template #footer>
+                <Tag severity="info" class="min-w-[4rem]" :value="subdivision?.totalPrice" />
+              </template>
+            </Column>
           </Row>
         </ColumnGroup>
       </DataTable>

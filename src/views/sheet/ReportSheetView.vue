@@ -483,9 +483,23 @@ onMounted(async () => {
               class="!text-xs !text-muted-color"
             />
             <Column footer="Всього:" :colspan="4" footerStyle="text-align:right" />
-            <Column :footer="previousJobCountAll" style="width: 10%; text-align: center" />
-            <Column :footer="changesJobCountAll" style="width: 10%; text-align: center" />
-            <Column :footer="currentJobCountAll" style="width: 10%; text-align: center" />
+            <Column style="width: 10%; text-align: center">
+              <template #footer>
+                <Tag severity="info" class="min-w-[4rem]" :value="previousJobCountAll" />
+              </template>
+            </Column>
+
+            <Column style="width: 10%; text-align: center">
+              <template #footer>
+                <Tag severity="info" class="min-w-[4rem]" :value="changesJobCountAll" />
+              </template>
+            </Column>
+
+            <Column style="width: 10%; text-align: center">
+              <template #footer>
+                <Tag severity="info" class="min-w-[4rem]" :value="currentJobCountAll" />
+              </template>
+            </Column>
           </Row>
         </ColumnGroup>
       </DataTable>
