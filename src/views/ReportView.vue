@@ -146,6 +146,7 @@ const onCellEditComplete = async event => {
     data['currentJobCount'] = currentJobCount;
   } catch (err) {
     event.preventDefault();
+
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
