@@ -14,9 +14,11 @@ const Sheet = useSheet();
 const loading = ref(false);
 
 const records = ref([]);
-const datepiker = ref(new Date());
+
 const branch = ref();
 const branches = ref([]);
+
+const datepiker = ref(new Date());
 
 const totalPriceAll = ref();
 const totalJobCountAll = ref();
