@@ -8,11 +8,11 @@ import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
 import { monthlyReport } from '@/service/ReportsSheetToXlsx';
 import { useDepartment } from '@/stores/api/departments';
-import { useReport } from '@/stores/api/reports';
+import { useSheet } from '@/stores/api/sheets';
 
 const toast = useToast();
 
-const Report = useReport();
+const Sheet = useSheet();
 const Department = useDepartment();
 
 const records = ref([]);
@@ -56,17 +56,10 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Report.findAll({
-      department: department.value,
+    records.value = await Sheet.getReportsById(department.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
-    }).then(items =>
-      items.filter(item => {
-        return (
-          item.previousJobCount !== 0 || item.changesJobCount !== 0 || item.currentJobCount !== 0
-        );
-      })
-    );
+    });
   } catch (err) {
     records.value = [];
 
@@ -96,29 +89,22 @@ const onExportToExcel = async departmentId => {
   loading.value = true;
 
   try {
-    const response = await Report.findAll({
-      department: departmentId,
+    const response = await Sheet.getReportsById(departmentId, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    const data = response
-      .map(item => {
-        return {
-          code: item.service.code,
-          name: item.service.name,
-          branch: item.branch.name,
-          subdivision: item.subdivision.name,
-          previousJobCount: item.previousJobCount,
-          changesJobCount: item.changesJobCount,
-          currentJobCount: item.currentJobCount
-        };
-      })
-      .filter(item => {
-        return (
-          item.previousJobCount !== 0 || item.changesJobCount !== 0 || item.currentJobCount !== 0
-        );
-      });
+    const data = response.map(item => {
+      return {
+        code: item.service.code,
+        name: item.service.name,
+        branch: item.branch.name,
+        subdivision: item.subdivision.name,
+        previousJobCount: item.previousJobCount,
+        changesJobCount: item.changesJobCount,
+        currentJobCount: item.currentJobCount
+      };
+    });
 
     const selectDepartment = departments.value.find(({ id }) => id === departmentId);
 
@@ -162,8 +148,7 @@ const onExportAllToExcel = async () => {
   try {
     const deparmentsRecords = await Promise.all([
       ...departments.value.map(({ id }) =>
-        Report.findAll({
-          department: id,
+        Sheet.getReportsByIds({
           monthOfReport: datepiker.value.getMonth() + 1,
           yearOfReport: datepiker.value.getFullYear()
         })
@@ -174,25 +159,17 @@ const onExportAllToExcel = async () => {
       return {
         department: { ...departments.value[index] },
         datetime: datepiker.value,
-        data: records
-          .map(item => {
-            return {
-              code: item.service.code,
-              name: item.service.name,
-              branch: item.branch.name,
-              subdivision: item.subdivision.name,
-              previousJobCount: item.previousJobCount,
-              changesJobCount: item.changesJobCount,
-              currentJobCount: item.currentJobCount
-            };
-          })
-          .filter(item => {
-            return (
-              item.previousJobCount !== 0 ||
-              item.changesJobCount !== 0 ||
-              item.currentJobCount !== 0
-            );
-          })
+        data: records.map(item => {
+          return {
+            code: item.service.code,
+            name: item.service.name,
+            branch: item.branch.name,
+            subdivision: item.subdivision.name,
+            previousJobCount: item.previousJobCount,
+            changesJobCount: item.changesJobCount,
+            currentJobCount: item.currentJobCount
+          };
+        })
       };
     });
 
