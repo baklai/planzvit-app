@@ -402,13 +402,14 @@ onMounted(async () => {
       dataKey="id"
       size="small"
       showGridlines
+      removableSort
       resizableColumns
       scrollHeight="flex"
       sortMode="multiple"
       responsiveLayout="scroll"
       columnResizeMode="expand"
       editMode="cell"
-      :filterDisplay="records.length ? 'row' : null"
+      filterDisplay="menu"
       :loading="loading"
       style="height: calc(100vh - 8rem)"
       v-model:value="records"
@@ -507,46 +508,6 @@ onMounted(async () => {
         </div>
       </template>
 
-      <ColumnGroup type="header">
-        <Row>
-          <Column header="#" :rowspan="2" frozen :pt="{ columntitle: { class: ['m-auto'] } }" />
-          <Column header="Код роботи" :rowspan="2" frozen />
-          <Column header="Назва роботи" :rowspan="2" />
-          <Column header="Служба/філія" :rowspan="2" />
-          <Column header="Структурний підрозділ" :rowspan="2" />
-          <Column
-            header="Кількість робіт"
-            :colspan="6"
-            :pt="{
-              columntitle: {
-                class: ['m-auto', 'uppercase']
-              }
-            }"
-          />
-        </Row>
-
-        <Row>
-          <Column
-            header="Попередній місяць"
-            field="previousJobCount"
-            :colspan="1"
-            :pt="{ columntitle: { class: ['m-auto'] } }"
-          />
-          <Column
-            header="Поточні зміни (+/-)"
-            field="changesJobCount"
-            :colspan="1"
-            :pt="{ columntitle: { class: ['m-auto'] } }"
-          />
-          <Column
-            header="Поточний місяць"
-            field="currentJobCount"
-            :colspan="1"
-            :pt="{ columntitle: { class: ['m-auto'] } }"
-          />
-        </Row>
-      </ColumnGroup>
-
       <Column
         frozen
         header="#"
@@ -560,12 +521,15 @@ onMounted(async () => {
       </Column>
 
       <Column
+        sortable
+        header="Код роботи"
         field="service.code"
         filterField="service.code"
-        :showFilterMenu="false"
         style="width: 10%"
+        :showFilterMatchModes="false"
+        :filterMenuStyle="{ width: '20rem' }"
       >
-        <template #filter="{ filterModel, filterCallback }" v-if="records.length">
+        <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
             @change="filterCallback()"
             v-model="filterModel.value"
@@ -594,10 +558,13 @@ onMounted(async () => {
       </Column>
 
       <Column
+        sortable
+        header="Назва роботи"
         field="service.name"
         filterField="service.name"
-        :showFilterMenu="false"
         style="max-width: 20rem"
+        :showFilterMatchModes="false"
+        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #body="{ data, field }">
           <div
@@ -608,7 +575,7 @@ onMounted(async () => {
           </div>
         </template>
 
-        <template #filter="{ filterModel, filterCallback }" v-if="records.length">
+        <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
             @change="filterCallback()"
             v-model="filterModel.value"
@@ -637,12 +604,15 @@ onMounted(async () => {
       </Column>
 
       <Column
+        sortable
+        header="Служба/філія"
         field="branch.name"
         filterField="branch.name"
-        :showFilterMenu="false"
         style="width: 10%"
+        :showFilterMatchModes="false"
+        :filterMenuStyle="{ width: '20rem' }"
       >
-        <template #filter="{ filterModel, filterCallback }" v-if="records.length">
+        <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
             @change="filterCallback()"
             v-model="filterModel.value"
@@ -671,12 +641,15 @@ onMounted(async () => {
       </Column>
 
       <Column
+        sortable
+        header="Структурний підрозділ"
         field="subdivision.name"
         filterField="subdivision.name"
-        :showFilterMenu="false"
         style="width: 20%"
+        :showFilterMatchModes="false"
+        :filterMenuStyle="{ width: '20rem' }"
       >
-        <template #filter="{ filterModel, filterCallback }" v-if="records.length">
+        <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
             @change="filterCallback()"
             v-model="filterModel.value"
@@ -705,6 +678,12 @@ onMounted(async () => {
       </Column>
 
       <Column field="previousJobCount" style="width: 10%; text-align: center">
+        <template #header>
+          <div class="flex w-full flex-col text-center">
+            <span>Кількість робіт</span>
+            <span>за попередній місяць</span>
+          </div>
+        </template>
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -720,6 +699,12 @@ onMounted(async () => {
       </Column>
 
       <Column field="changesJobCount" style="width: 10%; text-align: center; cursor: pointer">
+        <template #header>
+          <div class="flex w-full flex-col text-center">
+            <span>Кількість робіт</span>
+            <span>Поточні зміни (+/-)</span>
+          </div>
+        </template>
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -751,6 +736,12 @@ onMounted(async () => {
       </Column>
 
       <Column field="currentJobCount" style="width: 10%; text-align: center">
+        <template #header>
+          <div class="flex w-full flex-col text-center">
+            <span>Кількість робіт</span>
+            <span>за поточний місяць</span>
+          </div>
+        </template>
         <template #body="{ data, field }">
           <span v-if="data[field] !== 0">
             <Tag
@@ -773,9 +764,24 @@ onMounted(async () => {
             class="!text-xs !text-muted-color"
           />
           <Column footer="Всього:" :colspan="4" footerStyle="text-align:right" />
-          <Column :footer="previousJobCountAll" style="width: 10%; text-align: center" />
-          <Column :footer="changesJobCountAll" style="width: 10%; text-align: center" />
-          <Column :footer="currentJobCountAll" style="width: 10%; text-align: center" />
+
+          <Column style="width: 10%; text-align: center">
+            <template #footer>
+              <Tag severity="info" class="min-w-[4rem]" :value="previousJobCountAll" />
+            </template>
+          </Column>
+
+          <Column style="width: 10%; text-align: center">
+            <template #footer>
+              <Tag severity="info" class="min-w-[4rem]" :value="changesJobCountAll" />
+            </template>
+          </Column>
+
+          <Column style="width: 10%; text-align: center">
+            <template #footer>
+              <Tag severity="info" class="min-w-[4rem]" :value="currentJobCountAll" />
+            </template>
+          </Column>
         </Row>
       </ColumnGroup>
     </DataTable>
