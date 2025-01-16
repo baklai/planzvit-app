@@ -2,12 +2,10 @@ import ExcelJS from 'exceljs';
 
 import { dateToMonthPeriodStr, dateToMonthStr } from '@/service/DataFilters';
 
-export const monthlyReport = async reports => {
+export const monthlyReport = async (dataarr, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const report of reports) {
-    const { department, datetime, data } = report;
-
+  for (const { department, records } of dataarr) {
     const worksheet = workbook.addWorksheet(department.name);
 
     worksheet.mergeCells('A1:G1');
@@ -104,7 +102,7 @@ export const monthlyReport = async reports => {
       }
     ];
 
-    data.forEach((item, index) => {
+    records.forEach((item, index) => {
       const row = worksheet.getRow(8 + index);
       Object.values(item).forEach((value, colIndex) => {
         const cell = row.getCell(colIndex + 1);
@@ -120,7 +118,7 @@ export const monthlyReport = async reports => {
       });
     });
 
-    data.forEach((item, index) => {
+    records.forEach((item, index) => {
       const rowIndex = 8 + index;
       const row = worksheet.getRow(rowIndex);
 
@@ -138,14 +136,14 @@ export const monthlyReport = async reports => {
       row.height = maxLines * 15;
     });
 
-    worksheet.mergeCells(`A${data.length + 10}:G${data.length + 10}`);
-    worksheet.getCell(`A${data.length + 10}`).value =
+    worksheet.mergeCells(`A${records.length + 10}:G${records.length + 10}`);
+    worksheet.getCell(`A${records.length + 10}`).value =
       `Начальник відділу  ${department.name}________________${department.manager}`;
-    worksheet.getCell(`A${data.length + 10}`).alignment = {
+    worksheet.getCell(`A${records.length + 10}`).alignment = {
       vertical: 'middle',
       horizontal: 'center'
     };
-    worksheet.getCell(`A${data.length + 10}`).font = { name: 'Times New Roman', size: 14 };
+    worksheet.getCell(`A${records.length + 10}`).font = { name: 'Times New Roman', size: 14 };
   }
 
   return await workbook.xlsx.writeBuffer();
@@ -154,9 +152,7 @@ export const monthlyReport = async reports => {
 export const monthlySubdivisionReport = async (reports, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const report of reports) {
-    const { branch, subdivision, data } = report;
-
+  for (const { branch, subdivision, data } of reports) {
     const worksheet = workbook.addWorksheet(subdivision.name);
 
     worksheet.mergeCells('A1:E1');

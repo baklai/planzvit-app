@@ -16,9 +16,9 @@ const Sheet = useSheet();
 const Department = useDepartment();
 
 const records = ref([]);
-const datepiker = ref(new Date());
 const department = ref();
 const departments = ref([]);
+const datepiker = ref(new Date());
 
 const exportmenu = ref();
 const exportmenuitems = ref([]);
@@ -94,7 +94,7 @@ const onExportToExcel = async departmentId => {
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    const data = response.map(item => {
+    const records = response.map(item => {
       return {
         code: item.service.code,
         name: item.service.name,
@@ -108,13 +108,10 @@ const onExportToExcel = async departmentId => {
 
     const selectDepartment = departments.value.find(({ id }) => id === departmentId);
 
-    const buffer = await monthlyReport([
-      {
-        department: selectDepartment,
-        datetime: datepiker.value,
-        data
-      }
-    ]);
+    const buffer = await monthlyReport(
+      [{ department: selectDepartment, records }],
+      datepiker.value
+    );
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -141,25 +138,29 @@ const onExportToExcel = async departmentId => {
 };
 
 const onExportAllToExcel = async () => {
-  if (!departments?.value?.length || !datepiker?.value) return;
+  if (!departments?.value?.length || !datepiker?.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та відділ',
+      life: 5000
+    });
+
+    return;
+  }
 
   loading.value = true;
 
   try {
-    const deparmentsRecords = await Promise.all([
-      ...departments.value.map(({ id }) =>
-        Sheet.getReportsByIds({
-          monthOfReport: datepiker.value.getMonth() + 1,
-          yearOfReport: datepiker.value.getFullYear()
-        })
-      )
-    ]);
+    const response = await Sheet.getReportsByIds({
+      monthOfReport: datepiker.value.getMonth() + 1,
+      yearOfReport: datepiker.value.getFullYear()
+    });
 
-    const reports = deparmentsRecords.map((records, index) => {
+    const reports = response.map(({ department, records }) => {
       return {
-        department: { ...departments.value[index] },
-        datetime: datepiker.value,
-        data: records.map(item => {
+        department: department,
+        records: records.map(item => {
           return {
             code: item.service.code,
             name: item.service.name,
@@ -173,7 +174,7 @@ const onExportAllToExcel = async () => {
       };
     });
 
-    const buffer = await monthlyReport(reports);
+    const buffer = await monthlyReport(reports, datepiker.value);
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -186,7 +187,7 @@ const onExportAllToExcel = async () => {
     aLink.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
     aLink.click();
 
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(objectURL);
   } catch (err) {
     toast.add({
       severity: 'warn',

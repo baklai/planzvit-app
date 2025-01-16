@@ -169,9 +169,10 @@ const onExportToExcel = async (optimized = false) => {
         );
       });
 
-    const buffer = await monthlyReport([
-      { department: { ...department.value }, datetime: datepiker.value, data }
-    ]);
+    const buffer = await monthlyReport(
+      [{ department: { ...department.value }, records: data }],
+      datepiker.value
+    );
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
