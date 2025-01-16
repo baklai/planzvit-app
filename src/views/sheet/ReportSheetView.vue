@@ -21,7 +21,28 @@ const departments = ref([]);
 const datepiker = ref(new Date());
 
 const exportmenu = ref();
-const exportmenuitems = ref([]);
+const exportmenuitems = ref([
+  {
+    label: 'Щомісячні звіти',
+    items: [
+      {
+        label: 'Щомісячний звіт',
+        icon: 'pi pi-download',
+        command: () => onExportToExcel()
+      }
+    ]
+  },
+  {
+    label: 'Комплексні звіти',
+    items: [
+      {
+        label: 'Щомісячний звіт',
+        icon: 'pi pi-download',
+        command: () => onExportAllToExcel()
+      }
+    ]
+  }
+]);
 
 const loading = ref(false);
 
@@ -74,8 +95,8 @@ const onUpdateRecords = async () => {
   }
 };
 
-const onExportToExcel = async departmentId => {
-  if (!departmentId || !departments.value?.length || !datepiker.value) {
+const onExportToExcel = async () => {
+  if (!department.value || !departments.value?.length || !datepiker.value) {
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
@@ -89,7 +110,7 @@ const onExportToExcel = async departmentId => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getReportsById(departmentId, {
+    const response = await Sheet.getReportsById(department.value, {
       monthOfReport: datepiker.value.getMonth() + 1,
       yearOfReport: datepiker.value.getFullYear()
     });
@@ -106,7 +127,7 @@ const onExportToExcel = async departmentId => {
       };
     });
 
-    const selectDepartment = departments.value.find(({ id }) => id === departmentId);
+    const selectDepartment = departments.value.find(({ id }) => id === department.value);
 
     const buffer = await departmentJobsReport(
       [{ department: selectDepartment, records }],
@@ -211,29 +232,6 @@ onMounted(async () => {
     const { docs } = await Department.findAll({ offset: 0, limit: 1000 });
 
     departments.value = docs;
-
-    exportmenuitems.value = [
-      {
-        label: 'Щомісячні звіти',
-        items: [
-          ...departments.value.map(department => {
-            return {
-              label: `${department.name} Щомісячний звіт`,
-              icon: 'pi pi-download',
-              command: () => onExportToExcel(department.id)
-            };
-          })
-        ]
-      },
-      {
-        separator: true
-      },
-      {
-        label: 'Щомісячний загальний звіт',
-        icon: 'pi pi-download',
-        command: () => onExportAllToExcel()
-      }
-    ];
   } catch (err) {
     toast.add({
       severity: 'warn',
