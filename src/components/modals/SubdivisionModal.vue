@@ -146,12 +146,14 @@ const onSaveRecord = handleSubmit(async values => {
     } else {
       await createOne(controlledValues.value);
     }
+
     toast.add({
       severity: 'success',
       summary: 'Інформація',
       detail: values?.id ? 'Запис оновлено' : 'Запис створено',
       life: 5000
     });
+
     visible.value = false;
   } catch (err) {
     toast.add({

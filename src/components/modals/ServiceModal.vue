@@ -141,17 +141,20 @@ const onRemoveRecord = async () => {
 const onSaveRecord = handleSubmit(async values => {
   try {
     loading.value = true;
+
     if (values?.id) {
       await updateOne(values.id, controlledValues.value);
     } else {
       await createOne(controlledValues.value);
     }
+
     toast.add({
       severity: 'success',
       summary: 'Інформація',
       detail: values?.id ? 'Запис оновлено' : 'Запис створено',
       life: 5000
     });
+
     visible.value = false;
   } catch (err) {
     toast.add({

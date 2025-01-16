@@ -165,6 +165,8 @@ const onSaveRecord = handleSubmit(async values => {
       detail: values?.id ? 'Запис оновлено' : 'Запис створено',
       life: 5000
     });
+
+    visible.value = false;
   } catch (err) {
     toast.add({
       severity: 'warn',
