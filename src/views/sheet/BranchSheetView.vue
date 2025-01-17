@@ -301,7 +301,7 @@ onMounted(async () => {
                 id="exports_menu"
                 :model="exportmenuitems"
                 :popup="true"
-                :pt="{ list: { class: ['!gap-y-2'] }, itemcontent: { class: ['py-2'] } }"
+                :pt="{ list: { class: ['!gap-y-1'] }, itemcontent: { class: ['!py-1'] } }"
               />
             </div>
           </div>
