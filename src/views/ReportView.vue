@@ -60,7 +60,7 @@ const exportmenuitems = ref([
         label: 'Оновити поточний звіт',
         icon: 'pi pi-replay',
         disabled: !$planzvit?.isAdministrator,
-        command: () => onCreateReport()
+        command: () => onUpdateReport()
       }
     ]
   },
@@ -246,7 +246,7 @@ const onExportToExcel = async (optimized = false) => {
   }
 };
 
-const onCreateReport = async () => {
+const onCreateReport = () => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
@@ -300,7 +300,61 @@ const onCreateReport = async () => {
   });
 };
 
-const onCompletedReport = async (completed = false) => {
+const onUpdateReport = () => {
+  if (!department.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та відділ',
+      life: 5000
+    });
+
+    return;
+  }
+
+  return confirm.require({
+    message: 'Підтвердити оновлення щомісячного звіту.',
+    header: 'Ви бажаєте оновити щомісячний звіт?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
+
+        await Report.createReportByDepartmentId(department.value.id, {});
+
+        await onUpdateRecords();
+
+        toast.add({
+          severity: 'success',
+          summary: 'Інформація',
+          detail: 'Щомісячний звіт оновлено',
+          life: 5000
+        });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Щомісячний звіт не оновлено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
+      }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Оновлення щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
+};
+
+const onCompletedReport = (completed = false) => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
