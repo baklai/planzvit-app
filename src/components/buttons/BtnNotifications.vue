@@ -1,36 +1,27 @@
 <script setup>
-import { ref, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import { inject, ref } from 'vue';
 
 import NoticeModal from '@/components/modals/NoticeModal.vue';
 
 import { dateTimeToStr } from '@/service/DataFilters';
 import { useNotice } from '@/stores/api/notices';
+import { useApp } from '@/stores/app';
 
 const toast = useToast();
 
-const { findAll, removeOne } = useNotice();
+const store = useApp();
+const Notice = useNotice();
 
-const records = ref([]);
+const $planzvit = inject('planzvit');
+
 const refMenu = ref();
 const refModal = ref();
 
-const onRecords = async () => {
-  try {
-    records.value = await findAll({});
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: 'Записи не оновлено',
-      life: 3000
-    });
-  }
-};
-
 const onRemoveRecord = async id => {
   try {
-    await removeOne({ id });
+    await Notice.removeOne({ id });
+
     toast.add({
       severity: 'success',
       summary: 'Інформація',
@@ -45,18 +36,14 @@ const onRemoveRecord = async id => {
       life: 3000
     });
   } finally {
-    await onRecords();
+    await $planzvit.updateNotices();
   }
 };
-
-onMounted(async () => {
-  await onRecords();
-});
 </script>
 
 <template>
   <div>
-    <NoticeModal ref="refModal" @close="async () => await onRecords()" />
+    <NoticeModal ref="refModal" @close="async () => false" />
 
     <OverlayPanel ref="refMenu" appendTo="body" class="w-[35rem]">
       <div class="flex w-full flex-col">
@@ -91,7 +78,11 @@ onMounted(async () => {
 
         <Divider />
 
-        <DataView v-if="records?.length" :value="records" class="max-h-[30rem] overflow-auto">
+        <DataView
+          v-if="store.notices?.length"
+          :value="store.notices"
+          class="max-h-[30rem] overflow-auto"
+        >
           <template #list="{ items }">
             <div
               class="w-full flex-shrink-0 border-none p-4 py-2"
@@ -101,10 +92,10 @@ onMounted(async () => {
               <div class="flex flex-row justify-start gap-3">
                 <div class="align-items-start flex w-full flex-col overflow-auto">
                   <div class="flex w-full items-center">
-                    <Avatar icon="pi pi-bell text-xl" size="large" class="mr-2 text-primary" />
+                    <Avatar icon="pi pi-bell" size="large" class="mr-2 text-primary" />
                     <div class="align my-2 flex flex-col">
-                      <span class="text-xl font-medium text-primary">{{ item?.title }}</span>
-                      <span class="font-normal text-muted-color">
+                      <span class="text-lg font-medium text-primary">{{ item?.title }}</span>
+                      <span class="text-sm font-normal text-muted-color">
                         {{ dateTimeToStr(item?.createdAt) || '-' }}
                       </span>
                     </div>
@@ -137,13 +128,13 @@ onMounted(async () => {
     </OverlayPanel>
 
     <OverlayBadge
-      :value="records.length"
+      :value="store.notices.length"
       :pt="{
         pcBadge: {
           root: [
             '!translate-x-1 !-translate-y-1 !text-sm',
             {
-              '!hidden': !records?.length
+              '!hidden': !store.notices?.length
             }
           ]
         }

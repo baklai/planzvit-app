@@ -10,6 +10,8 @@ export const useApp = defineStore('app', () => {
   const refreshToken = ref(null);
   const rememberToken = ref(useLocalStorage('app-auth-remember', false));
 
+  const notices = ref([]);
+
   const loggedIn = computed(() => {
     return (
       profile.value !== null &&
@@ -69,6 +71,7 @@ export const useApp = defineStore('app', () => {
   }
 
   return {
+    notices,
     profile,
     loggedIn,
     isActivated,

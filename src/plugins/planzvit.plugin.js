@@ -2,7 +2,7 @@ import { useApp } from '@/stores/app';
 
 export default {
   install: async (app, options) => {
-    const { $toast } = app.config.globalProperties;
+    const { $toast, $axios } = app.config.globalProperties;
 
     const store = useApp();
 
@@ -27,6 +27,10 @@ export default {
 
       get isActivated() {
         return store?.isActivated;
+      },
+
+      async updateNotices() {
+        store.notices = await $axios.get('/notices', {});
       },
 
       notImplemented() {

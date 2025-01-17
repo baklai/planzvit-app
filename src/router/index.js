@@ -239,6 +239,7 @@ router.beforeEach((to, from) => {
 router.beforeEach(async (to, from) => {
   const store = useApp();
   const $auth = inject('auth');
+  const $planzvit = inject('planzvit');
 
   if (!store.loggedIn && store.getRefreshToken()) {
     await $auth.me();
@@ -246,6 +247,7 @@ router.beforeEach(async (to, from) => {
 
   if (store.loggedIn && to.name !== 'signin' && to.name !== 'signup') {
     to.meta.layout = PrivateLayout;
+    await $planzvit.updateNotices();
   } else {
     to.meta.layout = PublicLayout;
   }

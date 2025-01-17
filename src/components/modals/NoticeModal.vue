@@ -1,14 +1,15 @@
 <script setup>
 import { useToast } from 'primevue/usetoast';
 import { useForm } from 'vee-validate';
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
 import * as yup from 'yup';
 
 import { useNotice } from '@/stores/api/notices';
 
 const toast = useToast();
-
 const Notice = useNotice();
+
+const $planzvit = inject('planzvit');
 
 const { values, errors, handleSubmit, resetForm, defineField } = useForm({
   validationSchema: yup.object({
@@ -34,7 +35,6 @@ defineExpose({
 });
 
 const visible = ref(false);
-
 const records = ref([]);
 
 const [title, titleAttrs] = defineField('title');
@@ -48,6 +48,9 @@ const onSendNotice = handleSubmit(async () => {
       text: values.text,
       profiles: values.profiles.map(({ id }) => id)
     });
+
+    await $planzvit.updateNotices();
+
     toast.add({
       severity: 'success',
       summary: 'Інформація',
