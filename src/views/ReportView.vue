@@ -134,7 +134,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Report.findAll(department.value.id, {});
+    records.value = await Report.findReportByDepartmentId(department.value.id, {});
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -151,10 +151,8 @@ const onCellEditComplete = async event => {
   const { data, newValue, field } = event;
 
   try {
-    const { previousJobCount, changesJobCount, currentJobCount } = await Report.updateOne(
-      data['id'],
-      { changesJobCount: newValue }
-    );
+    const { previousJobCount, changesJobCount, currentJobCount } =
+      await Report.updateReportByDepartmentId(data['id'], { changesJobCount: newValue });
 
     data['previousJobCount'] = previousJobCount;
     data['changesJobCount'] = changesJobCount;
@@ -186,7 +184,7 @@ const onExportToExcel = async (optimized = false) => {
   loading.value = true;
 
   try {
-    const records = await Report.findAll(department.value.id, {})
+    const records = await Report.findReportByDepartmentId(department.value.id, {})
       .then(items =>
         items.filter(item => {
           if (!optimized) return true;
@@ -263,7 +261,7 @@ const onCreateReport = async () => {
       rejectIcon: 'pi pi-times',
       accept: async () => {
         try {
-          await Report.createOne(department.value.id, {});
+          await Report.createReportByDepartmentId(department.value.id, {});
 
           await onUpdateRecords();
 
@@ -331,9 +329,7 @@ const onClosedReport = async (completed = false) => {
       rejectIcon: 'pi pi-times',
       accept: async () => {
         try {
-          await Report.updateStatusOne(department.value.id, {
-            completed: completed
-          });
+          await Report.updateReportByReportId(department.value.id, { completed: completed });
 
           toast.add({
             severity: 'success',
@@ -400,7 +396,7 @@ const onDeleteReport = async () => {
       rejectIcon: 'pi pi-times',
       accept: async () => {
         try {
-          await Report.removeOne(department.value.id, {});
+          await Report.removeReportByDepartmentId(department.value.id, {});
 
           await onUpdateRecords();
 
@@ -452,7 +448,7 @@ watchEffect(async () => {
 
 onMounted(async () => {
   try {
-    const collections = await Report.findCollecrions();
+    const collections = await Report.findFiltersByReport();
 
     departments.value = collections.deparments;
     services.value = collections.services;

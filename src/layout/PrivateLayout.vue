@@ -16,33 +16,30 @@ import AppTopBar from '@/components/AppTopBar.vue';
     </div>
   </div>
 
-  <ConfirmDialog class="max-w-md">
+  <ConfirmDialog>
     <template #container="{ message, acceptCallback, rejectCallback }">
-      <div class="flex flex-col items-center rounded-md p-5">
+      <div class="flex flex-col items-center rounded bg-surface-0 p-8 dark:bg-surface-900">
         <div
           class="-mt-20 inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary text-primary-contrast"
         >
-          <i :class="[message?.icon || 'pi pi-question', '!text-4xl']"></i>
+          <i :class="[message?.icon || 'pi pi-question', '!text-5xl']"></i>
         </div>
-        <span class="mb-2 mt-4 block text-center text-lg font-semibold">
-          {{ message.message }}
-        </span>
-        <p class="text-sm">{{ message.header }}</p>
-        <div class="mt-4 flex items-center gap-2">
+        <span class="mb-2 mt-6 block text-2xl font-bold">{{ message.header }}</span>
+        <p class="mb-0">{{ message.message }}</p>
+        <div class="mt-6 flex items-center gap-2">
           <Button
             label="Так"
             :icon="message.acceptIcon || ''"
             @click="acceptCallback"
-            class="w-[8rem]"
-          />
-
+            class="w-32"
+          ></Button>
           <Button
-            outlined
             label="Ні"
+            outlined
             :icon="message.rejectIcon || ''"
             @click="rejectCallback"
-            class="w-[8rem]"
-          />
+            class="w-32"
+          ></Button>
         </div>
       </div>
     </template>

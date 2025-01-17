@@ -4,23 +4,7 @@ import { inject } from 'vue';
 export const useReport = defineStore('report', () => {
   const $axios = inject('axios');
 
-  async function findAll(department, params) {
-    try {
-      return await $axios.get(`/reports/${department}`, { params });
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
-
-  async function createOne(department, { ...payload }) {
-    try {
-      return await $axios.post(`/reports/${department}`, { ...payload });
-    } catch (err) {
-      throw new Error(err.message);
-    }
-  }
-
-  async function updateOne(id, { ...payload }) {
+  async function updateReportByReportId(id, { ...payload }) {
     try {
       return await $axios.put(`/reports/${id}`, { ...payload });
     } catch (err) {
@@ -28,29 +12,52 @@ export const useReport = defineStore('report', () => {
     }
   }
 
-  async function updateStatusOne(id, { ...payload }) {
+  async function findFiltersByReport() {
     try {
-      return await $axios.put(`/reports/${id}/status`, { ...payload });
+      return await $axios.get('/reports/filters');
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-  async function removeOne(department, params) {
+  async function createReportByDepartmentId(department, { ...payload }) {
     try {
-      return await $axios.delete(`/reports/${department}`, { params });
+      return await $axios.post(`/reports/department/${department}`, { ...payload });
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-  async function findCollecrions() {
+  async function findReportByDepartmentId(department, params) {
     try {
-      return await $axios.get('/reports/collections/data');
+      return await $axios.get(`/reports/department/${department}`, { params });
     } catch (err) {
       throw new Error(err.message);
     }
   }
 
-  return { findAll, createOne, updateOne, updateStatusOne, removeOne, findCollecrions };
+  async function updateReportByDepartmentId(id, { ...payload }) {
+    try {
+      return await $axios.put(`/reports/department/${id}`, { ...payload });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  async function removeReportByDepartmentId(department, params) {
+    try {
+      return await $axios.delete(`/reports/department/${department}`, { params });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  return {
+    updateReportByReportId,
+    findFiltersByReport,
+    createReportByDepartmentId,
+    findReportByDepartmentId,
+    updateReportByDepartmentId,
+    removeReportByDepartmentId
+  };
 });
