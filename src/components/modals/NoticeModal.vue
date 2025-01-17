@@ -1,16 +1,14 @@
 <script setup>
-import { ref } from 'vue';
-import { useForm } from 'vee-validate';
-import * as yup from 'yup';
 import { useToast } from 'primevue/usetoast';
+import { useForm } from 'vee-validate';
+import { ref } from 'vue';
+import * as yup from 'yup';
 
 import { useNotice } from '@/stores/api/notices';
-import { useProfile } from '@/stores/api/profiles';
 
 const toast = useToast();
 
-const { createOne } = useNotice();
-const Profile = useProfile();
+const Notice = useNotice();
 
 const { values, errors, handleSubmit, resetForm, defineField } = useForm({
   validationSchema: yup.object({
@@ -26,13 +24,8 @@ const emits = defineEmits(['close']);
 defineExpose({
   toggle: async () => {
     try {
-      const { docs } = await Profile.findAll({
-        offset: 0,
-        limit: 50,
-        sort: { fullname: 1 },
-        filters: { isActivated: true }
-      });
-      records.value = docs;
+      records.value = await Notice.findAllProfiles();
+
       visible.value = true;
     } catch (err) {
       visible.value = false;
@@ -50,7 +43,7 @@ const [profiles, profilesAttrs] = defineField('profiles');
 
 const onSendNotice = handleSubmit(async () => {
   try {
-    await createOne({
+    await Notice.createOne({
       title: values.title,
       text: values.text,
       profiles: values.profiles.map(({ id }) => id)

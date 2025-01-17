@@ -1,5 +1,5 @@
-import { inject } from 'vue';
 import { defineStore } from 'pinia';
+import { inject } from 'vue';
 
 export const useNotice = defineStore('notice', () => {
   const $axios = inject('axios');
@@ -28,5 +28,13 @@ export const useNotice = defineStore('notice', () => {
     }
   }
 
-  return { findAll, createOne, removeOne };
+  async function findAllProfiles() {
+    try {
+      return await $axios.get('/notices/profiles');
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  return { findAll, createOne, removeOne, findAllProfiles };
 });
