@@ -204,12 +204,11 @@ const columns = ref([
 ]);
 
 const confirmDeleteAll = () => {
-  confirm.require({
-    message: 'Ви бажаєте видалити всі записи?',
-    header: 'Підтвердження видалення записів',
+  return confirm.require({
+    message: 'Підтвердіть видалення записів.',
+    header: 'Ви бажаєте видалити всі записи?',
     icon: 'pi pi-question',
     acceptIcon: 'pi pi-check',
-    acceptClass: '',
     rejectIcon: 'pi pi-times',
     accept: async () => {
       await removeAll({});

@@ -107,54 +107,54 @@ const onColumnsMenu = event => {
 };
 
 const onRemoveRecord = ({ id }) => {
-  try {
-    loading.value = true;
-
-    confirm.require({
-      message: 'Ви бажаєте видалити цей запис?',
-      header: 'Підтвердити видалення запису',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        if (id) {
-          await props.onDelete({ id });
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: 'Запис видалено',
-            life: 3000
-          });
-          await onUpdateRecords();
-        } else {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Запис не вибрано',
-            life: 3000
-          });
-        }
-      },
-      reject: () => {
-        toast.add({
-          severity: 'info',
-          summary: 'Інформація',
-          detail: 'Видалення запису не підтверджено',
-          life: 3000
-        });
-      }
-    });
-  } catch (err) {
+  if (!id) {
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
-      detail: 'Запис не видалено',
-      life: 5000
+      detail: 'Запис не вибрано',
+      life: 3000
     });
-  } finally {
-    loading.value = false;
+
+    return;
   }
+
+  return confirm.require({
+    message: 'Підтвердіть видалення запису.',
+    header: 'Ви бажаєте видалити цей запис?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
+        await props.onDelete({ id });
+        toast.add({
+          severity: 'success',
+          summary: 'Інформація',
+          detail: 'Запис видалено',
+          life: 3000
+        });
+        await onUpdateRecords();
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Запис не видалено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
+      }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Видалення запису не підтверджено',
+        life: 3000
+      });
+    }
+  });
 };
 
 const onUpdateRecords = async () => {

@@ -128,6 +128,28 @@ const toggle = event => {
   exportmenu.value.toggle(event);
 };
 
+const onCellEditComplete = async event => {
+  const { data, newValue, field } = event;
+
+  try {
+    const { previousJobCount, changesJobCount, currentJobCount } =
+      await Report.updateReportByDepartmentId(data['id'], { changesJobCount: newValue });
+
+    data['previousJobCount'] = previousJobCount;
+    data['changesJobCount'] = changesJobCount;
+    data['currentJobCount'] = currentJobCount;
+  } catch (err) {
+    event.preventDefault();
+
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Не вдалося оновити запис',
+      life: 5000
+    });
+  }
+};
+
 const onUpdateRecords = async () => {
   if (!department.value || !datepiker.value) {
     toast.add({
@@ -153,28 +175,6 @@ const onUpdateRecords = async () => {
     });
   } finally {
     loading.value = false;
-  }
-};
-
-const onCellEditComplete = async event => {
-  const { data, newValue, field } = event;
-
-  try {
-    const { previousJobCount, changesJobCount, currentJobCount } =
-      await Report.updateReportByDepartmentId(data['id'], { changesJobCount: newValue });
-
-    data['previousJobCount'] = previousJobCount;
-    data['changesJobCount'] = changesJobCount;
-    data['currentJobCount'] = currentJobCount;
-  } catch (err) {
-    event.preventDefault();
-
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: 'Не вдалося оновити запис',
-      life: 5000
-    });
   }
 };
 
@@ -258,60 +258,46 @@ const onCreateReport = async () => {
     return;
   }
 
-  try {
-    loading.value = true;
+  return confirm.require({
+    message: 'Підтвердити створення нового щомісячного звіту.',
+    header: 'Ви бажаєте створити новий щомісячний звіт?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
 
-    confirm.require({
-      message: 'Ви бажаєте створити/оновити цей щомісячний звіт?',
-      header: 'Підтвердити зміну щомісячного звіту',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        try {
-          await Report.createReportByDepartmentId(department.value.id, {});
+        await Report.createReportByDepartmentId(department.value.id, {});
 
-          await onUpdateRecords();
-
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: 'Щомісячний звіт створено/оновлено',
-            life: 5000
-          });
-        } catch (err) {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Запис не видалено',
-            life: 5000
-          });
-        } finally {
-          loading.value = false;
-        }
-      },
-      reject: async () => {
-        loading.value = false;
         await onUpdateRecords();
+
         toast.add({
-          severity: 'info',
+          severity: 'success',
           summary: 'Інформація',
-          detail: 'Зміну щомісячного звіту не підтверджено',
+          detail: 'Щомісячний звіт створено',
           life: 5000
         });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Щомісячний звіт не створено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
       }
-    });
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Створення щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
 };
 
 const onCompletedReport = async (completed = false) => {
@@ -326,59 +312,46 @@ const onCompletedReport = async (completed = false) => {
     return;
   }
 
-  try {
-    loading.value = true;
+  return confirm.require({
+    message: 'Підтвердіть зміну статусу щомісячного звіту.',
+    header: `Ви бажаєте ${completed ? 'закрити' : 'відкрити'} щомісячний звіт?`,
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
 
-    confirm.require({
-      message: `Ви бажаєте ${completed ? 'закрити' : 'відкрити'} цей щомісячний звіт?`,
-      header: 'Зміна статусу щомісячного звіту',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        try {
-          await Report.updateReportByDepartmentId(department.value.id, { completed: completed });
+        await Report.updateReportByDepartmentId(department.value.id, { completed: completed });
 
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: `Щомісячний звіт ${completed ? 'закрито' : 'відкрито'} на редагування`,
-            life: 5000
-          });
-        } catch (err) {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Статус не оновлено',
-            life: 5000
-          });
-        } finally {
-          await onUpdateRecords();
-          loading.value = false;
-        }
-      },
-      reject: async () => {
-        loading.value = false;
         await onUpdateRecords();
+
         toast.add({
-          severity: 'info',
+          severity: 'success',
           summary: 'Інформація',
-          detail: 'Зміну статусу щомісячного звіту не підтверджено',
+          detail: `Щомісячний звіт ${completed ? 'закрито' : 'відкрито'} на редагування`,
           life: 5000
         });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Статус не оновлено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
       }
-    });
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Зміну статусу щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
 };
 
 const onArchiveReport = () => {
@@ -387,7 +360,6 @@ const onArchiveReport = () => {
     header: 'Архівувати цього місячний звіт?',
     icon: 'pi pi-question',
     acceptIcon: 'pi pi-check',
-    acceptClass: '',
     rejectIcon: 'pi pi-times',
     accept: async () => {
       try {
@@ -423,7 +395,7 @@ const onArchiveReport = () => {
   });
 };
 
-const onDeleteReport = async () => {
+const onDeleteReport = () => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
@@ -435,60 +407,46 @@ const onDeleteReport = async () => {
     return;
   }
 
-  try {
-    loading.value = true;
+  return confirm.require({
+    message: 'Підтвердіть видалення щомісячного звіту.',
+    header: 'Ви бажаєте видалити цей щомісячний звіт?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
 
-    confirm.require({
-      message: 'Ви бажаєте видалити цей щомісячний звіт?',
-      header: 'Підтвердити видалення щомісячного звіту',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        try {
-          await Report.removeReportByDepartmentId(department.value.id, {});
+        await Report.removeReportByDepartmentId(department.value.id, {});
 
-          await onUpdateRecords();
-
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: 'Щомісячного звіт видалено',
-            life: 5000
-          });
-        } catch (err) {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Запис не видалено',
-            life: 5000
-          });
-        } finally {
-          loading.value = false;
-        }
-      },
-      reject: async () => {
-        loading.value = false;
         await onUpdateRecords();
+
         toast.add({
-          severity: 'info',
+          severity: 'success',
           summary: 'Інформація',
-          detail: 'Видалення щомісячного звіту не підтверджено',
+          detail: 'Щомісячний звіт видалено',
           life: 5000
         });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Щомісячний звіт не видалено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
       }
-    });
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Видалення щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
 };
 
 watchEffect(async () => {
