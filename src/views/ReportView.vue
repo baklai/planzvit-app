@@ -84,6 +84,18 @@ const exportmenuitems = ref([
   },
 
   {
+    label: 'Архівування звітів',
+    items: [
+      {
+        label: 'Архівувати поточний звіт',
+        icon: 'pi pi-server',
+        disabled: !$planzvit?.isAdministrator,
+        command: () => onArchiveReport()
+      }
+    ]
+  },
+
+  {
     label: 'Видалення звітів',
     items: [
       {
@@ -356,6 +368,61 @@ const onCompletedReport = async (completed = false) => {
           severity: 'info',
           summary: 'Інформація',
           detail: 'Зміну статусу щомісячного звіту не підтверджено',
+          life: 5000
+        });
+      }
+    });
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onArchiveReport = async () => {
+  try {
+    confirm.require({
+      message: 'Архівувати щомісячний звіт?',
+      header: 'Підтвердити архівування щомісячного звіту',
+      icon: 'pi pi-question',
+      acceptIcon: 'pi pi-check',
+      acceptClass: '',
+      rejectIcon: 'pi pi-times',
+      accept: async () => {
+        try {
+          loading.value = true;
+
+          await Report.createReportArchive({});
+
+          toast.add({
+            severity: 'success',
+            summary: 'Інформація',
+            detail: 'Щомісячного звіт архівовано',
+            life: 5000
+          });
+        } catch (err) {
+          toast.add({
+            severity: 'warn',
+            summary: 'Попередження',
+            detail: 'Щомісячного звіт не архівовано',
+            life: 5000
+          });
+        } finally {
+          loading.value = false;
+        }
+      },
+      reject: async () => {
+        loading.value = false;
+
+        toast.add({
+          severity: 'info',
+          summary: 'Інформація',
+          detail: 'Архівування щомісячного звіту не підтверджено',
           life: 5000
         });
       }

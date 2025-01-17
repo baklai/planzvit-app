@@ -20,6 +20,14 @@ export const useReport = defineStore('report', () => {
     }
   }
 
+  async function createReportArchive({ ...payload }) {
+    try {
+      return await $axios.post('/reports/archive/', { ...payload });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
   async function createReportByDepartmentId(department, { ...payload }) {
     try {
       return await $axios.post(`/reports/department/${department}`, { ...payload });
@@ -55,6 +63,7 @@ export const useReport = defineStore('report', () => {
   return {
     updateReportByReportId,
     findFiltersByReport,
+    createReportArchive,
     createReportByDepartmentId,
     findReportByDepartmentId,
     updateReportByDepartmentId,
