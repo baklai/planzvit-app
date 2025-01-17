@@ -1,5 +1,6 @@
 <script setup>
 import AppLogoImg from '@/components/AppLogoImg.vue';
+import BtnNotifications from '@/components/buttons/BtnNotifications.vue';
 import BtnFullScreen from '@/components/buttons/BtnFullScreen.vue';
 import BtnMainMenu from '@/components/buttons/BtnMainMenu.vue';
 import BtnToggleTheme from '@/components/buttons/BtnToggleTheme.vue';
@@ -36,6 +37,7 @@ import BtnToggleTheme from '@/components/buttons/BtnToggleTheme.vue';
     <div class="flex flex-nowrap gap-x-4 whitespace-nowrap">
       <BtnToggleTheme />
       <BtnFullScreen />
+      <BtnNotifications />
       <BtnMainMenu />
     </div>
   </header>
