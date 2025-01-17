@@ -63,23 +63,24 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    const [response] = await Sheet.getBranchesById(branch.value, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    const [response] = await Sheet.getBranchesById(branch.value, {});
 
     totalJobCountAll.value = response.totalJobCount;
     totalPriceAll.value = response.totalPrice;
 
-    records.value = response.subdivisions.sort((a, b) => a.id.localeCompare(b.id)).flatMap(subdivision =>
-      subdivision.services.sort((a, b) => a.id.localeCompare(b.id)).map(service => ({
-        ...service,
-        id: `${subdivision.id}-${service.id}`,
-        subdivision: subdivision.name,
-        subdivisionTotalJobCount: subdivision.totalJobCount,
-        subdivisionTotalPrice: subdivision.totalPrice
-      }))
-    );
+    records.value = response.subdivisions
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .flatMap(subdivision =>
+        subdivision.services
+          .sort((a, b) => a.id.localeCompare(b.id))
+          .map(service => ({
+            ...service,
+            id: `${subdivision.id}-${service.id}`,
+            subdivision: subdivision.name,
+            subdivisionTotalJobCount: subdivision.totalJobCount,
+            subdivisionTotalPrice: subdivision.totalPrice
+          }))
+      );
   } catch (err) {
     records.value = [];
     toast.add({
@@ -99,20 +100,21 @@ const onExportToExcel = async () => {
   loading.value = true;
 
   try {
-    const [response] = await Sheet.getBranchesById(branch.value, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    const [response] = await Sheet.getBranchesById(branch.value, {});
 
-    const data = response.subdivisions.sort((a, b) => a.id.localeCompare(b.id)).flatMap(subdivision =>
-      subdivision.services.sort((a, b) => a.id.localeCompare(b.id)).map(service => ({
-        code: service.code,
-        name: service.name,
-        subdivision: subdivision.name,
-        totalJobCount: service.totalJobCount,
-        department: `${service.department.manager} ${service.department.phone}`
-      }))
-    );
+    const data = response.subdivisions
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .flatMap(subdivision =>
+        subdivision.services
+          .sort((a, b) => a.id.localeCompare(b.id))
+          .map(service => ({
+            code: service.code,
+            name: service.name,
+            subdivision: subdivision.name,
+            totalJobCount: service.totalJobCount,
+            department: `${service.department.manager} ${service.department.phone}`
+          }))
+      );
 
     const buffer = await branchJobsReport(
       [
@@ -154,25 +156,26 @@ const onExportAllToExcel = async () => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getBranchesByIds({
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    const response = await Sheet.getBranchesByIds({});
 
     const reports = response
       .sort((a, b) => a.id.localeCompare(b.id))
       .map(record => {
         return {
           branch: { name: record.name, description: record.description },
-          data: record.subdivisions.sort((a, b) => a.id.localeCompare(b.id)).flatMap(subdivision =>
-            subdivision.services.sort((a, b) => a.id.localeCompare(b.id)).map(service => ({
-              code: service.code,
-              name: service.name,
-              subdivision: subdivision.name,
-              totalJobCount: service.totalJobCount,
-              department: `${service.department.manager} ${service.department.phone}`
-            }))
-          )
+          data: record.subdivisions
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .flatMap(subdivision =>
+              subdivision.services
+                .sort((a, b) => a.id.localeCompare(b.id))
+                .map(service => ({
+                  code: service.code,
+                  name: service.name,
+                  subdivision: subdivision.name,
+                  totalJobCount: service.totalJobCount,
+                  department: `${service.department.manager} ${service.department.phone}`
+                }))
+            )
         };
       });
 

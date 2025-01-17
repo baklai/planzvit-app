@@ -45,7 +45,7 @@ const onRemoveRecord = async id => {
   <div>
     <NoticeModal ref="refModal" @close="async () => false" />
 
-    <OverlayPanel ref="refMenu" appendTo="body" class="w-[35rem]">
+    <Popover ref="refMenu" appendTo="body" class="w-[35rem]">
       <div class="flex w-full flex-col">
         <div class="flex justify-between px-2 pt-2">
           <div class="flex items-center justify-center">
@@ -125,7 +125,7 @@ const onRemoveRecord = async id => {
           <p class="text-md font-medium text-muted-color">Сповіщення не знайдені</p>
         </div>
       </div>
-    </OverlayPanel>
+    </Popover>
 
     <OverlayBadge
       :value="store.notices.length"

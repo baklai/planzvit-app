@@ -19,7 +19,7 @@ const $planzvit = inject('planzvit');
 const Report = useReport();
 
 const records = ref([]);
-const datepiker = ref();
+const datepiker = ref(new Date());
 const department = ref();
 const departments = ref([]);
 const services = ref([]);
@@ -134,10 +134,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Report.findAll(department.value.id, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    records.value = await Report.findAll(department.value.id, {});
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -189,10 +186,7 @@ const onExportToExcel = async (optimized = false) => {
   loading.value = true;
 
   try {
-    const records = await Report.findAll(department.value.id, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    })
+    const records = await Report.findAll(department.value.id, {})
       .then(items =>
         items.filter(item => {
           if (!optimized) return true;
@@ -269,10 +263,7 @@ const onCreateReport = async () => {
       rejectIcon: 'pi pi-times',
       accept: async () => {
         try {
-          await Report.createOne(department.value.id, {
-            monthOfReport: datepiker.value.getMonth() + 1,
-            yearOfReport: datepiker.value.getFullYear()
-          });
+          await Report.createOne(department.value.id, {});
 
           await onUpdateRecords();
 
@@ -316,7 +307,7 @@ const onCreateReport = async () => {
   }
 };
 
-const onClosedReport = async (closed = false) => {
+const onClosedReport = async (completed = false) => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
@@ -332,7 +323,7 @@ const onClosedReport = async (closed = false) => {
     loading.value = true;
 
     confirm.require({
-      message: `Ви бажаєте ${closed ? 'закрити' : 'відкрити'} цей щомісячний звіт?`,
+      message: `Ви бажаєте ${completed ? 'закрити' : 'відкрити'} цей щомісячний звіт?`,
       header: 'Підтвердити зміну статусу щомісячного звіту',
       icon: 'pi pi-question',
       acceptIcon: 'pi pi-check',
@@ -341,15 +332,13 @@ const onClosedReport = async (closed = false) => {
       accept: async () => {
         try {
           await Report.updateStatusOne(department.value.id, {
-            monthOfReport: datepiker.value.getMonth() + 1,
-            yearOfReport: datepiker.value.getFullYear(),
-            closed: closed
+            completed: completed
           });
 
           toast.add({
             severity: 'success',
             summary: 'Інформація',
-            detail: `Щомісячний звіт ${closed ? 'закрито' : 'відкрито'} на редагування`,
+            detail: `Щомісячний звіт ${completed ? 'закрито' : 'відкрито'} на редагування`,
             life: 5000
           });
         } catch (err) {
@@ -411,10 +400,7 @@ const onDeleteReport = async () => {
       rejectIcon: 'pi pi-times',
       accept: async () => {
         try {
-          await Report.removeOne(department.value.id, {
-            monthOfReport: datepiker.value.getMonth() + 1,
-            yearOfReport: datepiker.value.getFullYear()
-          });
+          await Report.removeOne(department.value.id, {});
 
           await onUpdateRecords();
 
@@ -525,6 +511,19 @@ onMounted(async () => {
           </div>
 
           <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
+            <FloatLabel class="w-[20rem]" variant="in">
+              <Select
+                inputId="department"
+                v-model="department"
+                variant="filled"
+                :options="departments"
+                optionLabel="name"
+                class="w-full"
+                :disabled="loading"
+              />
+              <label for="department">Оберіть відділ</label>
+            </FloatLabel>
+
             <FloatLabel variant="in">
               <DatePicker
                 inputId="datepiker"
@@ -537,19 +536,6 @@ onMounted(async () => {
                 :disabled="loading"
               />
               <label for="datepiker">Оберіть рік та місяць</label>
-            </FloatLabel>
-
-            <FloatLabel class="w-[20rem]" variant="in">
-              <Select
-                inputId="department"
-                v-model="department"
-                variant="filled"
-                :options="departments"
-                optionLabel="name"
-                class="w-full"
-                :disabled="loading"
-              />
-              <label for="department">Оберіть відділ</label>
             </FloatLabel>
 
             <Button
@@ -796,9 +782,9 @@ onMounted(async () => {
         </template>
 
         <template #body="{ data, field }">
-          <span>{{ $data['closed'] }}</span>
+          <span>{{ $data['completed'] }}</span>
 
-          <i class="pi pi-lock text-muted-color" v-if="data['closed'] === true"></i>
+          <i class="pi pi-lock text-muted-color" v-if="data['completed'] === true"></i>
 
           <div class="w-full" v-else>
             <span v-if="data[field] !== 0">
@@ -826,7 +812,7 @@ onMounted(async () => {
             fluid
             variant="filled"
             inputClass="text-center w-48 h-10 text-base"
-            :disabled="data['closed'] === true"
+            :disabled="data['completed'] === true"
           />
         </template>
       </Column>

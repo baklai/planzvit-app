@@ -64,10 +64,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {});
 
     subdivision.value = response;
   } catch (err) {
@@ -89,20 +86,19 @@ const onExportToExcel = async () => {
   loading.value = true;
 
   try {
-    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {});
 
-    const data = response.services.sort((a, b) => a.id.localeCompare(b.id)).map(item => {
-      return {
-        code: item.code,
-        name: item.name,
-        subdivision: response.name,
-        totalJobCount: item.totalJobCount,
-        department: `${item.department.manager} ${item.department.phone}`
-      };
-    });
+    const data = response.services
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map(item => {
+        return {
+          code: item.code,
+          name: item.name,
+          subdivision: response.name,
+          totalJobCount: item.totalJobCount,
+          department: `${item.department.manager} ${item.department.phone}`
+        };
+      });
 
     const buffer = await subdivisionJobsReport(
       [
@@ -145,10 +141,7 @@ const onExportAllToExcel = async () => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getSubdivisionsByIds({
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    const response = await Sheet.getSubdivisionsByIds({});
 
     const reports = response
       .sort((a, b) => a.id.localeCompare(b.id))
@@ -156,15 +149,17 @@ const onExportAllToExcel = async () => {
         return {
           branch: record.branch,
           subdivision: { name: record.name, description: record.description },
-          data: record.services.sort((a, b) => a.id.localeCompare(b.id)).map(item => {
-            return {
-              code: item.code,
-              name: item.name,
-              subdivision: record.name,
-              totalJobCount: item.totalJobCount,
-              department: `${item.department.manager} ${item.department.phone}`
-            };
-          })
+          data: record.services
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(item => {
+              return {
+                code: item.code,
+                name: item.name,
+                subdivision: record.name,
+                totalJobCount: item.totalJobCount,
+                department: `${item.department.manager} ${item.department.phone}`
+              };
+            })
         };
       });
 

@@ -77,10 +77,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Sheet.getReportsById(department.value, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    records.value = await Sheet.getReportsById(department.value, {});
   } catch (err) {
     records.value = [];
 
@@ -110,10 +107,7 @@ const onExportToExcel = async () => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getReportsById(department.value, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    const response = await Sheet.getReportsById(department.value, {});
 
     const records = response.map(item => {
       return {
@@ -173,10 +167,7 @@ const onExportAllToExcel = async () => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getReportsByIds({
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    const response = await Sheet.getReportsByIds({});
 
     const reports = response.map(({ department, records }) => {
       return {
