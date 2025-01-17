@@ -66,6 +66,24 @@ const exportmenuitems = ref([
   },
 
   {
+    label: 'Закриття/відкриття звітів',
+    items: [
+      {
+        label: 'Закрити поточний звіт',
+        icon: 'pi pi-lock',
+        disabled: !$planzvit?.isAdministrator,
+        command: () => onClosedReport(true)
+      },
+      {
+        label: 'Відкрити поточний звіт',
+        icon: 'pi pi-lock-open',
+        disabled: !$planzvit?.isAdministrator,
+        command: () => onClosedReport(false)
+      }
+    ]
+  },
+
+  {
     label: 'Видалення звітів',
     items: [
       {
@@ -282,6 +300,77 @@ const onCreateReport = async () => {
           severity: 'info',
           summary: 'Інформація',
           detail: 'Зміну щомісячного звіту не підтверджено',
+          life: 5000
+        });
+      }
+    });
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onClosedReport = async (closed = false) => {
+  if (!department.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та відділ',
+      life: 5000
+    });
+
+    return;
+  }
+
+  try {
+    loading.value = true;
+
+    confirm.require({
+      message: `Ви бажаєте ${closed ? 'закрити' : 'відкрити'} цей щомісячний звіт?`,
+      header: 'Підтвердити зміну статусу щомісячного звіту',
+      icon: 'pi pi-question',
+      acceptIcon: 'pi pi-check',
+      acceptClass: '',
+      rejectIcon: 'pi pi-times',
+      accept: async () => {
+        try {
+          await Report.updateStatusOne(department.value.id, {
+            monthOfReport: datepiker.value.getMonth() + 1,
+            yearOfReport: datepiker.value.getFullYear(),
+            closed: closed
+          });
+
+          toast.add({
+            severity: 'success',
+            summary: 'Інформація',
+            detail: `Щомісячний звіт ${closed ? 'закрито' : 'відкрито'} на редагування`,
+            life: 5000
+          });
+        } catch (err) {
+          toast.add({
+            severity: 'warn',
+            summary: 'Попередження',
+            detail: 'Статус не оновлено',
+            life: 5000
+          });
+        } finally {
+          await onUpdateRecords();
+          loading.value = false;
+        }
+      },
+      reject: async () => {
+        loading.value = false;
+        await onUpdateRecords();
+        toast.add({
+          severity: 'info',
+          summary: 'Інформація',
+          detail: 'Зміну статусу щомісячного звіту не підтверджено',
           life: 5000
         });
       }
@@ -705,17 +794,24 @@ onMounted(async () => {
             <span>Поточні зміни (+/-)</span>
           </div>
         </template>
+
         <template #body="{ data, field }">
-          <span v-if="data[field] !== 0">
-            <Tag
-              :severity="data[field] > 0 ? 'success' : 'warn'"
-              class="min-w-[4rem] font-bold"
-              :value="data[field] || '-'"
-            />
-          </span>
-          <span v-else>
-            <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
-          </span>
+          <span>{{ $data['closed'] }}</span>
+
+          <i class="pi pi-lock text-muted-color" v-if="data['closed'] === true"></i>
+
+          <div class="w-full" v-else>
+            <span v-if="data[field] !== 0">
+              <Tag
+                :severity="data[field] > 0 ? 'success' : 'warn'"
+                class="min-w-[4rem] font-bold"
+                :value="data[field] || '-'"
+              />
+            </span>
+            <span v-else>
+              <Tag severity="secondary" class="min-w-[4rem]" :value="data[field] || 0" />
+            </span>
+          </div>
         </template>
 
         <template #editor="{ data, field }">
@@ -730,8 +826,8 @@ onMounted(async () => {
             fluid
             variant="filled"
             inputClass="text-center w-48 h-10 text-base"
-          >
-          </InputNumber>
+            :disabled="data['closed'] === true"
+          />
         </template>
       </Column>
 

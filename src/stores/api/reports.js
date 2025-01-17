@@ -28,6 +28,14 @@ export const useReport = defineStore('report', () => {
     }
   }
 
+  async function updateStatusOne(id, { ...payload }) {
+    try {
+      return await $axios.put(`/reports/${id}/status`, { ...payload });
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
   async function removeOne(department, params) {
     try {
       return await $axios.delete(`/reports/${department}`, { params });
@@ -44,5 +52,5 @@ export const useReport = defineStore('report', () => {
     }
   }
 
-  return { findAll, createOne, updateOne, removeOne, findCollecrions };
+  return { findAll, createOne, updateOne, updateStatusOne, removeOne, findCollecrions };
 });
