@@ -31,7 +31,7 @@ const loading = ref(false);
 const exportmenu = ref();
 const exportmenuitems = ref([
   {
-    label: 'Експорт звітів',
+    label: 'Експорт',
     items: [
       {
         label: 'Щомісячний звіт',
@@ -48,17 +48,17 @@ const exportmenuitems = ref([
   },
 
   {
-    label: 'Генерація звітів',
+    label: 'Генерація',
     items: [
       {
-        label: 'Оновити щомісячний звіт',
-        icon: 'pi pi-replay',
+        label: 'Створити новий звіт',
+        icon: 'pi pi-sparkles',
         disabled: !$planzvit?.isAdministrator,
         command: () => onCreateReport()
       },
       {
-        label: 'Створити щомісячний звіт',
-        icon: 'pi pi-sparkles',
+        label: 'Оновити поточний звіт',
+        icon: 'pi pi-replay',
         disabled: !$planzvit?.isAdministrator,
         command: () => onCreateReport()
       }
@@ -66,7 +66,7 @@ const exportmenuitems = ref([
   },
 
   {
-    label: 'Закриття/відкриття звітів',
+    label: 'Закриття/відкриття',
     items: [
       {
         label: 'Закрити поточний звіт',
@@ -84,19 +84,7 @@ const exportmenuitems = ref([
   },
 
   {
-    label: 'Архівування звітів',
-    items: [
-      {
-        label: 'Архівувати поточний звіт',
-        icon: 'pi pi-server',
-        disabled: !$planzvit?.isAdministrator,
-        command: () => onArchiveReport()
-      }
-    ]
-  },
-
-  {
-    label: 'Видалення звітів',
+    label: 'Видалення',
     items: [
       {
         label: 'Видалити поточний звіт',
@@ -105,6 +93,15 @@ const exportmenuitems = ref([
         command: () => onDeleteReport()
       }
     ]
+  },
+  {
+    separator: true
+  },
+  {
+    label: 'Архівувати щомісячний звіт',
+    icon: 'pi pi-server',
+    disabled: !$planzvit?.isAdministrator,
+    command: () => onArchiveReport()
   }
 ]);
 
@@ -384,59 +381,46 @@ const onCompletedReport = async (completed = false) => {
   }
 };
 
-const onArchiveReport = async () => {
-  try {
-    confirm.require({
-      message: 'Архівувати щомісячний звіт?',
-      header: 'Підтвердити архівування щомісячного звіту',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        try {
-          loading.value = true;
+const onArchiveReport = () => {
+  return confirm.require({
+    message: 'Підтвердіть архівування звіту.',
+    header: 'Архівувати цього місячний звіт?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    acceptClass: '',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
 
-          await Report.createReportArchive({});
-
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: 'Щомісячного звіт архівовано',
-            life: 5000
-          });
-        } catch (err) {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Щомісячного звіт не архівовано',
-            life: 5000
-          });
-        } finally {
-          loading.value = false;
-        }
-      },
-      reject: async () => {
-        loading.value = false;
+        await Report.createReportArchive({});
 
         toast.add({
-          severity: 'info',
+          severity: 'success',
           summary: 'Інформація',
-          detail: 'Архівування щомісячного звіту не підтверджено',
+          detail: 'Щомісячного звіт архівовано',
           life: 5000
         });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Щомісячного звіт не архівовано',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
       }
-    });
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Архівування щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
 };
 
 const onDeleteReport = async () => {
@@ -617,7 +601,7 @@ onMounted(async () => {
               id="exports_menu"
               :model="exportmenuitems"
               :popup="true"
-              :pt="{ list: { class: ['!gap-y-2'] }, itemcontent: { class: ['py-2'] } }"
+              :pt="{ list: { class: ['!gap-y-1'] }, itemcontent: { class: ['!py-1'] } }"
             />
           </div>
         </div>
