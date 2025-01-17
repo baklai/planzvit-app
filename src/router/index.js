@@ -90,6 +90,47 @@ const router = createRouter({
     },
 
     {
+      path: '/archive',
+      name: 'archive',
+      meta: {
+        auth: true,
+        roles: ['moderator', 'administrator'],
+        title: 'Архів актів здавання-приймання послуг',
+        description: 'Архів актів здавання-приймання послуг, які надаються на вимогу'
+      },
+      component: () => import('@/views/archive/MainSheetView.vue'),
+      children: [
+        {
+          path: 'report',
+          name: 'archive-report',
+          meta: {
+            title: 'Архів щомісячних звітів',
+            description: 'Архів звітів про надання послуг з програмно-технологічного супроводу'
+          },
+          component: () => import('@/views/archive/ReportSheetView.vue')
+        },
+        {
+          path: 'branch',
+          name: 'archive-branch',
+          meta: {
+            title: 'Архів актів послуг службам (філіям)',
+            description: 'Архів актів послуг, який надаються службам (філіям)'
+          },
+          component: () => import('@/views/archive/BranchSheetView.vue')
+        },
+        {
+          path: 'subdivision',
+          name: 'archive-subdivision',
+          meta: {
+            title: 'Архів актів послуг підрозділам',
+            description: 'Архів актів послуг, який надаються підрозділам'
+          },
+          component: () => import('@/views/archive/SubdivisionSheetView.vue')
+        }
+      ]
+    },
+
+    {
       path: '/table',
       name: 'table',
       meta: { auth: true, roles: ['moderator', 'administrator'] },

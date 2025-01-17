@@ -88,6 +88,17 @@ import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
         <Button
           size="large"
           variant="text"
+          icon="pi pi-server"
+          severity="secondary"
+          class="bg-transparent text-muted-color hover:bg-emphasis"
+          v-tooltip="'Архів звітів про надання послуг'"
+          as="router-link"
+          to="/archive"
+        />
+
+        <Button
+          size="large"
+          variant="text"
           icon="pi pi-sliders-h"
           severity="secondary"
           class="bg-transparent text-muted-color hover:bg-emphasis"

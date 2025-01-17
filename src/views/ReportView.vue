@@ -72,13 +72,13 @@ const exportmenuitems = ref([
         label: 'Закрити поточний звіт',
         icon: 'pi pi-lock',
         disabled: !$planzvit?.isAdministrator,
-        command: () => onClosedReport(true)
+        command: () => onCompletedReport(true)
       },
       {
         label: 'Відкрити поточний звіт',
         icon: 'pi pi-lock-open',
         disabled: !$planzvit?.isAdministrator,
-        command: () => onClosedReport(false)
+        command: () => onCompletedReport(false)
       }
     ]
   },
@@ -305,7 +305,7 @@ const onCreateReport = async () => {
   }
 };
 
-const onClosedReport = async (completed = false) => {
+const onCompletedReport = async (completed = false) => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
@@ -322,14 +322,14 @@ const onClosedReport = async (completed = false) => {
 
     confirm.require({
       message: `Ви бажаєте ${completed ? 'закрити' : 'відкрити'} цей щомісячний звіт?`,
-      header: 'Підтвердити зміну статусу щомісячного звіту',
+      header: 'Зміна статусу щомісячного звіту',
       icon: 'pi pi-question',
       acceptIcon: 'pi pi-check',
       acceptClass: '',
       rejectIcon: 'pi pi-times',
       accept: async () => {
         try {
-          await Report.updateReportByReportId(department.value.id, { completed: completed });
+          await Report.updateReportByDepartmentId(department.value.id, { completed: completed });
 
           toast.add({
             severity: 'success',
