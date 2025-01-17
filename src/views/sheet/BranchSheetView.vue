@@ -71,8 +71,8 @@ const onUpdateRecords = async () => {
     totalJobCountAll.value = response.totalJobCount;
     totalPriceAll.value = response.totalPrice;
 
-    records.value = response.subdivisions.flatMap(subdivision =>
-      subdivision.services.map(service => ({
+    records.value = response.subdivisions.sort((a, b) => a.id.localeCompare(b.id)).flatMap(subdivision =>
+      subdivision.services.sort((a, b) => a.id.localeCompare(b.id)).map(service => ({
         ...service,
         id: `${subdivision.id}-${service.id}`,
         subdivision: subdivision.name,
@@ -104,8 +104,8 @@ const onExportToExcel = async () => {
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    const data = response.subdivisions.flatMap(subdivision =>
-      subdivision.services.map(service => ({
+    const data = response.subdivisions.sort((a, b) => a.id.localeCompare(b.id)).flatMap(subdivision =>
+      subdivision.services.sort((a, b) => a.id.localeCompare(b.id)).map(service => ({
         code: service.code,
         name: service.name,
         subdivision: subdivision.name,
@@ -160,12 +160,12 @@ const onExportAllToExcel = async () => {
     });
 
     const reports = response
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => a.id.localeCompare(b.id))
       .map(record => {
         return {
           branch: { name: record.name, description: record.description },
-          data: record.subdivisions.flatMap(subdivision =>
-            subdivision.services.map(service => ({
+          data: record.subdivisions.sort((a, b) => a.id.localeCompare(b.id)).flatMap(subdivision =>
+            subdivision.services.sort((a, b) => a.id.localeCompare(b.id)).map(service => ({
               code: service.code,
               name: service.name,
               subdivision: subdivision.name,

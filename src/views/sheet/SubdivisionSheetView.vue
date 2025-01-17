@@ -94,7 +94,7 @@ const onExportToExcel = async () => {
       yearOfReport: datepiker.value.getFullYear()
     });
 
-    const data = response.services.map(item => {
+    const data = response.services.sort((a, b) => a.id.localeCompare(b.id)).map(item => {
       return {
         code: item.code,
         name: item.name,
@@ -151,12 +151,12 @@ const onExportAllToExcel = async () => {
     });
 
     const reports = response
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => a.id.localeCompare(b.id))
       .map(record => {
         return {
           branch: record.branch,
           subdivision: { name: record.name, description: record.description },
-          data: record.services.map(item => {
+          data: record.services.sort((a, b) => a.id.localeCompare(b.id)).map(item => {
             return {
               code: item.code,
               name: item.name,
