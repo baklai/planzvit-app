@@ -7,11 +7,11 @@ import AppLoading from '@/components/AppLoading.vue';
 import { dateToMonthStr } from '@/service/DataFilters.js';
 import { branchJobsReport } from '@/service/ReportsSheetToXlsx';
 import { useBranch } from '@/stores/api/branches';
-import { useSheet } from '@/stores/api/sheets';
+import { useArchive } from '@/stores/api/archives';
 
 const toast = useToast();
 const Branch = useBranch();
-const Sheet = useSheet();
+const Archive = useArchive();
 
 const loading = ref(false);
 
@@ -63,7 +63,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    const [response] = await Sheet.getBranchesById(branch.value, {});
+    const [response] = await Archive.getBranchesById(branch.value, {});
 
     totalJobCountAll.value = response.totalJobCount;
     totalPriceAll.value = response.totalPrice;
@@ -100,7 +100,7 @@ const onExportToExcel = async () => {
   loading.value = true;
 
   try {
-    const [response] = await Sheet.getBranchesById(branch.value, {});
+    const [response] = await Archive.getBranchesById(branch.value, {});
 
     const data = response.subdivisions
       .sort((a, b) => a.id.localeCompare(b.id))
@@ -156,7 +156,7 @@ const onExportAllToExcel = async () => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getBranchesByIds({});
+    const response = await Archive.getBranchesByIds({});
 
     const reports = response
       .sort((a, b) => a.id.localeCompare(b.id))
