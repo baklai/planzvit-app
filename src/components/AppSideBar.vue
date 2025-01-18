@@ -51,9 +51,20 @@ import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
         icon="pi pi-file-excel !text-2xl"
         severity="secondary"
         class="bg-transparent text-muted-color hover:bg-emphasis"
-        v-tooltip="'Звіти про надання послуг'"
+        v-tooltip="'Щомісячний звіт про надання послуг'"
         as="router-link"
         to="/sheet"
+      />
+
+      <Button
+        size="large"
+        variant="text"
+        icon="pi pi-save !text-xl"
+        severity="secondary"
+        class="bg-transparent text-muted-color hover:bg-emphasis"
+        v-tooltip="'Архів щомісячних звітів про надання послуг'"
+        as="router-link"
+        to="/archive"
       />
 
       <Button
@@ -83,17 +94,6 @@ import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
           v-tooltip="'База даних'"
           as="router-link"
           to="/table"
-        />
-
-        <Button
-          size="large"
-          variant="text"
-          icon="pi pi-server"
-          severity="secondary"
-          class="bg-transparent text-muted-color hover:bg-emphasis"
-          v-tooltip="'Архів звітів про надання послуг'"
-          as="router-link"
-          to="/archive"
         />
 
         <Button
