@@ -48,24 +48,6 @@ const exportmenuitems = ref([
   },
 
   {
-    label: 'Генерація',
-    items: [
-      {
-        label: 'Створити новий звіт',
-        icon: 'pi pi-sparkles',
-        disabled: !$planzvit?.isAdministrator,
-        command: () => onCreateReport()
-      },
-      {
-        label: 'Оновити поточний звіт',
-        icon: 'pi pi-replay',
-        disabled: !$planzvit?.isAdministrator,
-        command: () => onUpdateReport()
-      }
-    ]
-  },
-
-  {
     label: 'Закриття/відкриття',
     items: [
       {
@@ -79,6 +61,18 @@ const exportmenuitems = ref([
         icon: 'pi pi-lock-open',
         disabled: !$planzvit?.isAdministrator,
         command: () => onCompletedReport(false)
+      }
+    ]
+  },
+
+  {
+    label: 'Генерація',
+    items: [
+      {
+        label: 'Створити новий звіт',
+        icon: 'pi pi-sparkles',
+        disabled: !$planzvit?.isAdministrator,
+        command: () => onCreateReport()
       }
     ]
   },
@@ -294,60 +288,6 @@ const onCreateReport = () => {
         severity: 'info',
         summary: 'Інформація',
         detail: 'Створення щомісячного звіту не підтверджено',
-        life: 5000
-      });
-    }
-  });
-};
-
-const onUpdateReport = () => {
-  if (!department.value || !datepiker.value) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: 'Оберіть місяць, рік та відділ',
-      life: 5000
-    });
-
-    return;
-  }
-
-  return confirm.require({
-    message: 'Підтвердити оновлення щомісячного звіту.',
-    header: 'Ви бажаєте оновити щомісячний звіт?',
-    icon: 'pi pi-question',
-    acceptIcon: 'pi pi-check',
-    rejectIcon: 'pi pi-times',
-    accept: async () => {
-      try {
-        loading.value = true;
-
-        await Report.createReportByDepartmentId(department.value.id, {});
-
-        await onUpdateRecords();
-
-        toast.add({
-          severity: 'success',
-          summary: 'Інформація',
-          detail: 'Щомісячний звіт оновлено',
-          life: 5000
-        });
-      } catch (err) {
-        toast.add({
-          severity: 'warn',
-          summary: 'Попередження',
-          detail: 'Щомісячний звіт не оновлено',
-          life: 5000
-        });
-      } finally {
-        loading.value = false;
-      }
-    },
-    reject: () => {
-      toast.add({
-        severity: 'info',
-        summary: 'Інформація',
-        detail: 'Оновлення щомісячного звіту не підтверджено',
         life: 5000
       });
     }
