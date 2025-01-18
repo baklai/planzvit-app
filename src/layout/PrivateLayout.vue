@@ -18,7 +18,7 @@ import AppTopBar from '@/components/AppTopBar.vue';
 
   <ConfirmDialog>
     <template #container="{ message, acceptCallback, rejectCallback }">
-      <div class="flex flex-col items-center rounded bg-surface-0 p-8 dark:bg-surface-900">
+      <div class="flex flex-col items-center rounded p-8">
         <div
           class="-mt-20 inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary text-primary-contrast"
         >
