@@ -125,9 +125,13 @@ const toggle = event => {
 const onCellEditComplete = async event => {
   const { data, newValue, field } = event;
 
+  if (data['completed'] === true) {
+    return;
+  }
+
   try {
     const { previousJobCount, changesJobCount, currentJobCount } =
-      await Report.updateReportByDepartmentId(data['id'], { changesJobCount: newValue });
+      await Report.updateReportByReportId(data['id'], { changesJobCount: newValue });
 
     data['previousJobCount'] = previousJobCount;
     data['changesJobCount'] = changesJobCount;
