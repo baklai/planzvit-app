@@ -661,30 +661,29 @@ onMounted(async () => {
         filterField="service.code"
         style="width: 10%"
         :showFilterMatchModes="false"
-        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            @change="filterCallback()"
-            v-model="filterModel.value"
-            :options="services || []"
-            optionLabel="code"
-            optionValue="code"
-            dataKey="id"
-            placeholder="Код роботи"
-            :maxSelectedLabels="1"
             filter
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            :maxSelectedLabels="3"
             filterMatchMode="contains"
+            v-model="filterModel.value"
+            dataKey="id"
+            optionLabel="code"
+            optionValue="code"
+            :options="services || []"
+            placeholder="Код роботи"
             filterPlaceholder="Пошук у списку"
             :virtualScrollerOptions="{ itemSize: 32 }"
-            class="w-full"
+            class="my-4 w-96"
+            @change="filterCallback"
           >
-            <template #option="slotProps">
+            <template #option="{ option }">
               <div class="flex h-full items-center text-base">
-                <span>{{ slotProps.option.code }}</span>
+                <span>{{ option.code }}</span>
               </div>
             </template>
           </MultiSelect>
@@ -698,7 +697,6 @@ onMounted(async () => {
         filterField="service.name"
         style="max-width: 20rem"
         :showFilterMatchModes="false"
-        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #body="{ data, field }">
           <div
@@ -711,26 +709,26 @@ onMounted(async () => {
 
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            @change="filterCallback()"
-            v-model="filterModel.value"
-            :options="services || []"
-            optionLabel="name"
-            optionValue="name"
-            dataKey="id"
-            placeholder="Назва роботи"
-            :maxSelectedLabels="0"
             filter
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            :maxSelectedLabels="3"
             filterMatchMode="contains"
+            v-model="filterModel.value"
+            dataKey="id"
+            optionLabel="name"
+            optionValue="name"
+            :options="services || []"
+            placeholder="Назва роботи"
             filterPlaceholder="Пошук у списку"
             :virtualScrollerOptions="{ itemSize: 32 }"
-            class="w-full"
+            class="my-4 w-96"
+            @change="filterCallback"
           >
-            <template #option="slotProps">
+            <template #option="{ option }">
               <div class="flex h-full items-center text-base">
-                <span>{{ slotProps.option.name }}</span>
+                <span>{{ option.name }}</span>
               </div>
             </template>
           </MultiSelect>
@@ -744,30 +742,29 @@ onMounted(async () => {
         filterField="branch.name"
         style="width: 10%"
         :showFilterMatchModes="false"
-        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            @change="filterCallback()"
-            v-model="filterModel.value"
-            :options="branches || []"
-            optionLabel="name"
-            optionValue="name"
-            dataKey="id"
-            placeholder="Служба/філія"
-            :maxSelectedLabels="0"
             filter
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            :maxSelectedLabels="3"
             filterMatchMode="contains"
+            v-model="filterModel.value"
+            dataKey="id"
+            optionLabel="name"
+            optionValue="name"
+            :options="branches || []"
+            placeholder="Служба/філія"
             filterPlaceholder="Пошук у списку"
             :virtualScrollerOptions="{ itemSize: 32 }"
-            class="w-full"
+            class="my-4 w-96"
+            @change="filterCallback"
           >
-            <template #option="slotProps">
+            <template #option="{ option }">
               <div class="flex h-full items-center text-base">
-                <span>{{ slotProps.option.name }}</span>
+                <span>{{ option.name }}</span>
               </div>
             </template>
           </MultiSelect>
@@ -781,30 +778,29 @@ onMounted(async () => {
         filterField="subdivision.name"
         style="width: 20%"
         :showFilterMatchModes="false"
-        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            @change="filterCallback()"
-            v-model="filterModel.value"
-            :options="subdivisions || []"
-            optionLabel="name"
-            optionValue="name"
-            dataKey="id"
-            placeholder="Структурний підрозділ"
-            :maxSelectedLabels="0"
             filter
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            :maxSelectedLabels="3"
             filterMatchMode="contains"
+            v-model="filterModel.value"
+            dataKey="id"
+            optionLabel="name"
+            optionValue="name"
+            :options="subdivisions || []"
+            placeholder="Структурний підрозділ"
             filterPlaceholder="Пошук у списку"
             :virtualScrollerOptions="{ itemSize: 32 }"
-            class="w-full"
+            class="my-4 w-96"
+            @change="filterCallback"
           >
-            <template #option="slotProps">
+            <template #option="{ option }">
               <div class="flex h-full items-center text-base">
-                <span>{{ slotProps.option.name }}</span>
+                <span>{{ option.name }}</span>
               </div>
             </template>
           </MultiSelect>
