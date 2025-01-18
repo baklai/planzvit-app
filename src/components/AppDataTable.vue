@@ -1,8 +1,8 @@
 <script setup lang="jsx">
-import { ref, computed, onMounted } from 'vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
 import { getObjField } from '@/service/ObjectMethods';
@@ -959,9 +959,10 @@ onMounted(async () => {
 
           <DataTable
             scrollable
+            dataKey="id"
             showGridlines
-            scrollHeight="300px"
-            :virtualScrollerOptions="{ itemSize: 36 }"
+            scrollHeight="flex"
+            :virtualScrollerOptions="{ itemSize: 46 }"
             :value="data[`${expansion.fileld}`]"
             tableStyle="min-width: 60rem"
             class="min-w-full overflow-x-auto text-base"

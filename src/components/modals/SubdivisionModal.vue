@@ -157,7 +157,6 @@ const onSaveRecord = handleSubmit(async values => {
 
 const onCloseModal = async () => {
   resetForm({ values: {} }, { force: true });
-  loading.value = false;
   emits('close', {});
 };
 </script>
@@ -205,7 +204,11 @@ const onCloseModal = async () => {
       </div>
     </template>
 
-    <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
+    <form
+      class="flex flex-col gap-y-4 md:flex-row md:flex-wrap"
+      @submit.prevent="onSaveRecord"
+      v-focustrap
+    >
       <div class="flex w-full flex-col space-y-4">
         <div class="flex flex-col gap-2">
           <label for="name" class="font-bold"> Назва структурного підрозділу </label>
