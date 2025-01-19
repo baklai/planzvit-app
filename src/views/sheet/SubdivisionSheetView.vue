@@ -5,7 +5,7 @@ import { onMounted, ref, watchEffect } from 'vue';
 import AppLoading from '@/components/AppLoading.vue';
 
 import { dateToMonthStr } from '@/service/DataFilters.js';
-import { subdivisionJobsReport } from '@/service/ReportsSheetToXlsx';
+import { subdivisionJobsReport, subdivisionJobsReportPrice } from '@/service/ReportsSheetToXlsx';
 import { useSheet } from '@/stores/api/sheets';
 import { useSubdivision } from '@/stores/api/subdivisions';
 
@@ -30,6 +30,11 @@ const exportmenuitems = ref([
         label: 'Щомісячний планзвіт',
         icon: 'pi pi-download',
         command: () => onExportToExcel()
+      },
+      {
+        label: 'Щомісячний фінансовий планзвіт',
+        icon: 'pi pi-download',
+        command: () => onExportToExcelPrice()
       }
     ]
   },
@@ -40,6 +45,11 @@ const exportmenuitems = ref([
         label: 'Щомісячний планзвіт',
         icon: 'pi pi-download',
         command: () => onExportAllToExcel()
+      },
+      {
+        label: 'Щомісячний фінансовий планзвіт',
+        icon: 'pi pi-download',
+        command: () => onExportAllToExcelPrice()
       }
     ]
   }
@@ -119,7 +129,7 @@ const onExportToExcel = async () => {
 
     const aLink = document.createElement('a');
     aLink.href = objectURL;
-    aLink.download = `${response.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.download = `${response.name} Щомісячний планзвіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
     aLink.click();
 
     URL.revokeObjectURL(objectURL);
@@ -173,7 +183,118 @@ const onExportAllToExcel = async () => {
 
     const link = document.createElement('a');
     link.href = url;
-    link.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.download = `ВП СХ Щомісячний планзвіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onExportToExcelPrice = async () => {
+  if (!subdivisionId.value || !datepiker.value) return;
+
+  loading.value = true;
+
+  try {
+    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {});
+
+    const data = response.services
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map(item => {
+        return {
+          code: item.code,
+          name: item.name,
+          subdivision: response.name,
+          totalJobCount: item.totalJobCount,
+          price: item.price,
+          totalPrice: item.totalPrice
+        };
+      });
+
+    const buffer = await subdivisionJobsReportPrice(
+      [
+        {
+          data,
+          branch: response.branch,
+          subdivision: { name: response.name, description: response.description }
+        }
+      ],
+      datepiker.value
+    );
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const objectURL = URL.createObjectURL(blob);
+
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `${response.name} Щомісячний фінансовий планзвіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
+
+    URL.revokeObjectURL(objectURL);
+  } catch (err) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onExportAllToExcelPrice = async () => {
+  if (!subdivisions?.value?.length || !datepiker?.value) return;
+
+  loading.value = true;
+
+  try {
+    const response = await Sheet.getSubdivisionsByIds({});
+
+    const reports = response
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .map(record => {
+        return {
+          branch: record.branch,
+          subdivision: { name: record.name, description: record.description },
+          data: record.services
+            .sort((a, b) => a.id.localeCompare(b.id))
+            .map(item => {
+              return {
+                code: item.code,
+                name: item.name,
+                subdivision: record.name,
+                totalJobCount: item.totalJobCount,
+                price: item.price,
+                totalPrice: item.totalPrice
+              };
+            })
+        };
+      });
+
+    const buffer = await subdivisionJobsReportPrice(reports, datepiker.value);
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `ВП СХ Щомісячний фінансовий планзвіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
     link.click();
 
     URL.revokeObjectURL(url);
