@@ -197,7 +197,45 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="flex w-full flex-row gap-4">
+    <div class="flex w-full flex-row flex-wrap gap-4 xl:flex-nowrap">
+      <div class="mt-10 flex w-full flex-row gap-4">
+        <div class="w-full p-4">
+          <div class="rounded-lg border p-6">
+            <div class="mb-3 flex justify-between">
+              <div>
+                <span class="mb-3 block text-lg font-bold"> Кількість сервісів у відділах </span>
+              </div>
+              <div
+                class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-2xl font-bold"
+              >
+                {{ statistic?.servicesInDepartmentsCount || '-' }}
+              </div>
+            </div>
+            <span class="mr-2 font-medium text-primary">Актуально на</span>
+            <span>{{ dateToStr(Date.now()) }}</span>
+          </div>
+        </div>
+
+        <div class="w-full p-4">
+          <div class="rounded-lg border p-6">
+            <div class="mb-3 flex justify-between">
+              <div>
+                <span class="mb-3 block text-lg font-bold">
+                  Кількість підрозділів у службах (філіях)
+                </span>
+              </div>
+              <div
+                class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-2xl font-bold"
+              >
+                {{ statistic?.subdivisionsInBranchesCount || '-' }}
+              </div>
+            </div>
+            <span class="mr-2 font-medium text-primary">Актуально на</span>
+            <span>{{ dateToStr(Date.now()) }}</span>
+          </div>
+        </div>
+      </div>
+
       <div class="w-full p-4">
         <Chart
           type="bar"
@@ -207,8 +245,6 @@ onMounted(async () => {
         />
         <Chart type="bar" :data="branchChart" :options="branchChartOptions" class="min-h-[30rem]" />
       </div>
-
-      <div class="w-full p-4"></div>
     </div>
   </div>
 </template>
