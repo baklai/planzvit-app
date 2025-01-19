@@ -19,7 +19,7 @@ const $planzvit = inject('planzvit');
 const Report = useReport();
 
 const records = ref([]);
-const datepiker = ref();
+const datepiker = ref(new Date());
 const department = ref();
 const departments = ref([]);
 const services = ref([]);
@@ -31,7 +31,7 @@ const loading = ref(false);
 const exportmenu = ref();
 const exportmenuitems = ref([
   {
-    label: 'Експорт звітів',
+    label: 'Експорт',
     items: [
       {
         label: 'Щомісячний звіт',
@@ -48,16 +48,28 @@ const exportmenuitems = ref([
   },
 
   {
-    label: 'Генерація звітів',
+    label: 'Закриття/відкриття',
     items: [
       {
-        label: 'Оновити щомісячний звіт',
-        icon: 'pi pi-replay',
-        disabled: !$planzvit?.isAdministrator,
-        command: () => onCreateReport()
+        label: 'Закрити поточний звіт',
+        icon: 'pi pi-lock',
+        disabled: !$planzvit?.isAdministrator && !$planzvit?.isModerator,
+        command: () => onCompletedReport(true)
       },
       {
-        label: 'Створити щомісячний звіт',
+        label: 'Відкрити поточний звіт',
+        icon: 'pi pi-lock-open',
+        disabled: !$planzvit?.isAdministrator && !$planzvit?.isModerator,
+        command: () => onCompletedReport(false)
+      }
+    ]
+  },
+
+  {
+    label: 'Генерація',
+    items: [
+      {
+        label: 'Створити новий звіт',
         icon: 'pi pi-sparkles',
         disabled: !$planzvit?.isAdministrator,
         command: () => onCreateReport()
@@ -66,25 +78,7 @@ const exportmenuitems = ref([
   },
 
   {
-    label: 'Закриття/відкриття звітів',
-    items: [
-      {
-        label: 'Закрити поточний звіт',
-        icon: 'pi pi-lock',
-        disabled: !$planzvit?.isAdministrator,
-        command: () => onClosedReport(true)
-      },
-      {
-        label: 'Відкрити поточний звіт',
-        icon: 'pi pi-lock-open',
-        disabled: !$planzvit?.isAdministrator,
-        command: () => onClosedReport(false)
-      }
-    ]
-  },
-
-  {
-    label: 'Видалення звітів',
+    label: 'Видалення',
     items: [
       {
         label: 'Видалити поточний звіт',
@@ -93,6 +87,15 @@ const exportmenuitems = ref([
         command: () => onDeleteReport()
       }
     ]
+  },
+  {
+    separator: true
+  },
+  {
+    label: 'Архівувати щомісячний звіт',
+    icon: 'pi pi-server',
+    disabled: !$planzvit?.isAdministrator && !$planzvit?.isModerator,
+    command: () => onArchiveReport()
   }
 ]);
 
@@ -119,6 +122,32 @@ const toggle = event => {
   exportmenu.value.toggle(event);
 };
 
+const onCellEditComplete = async event => {
+  const { data, newValue, field } = event;
+
+  if (data['completed'] === true) {
+    return;
+  }
+
+  try {
+    const { previousJobCount, changesJobCount, currentJobCount } =
+      await Report.updateReportByReportId(data['id'], { changesJobCount: newValue });
+
+    data['previousJobCount'] = previousJobCount;
+    data['changesJobCount'] = changesJobCount;
+    data['currentJobCount'] = currentJobCount;
+  } catch (err) {
+    event.preventDefault();
+
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Не вдалося оновити запис',
+      life: 5000
+    });
+  }
+};
+
 const onUpdateRecords = async () => {
   if (!department.value || !datepiker.value) {
     toast.add({
@@ -134,10 +163,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Report.findAll(department.value.id, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    });
+    records.value = await Report.findReportByDepartmentId(department.value.id, {});
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -147,30 +173,6 @@ const onUpdateRecords = async () => {
     });
   } finally {
     loading.value = false;
-  }
-};
-
-const onCellEditComplete = async event => {
-  const { data, newValue, field } = event;
-
-  try {
-    const { previousJobCount, changesJobCount, currentJobCount } = await Report.updateOne(
-      data['id'],
-      { changesJobCount: newValue }
-    );
-
-    data['previousJobCount'] = previousJobCount;
-    data['changesJobCount'] = changesJobCount;
-    data['currentJobCount'] = currentJobCount;
-  } catch (err) {
-    event.preventDefault();
-
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: 'Не вдалося оновити запис',
-      life: 5000
-    });
   }
 };
 
@@ -189,10 +191,7 @@ const onExportToExcel = async (optimized = false) => {
   loading.value = true;
 
   try {
-    const records = await Report.findAll(department.value.id, {
-      monthOfReport: datepiker.value.getMonth() + 1,
-      yearOfReport: datepiker.value.getFullYear()
-    })
+    const records = await Report.findReportByDepartmentId(department.value.id, {})
       .then(items =>
         items.filter(item => {
           if (!optimized) return true;
@@ -245,7 +244,7 @@ const onExportToExcel = async (optimized = false) => {
   }
 };
 
-const onCreateReport = async () => {
+const onCreateReport = () => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
@@ -257,66 +256,49 @@ const onCreateReport = async () => {
     return;
   }
 
-  try {
-    loading.value = true;
+  return confirm.require({
+    message: 'Підтвердити створення нового щомісячного звіту.',
+    header: 'Ви бажаєте створити новий щомісячний звіт?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
 
-    confirm.require({
-      message: 'Ви бажаєте створити/оновити цей щомісячний звіт?',
-      header: 'Підтвердити зміну щомісячного звіту',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        try {
-          await Report.createOne(department.value.id, {
-            monthOfReport: datepiker.value.getMonth() + 1,
-            yearOfReport: datepiker.value.getFullYear()
-          });
+        await Report.createReportByDepartmentId(department.value.id, {});
 
-          await onUpdateRecords();
-
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: 'Щомісячний звіт створено/оновлено',
-            life: 5000
-          });
-        } catch (err) {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Запис не видалено',
-            life: 5000
-          });
-        } finally {
-          loading.value = false;
-        }
-      },
-      reject: async () => {
-        loading.value = false;
         await onUpdateRecords();
+
         toast.add({
-          severity: 'info',
+          severity: 'success',
           summary: 'Інформація',
-          detail: 'Зміну щомісячного звіту не підтверджено',
+          detail: 'Щомісячний звіт створено',
           life: 5000
         });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Щомісячний звіт не створено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
       }
-    });
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Створення щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
 };
 
-const onClosedReport = async (closed = false) => {
+const onCompletedReport = (completed = false) => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
@@ -328,66 +310,90 @@ const onClosedReport = async (closed = false) => {
     return;
   }
 
-  try {
-    loading.value = true;
+  return confirm.require({
+    message: 'Підтвердіть зміну статусу щомісячного звіту.',
+    header: `Ви бажаєте ${completed ? 'закрити' : 'відкрити'} щомісячний звіт?`,
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
 
-    confirm.require({
-      message: `Ви бажаєте ${closed ? 'закрити' : 'відкрити'} цей щомісячний звіт?`,
-      header: 'Підтвердити зміну статусу щомісячного звіту',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        try {
-          await Report.updateStatusOne(department.value.id, {
-            monthOfReport: datepiker.value.getMonth() + 1,
-            yearOfReport: datepiker.value.getFullYear(),
-            closed: closed
-          });
+        await Report.updateReportByDepartmentId(department.value.id, { completed: completed });
 
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: `Щомісячний звіт ${closed ? 'закрито' : 'відкрито'} на редагування`,
-            life: 5000
-          });
-        } catch (err) {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Статус не оновлено',
-            life: 5000
-          });
-        } finally {
-          await onUpdateRecords();
-          loading.value = false;
-        }
-      },
-      reject: async () => {
-        loading.value = false;
         await onUpdateRecords();
+
         toast.add({
-          severity: 'info',
+          severity: 'success',
           summary: 'Інформація',
-          detail: 'Зміну статусу щомісячного звіту не підтверджено',
+          detail: `Щомісячний звіт ${completed ? 'закрито' : 'відкрито'} на редагування`,
           life: 5000
         });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Статус не оновлено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
       }
-    });
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Зміну статусу щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
 };
 
-const onDeleteReport = async () => {
+const onArchiveReport = () => {
+  return confirm.require({
+    message: 'Підтвердіть архівування звіту.',
+    header: 'Архівувати цього місячний звіт?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
+
+        await Report.createReportArchive({});
+
+        toast.add({
+          severity: 'success',
+          summary: 'Інформація',
+          detail: 'Щомісячного звіт архівовано',
+          life: 5000
+        });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Щомісячного звіт не архівовано',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
+      }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Архівування щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
+};
+
+const onDeleteReport = () => {
   if (!department.value || !datepiker.value) {
     toast.add({
       severity: 'warn',
@@ -399,63 +405,46 @@ const onDeleteReport = async () => {
     return;
   }
 
-  try {
-    loading.value = true;
+  return confirm.require({
+    message: 'Підтвердіть видалення щомісячного звіту.',
+    header: 'Ви бажаєте видалити цей щомісячний звіт?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
 
-    confirm.require({
-      message: 'Ви бажаєте видалити цей щомісячний звіт?',
-      header: 'Підтвердити видалення щомісячного звіту',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        try {
-          await Report.removeOne(department.value.id, {
-            monthOfReport: datepiker.value.getMonth() + 1,
-            yearOfReport: datepiker.value.getFullYear()
-          });
+        await Report.removeReportByDepartmentId(department.value.id, {});
 
-          await onUpdateRecords();
-
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: 'Щомісячного звіт видалено',
-            life: 5000
-          });
-        } catch (err) {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Запис не видалено',
-            life: 5000
-          });
-        } finally {
-          loading.value = false;
-        }
-      },
-      reject: async () => {
-        loading.value = false;
         await onUpdateRecords();
+
         toast.add({
-          severity: 'info',
+          severity: 'success',
           summary: 'Інформація',
-          detail: 'Видалення щомісячного звіту не підтверджено',
+          detail: 'Щомісячний звіт видалено',
           life: 5000
         });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Щомісячний звіт не видалено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
       }
-    });
-  } catch (err) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: err.message,
-      life: 3000
-    });
-  } finally {
-    loading.value = false;
-  }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Видалення щомісячного звіту не підтверджено',
+        life: 5000
+      });
+    }
+  });
 };
 
 watchEffect(async () => {
@@ -466,7 +455,7 @@ watchEffect(async () => {
 
 onMounted(async () => {
   try {
-    const collections = await Report.findCollecrions();
+    const collections = await Report.findFiltersByReport();
 
     departments.value = collections.deparments;
     services.value = collections.services;
@@ -525,6 +514,19 @@ onMounted(async () => {
           </div>
 
           <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
+            <FloatLabel class="w-[20rem]" variant="in">
+              <Select
+                inputId="department"
+                v-model="department"
+                variant="filled"
+                :options="departments"
+                optionLabel="name"
+                class="w-full"
+                :disabled="loading"
+              />
+              <label for="department">Оберіть відділ</label>
+            </FloatLabel>
+
             <FloatLabel variant="in">
               <DatePicker
                 inputId="datepiker"
@@ -537,19 +539,6 @@ onMounted(async () => {
                 :disabled="loading"
               />
               <label for="datepiker">Оберіть рік та місяць</label>
-            </FloatLabel>
-
-            <FloatLabel class="w-[20rem]" variant="in">
-              <Select
-                inputId="department"
-                v-model="department"
-                variant="filled"
-                :options="departments"
-                optionLabel="name"
-                class="w-full"
-                :disabled="loading"
-              />
-              <label for="department">Оберіть відділ</label>
             </FloatLabel>
 
             <Button
@@ -568,7 +557,7 @@ onMounted(async () => {
               id="exports_menu"
               :model="exportmenuitems"
               :popup="true"
-              :pt="{ list: { class: ['!gap-y-2'] }, itemcontent: { class: ['py-2'] } }"
+              :pt="{ list: { class: ['!gap-y-1'] }, itemcontent: { class: ['!py-1'] } }"
             />
           </div>
         </div>
@@ -616,30 +605,29 @@ onMounted(async () => {
         filterField="service.code"
         style="width: 10%"
         :showFilterMatchModes="false"
-        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            @change="filterCallback()"
-            v-model="filterModel.value"
-            :options="services || []"
-            optionLabel="code"
-            optionValue="code"
-            dataKey="id"
-            placeholder="Код роботи"
-            :maxSelectedLabels="1"
             filter
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            :maxSelectedLabels="3"
             filterMatchMode="contains"
+            v-model="filterModel.value"
+            dataKey="id"
+            optionLabel="code"
+            optionValue="code"
+            :options="services || []"
+            placeholder="Код роботи"
             filterPlaceholder="Пошук у списку"
             :virtualScrollerOptions="{ itemSize: 32 }"
-            class="w-full"
+            class="my-4 w-96"
+            @change="filterCallback"
           >
-            <template #option="slotProps">
+            <template #option="{ option }">
               <div class="flex h-full items-center text-base">
-                <span>{{ slotProps.option.code }}</span>
+                <span>{{ option.code }}</span>
               </div>
             </template>
           </MultiSelect>
@@ -653,7 +641,6 @@ onMounted(async () => {
         filterField="service.name"
         style="max-width: 20rem"
         :showFilterMatchModes="false"
-        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #body="{ data, field }">
           <div
@@ -666,26 +653,26 @@ onMounted(async () => {
 
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            @change="filterCallback()"
-            v-model="filterModel.value"
-            :options="services || []"
-            optionLabel="name"
-            optionValue="name"
-            dataKey="id"
-            placeholder="Назва роботи"
-            :maxSelectedLabels="0"
             filter
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            :maxSelectedLabels="3"
             filterMatchMode="contains"
+            v-model="filterModel.value"
+            dataKey="id"
+            optionLabel="name"
+            optionValue="name"
+            :options="services || []"
+            placeholder="Назва роботи"
             filterPlaceholder="Пошук у списку"
             :virtualScrollerOptions="{ itemSize: 32 }"
-            class="w-full"
+            class="my-4 w-96"
+            @change="filterCallback"
           >
-            <template #option="slotProps">
+            <template #option="{ option }">
               <div class="flex h-full items-center text-base">
-                <span>{{ slotProps.option.name }}</span>
+                <span>{{ option.name }}</span>
               </div>
             </template>
           </MultiSelect>
@@ -699,30 +686,29 @@ onMounted(async () => {
         filterField="branch.name"
         style="width: 10%"
         :showFilterMatchModes="false"
-        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            @change="filterCallback()"
-            v-model="filterModel.value"
-            :options="branches || []"
-            optionLabel="name"
-            optionValue="name"
-            dataKey="id"
-            placeholder="Служба/філія"
-            :maxSelectedLabels="0"
             filter
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            :maxSelectedLabels="3"
             filterMatchMode="contains"
+            v-model="filterModel.value"
+            dataKey="id"
+            optionLabel="name"
+            optionValue="name"
+            :options="branches || []"
+            placeholder="Служба/філія"
             filterPlaceholder="Пошук у списку"
             :virtualScrollerOptions="{ itemSize: 32 }"
-            class="w-full"
+            class="my-4 w-96"
+            @change="filterCallback"
           >
-            <template #option="slotProps">
+            <template #option="{ option }">
               <div class="flex h-full items-center text-base">
-                <span>{{ slotProps.option.name }}</span>
+                <span>{{ option.name }}</span>
               </div>
             </template>
           </MultiSelect>
@@ -736,30 +722,29 @@ onMounted(async () => {
         filterField="subdivision.name"
         style="width: 20%"
         :showFilterMatchModes="false"
-        :filterMenuStyle="{ width: '20rem' }"
       >
         <template #filter="{ filterModel, filterCallback }">
           <MultiSelect
-            @change="filterCallback()"
-            v-model="filterModel.value"
-            :options="subdivisions || []"
-            optionLabel="name"
-            optionValue="name"
-            dataKey="id"
-            placeholder="Структурний підрозділ"
-            :maxSelectedLabels="0"
             filter
             display="chip"
             autoFilterFocus
             resetFilterOnHide
+            :maxSelectedLabels="3"
             filterMatchMode="contains"
+            v-model="filterModel.value"
+            dataKey="id"
+            optionLabel="name"
+            optionValue="name"
+            :options="subdivisions || []"
+            placeholder="Структурний підрозділ"
             filterPlaceholder="Пошук у списку"
             :virtualScrollerOptions="{ itemSize: 32 }"
-            class="w-full"
+            class="my-4 w-96"
+            @change="filterCallback"
           >
-            <template #option="slotProps">
+            <template #option="{ option }">
               <div class="flex h-full items-center text-base">
-                <span>{{ slotProps.option.name }}</span>
+                <span>{{ option.name }}</span>
               </div>
             </template>
           </MultiSelect>
@@ -796,9 +781,9 @@ onMounted(async () => {
         </template>
 
         <template #body="{ data, field }">
-          <span>{{ $data['closed'] }}</span>
+          <span>{{ $data['completed'] }}</span>
 
-          <i class="pi pi-lock text-muted-color" v-if="data['closed'] === true"></i>
+          <i class="pi pi-lock text-muted-color" v-if="data['completed'] === true"></i>
 
           <div class="w-full" v-else>
             <span v-if="data[field] !== 0">
@@ -826,7 +811,7 @@ onMounted(async () => {
             fluid
             variant="filled"
             inputClass="text-center w-48 h-10 text-base"
-            :disabled="data['closed'] === true"
+            :disabled="data['completed'] === true"
           />
         </template>
       </Column>

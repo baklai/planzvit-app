@@ -8,17 +8,17 @@ import { dateToMonthStr } from '@/service/DataFilters';
 import { getObjField } from '@/service/ObjectMethods';
 import { departmentJobsReport } from '@/service/ReportsSheetToXlsx';
 import { useDepartment } from '@/stores/api/departments';
-import { useSheet } from '@/stores/api/sheets';
+import { useArchive } from '@/stores/api/archives';
 
 const toast = useToast();
 
-const Sheet = useSheet();
+const Archive = useArchive();
 const Department = useDepartment();
 
 const records = ref([]);
 const department = ref();
 const departments = ref([]);
-const datepiker = ref(new Date());
+const datepiker = ref();
 
 const exportmenu = ref();
 const exportmenuitems = ref([
@@ -77,7 +77,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    records.value = await Sheet.getReportsById(department.value, {});
+    records.value = await Archive.getReportsById(department.value, {});
   } catch (err) {
     records.value = [];
 
@@ -107,7 +107,7 @@ const onExportToExcel = async () => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getReportsById(department.value, {});
+    const response = await Archive.getReportsById(department.value, {});
 
     const records = response.map(item => {
       return {
@@ -167,7 +167,7 @@ const onExportAllToExcel = async () => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getReportsByIds({});
+    const response = await Archive.getReportsByIds({});
 
     const reports = response.map(({ department, records }) => {
       return {

@@ -1,25 +1,29 @@
 <script setup>
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref, watchEffect } from 'vue';
+import { computed, onMounted, ref, watchEffect } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
 
 import { dateToMonthStr } from '@/service/DataFilters.js';
-import { subdivisionJobsReport } from '@/service/ReportsSheetToXlsx';
-import { useSheet } from '@/stores/api/sheets';
-import { useSubdivision } from '@/stores/api/subdivisions';
+import { branchJobsReport } from '@/service/ReportsSheetToXlsx';
+import { useBranch } from '@/stores/api/branches';
+import { useArchive } from '@/stores/api/archives';
 
 const toast = useToast();
-
-const Subdivision = useSubdivision();
-const Sheet = useSheet();
+const Branch = useBranch();
+const Archive = useArchive();
 
 const loading = ref(false);
 
-const subdivision = ref();
-const subdivisionId = ref();
-const subdivisions = ref([]);
-const datepiker = ref(new Date());
+const records = ref([]);
+
+const branch = ref();
+const branches = ref([]);
+
+const datepiker = ref();
+
+const totalPriceAll = ref();
+const totalJobCountAll = ref();
 
 const exportmenu = ref();
 const exportmenuitems = ref([
@@ -49,26 +53,36 @@ const toggle = event => {
   exportmenu.value.toggle(event);
 };
 
-const onUpdateRecords = async () => {
-  if (!subdivisionId.value || !datepiker.value) {
-    toast.add({
-      severity: 'warn',
-      summary: 'Попередження',
-      detail: 'Оберіть дату та підрозділ',
-      life: 3000
-    });
+const selectBranch = computed(() => {
+  return branches.value.find(({ id }) => id === branch.value) || null;
+});
 
-    return;
-  }
+const onUpdateRecords = async () => {
+  if (!branch.value || !datepiker.value) return;
 
   try {
     loading.value = true;
 
-    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {});
+    const [response] = await Archive.getBranchesById(branch.value, {});
 
-    subdivision.value = response;
+    totalJobCountAll.value = response.totalJobCount;
+    totalPriceAll.value = response.totalPrice;
+
+    records.value = response.subdivisions
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .flatMap(subdivision =>
+        subdivision.services
+          .sort((a, b) => a.id.localeCompare(b.id))
+          .map(service => ({
+            ...service,
+            id: `${subdivision.id}-${service.id}`,
+            subdivision: subdivision.name,
+            subdivisionTotalJobCount: subdivision.totalJobCount,
+            subdivisionTotalPrice: subdivision.totalPrice
+          }))
+      );
   } catch (err) {
-    subdivision.value = null;
+    records.value = [];
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
@@ -81,31 +95,32 @@ const onUpdateRecords = async () => {
 };
 
 const onExportToExcel = async () => {
-  if (!subdivisionId.value || !datepiker.value) return;
+  if (!branch.value || !datepiker.value) return;
 
   loading.value = true;
 
   try {
-    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {});
+    const [response] = await Archive.getBranchesById(branch.value, {});
 
-    const data = response.services
+    const data = response.subdivisions
       .sort((a, b) => a.id.localeCompare(b.id))
-      .map(item => {
-        return {
-          code: item.code,
-          name: item.name,
-          subdivision: response.name,
-          totalJobCount: item.totalJobCount,
-          department: `${item.department.manager} ${item.department.phone}`
-        };
-      });
+      .flatMap(subdivision =>
+        subdivision.services
+          .sort((a, b) => a.id.localeCompare(b.id))
+          .map(service => ({
+            code: service.code,
+            name: service.name,
+            subdivision: subdivision.name,
+            totalJobCount: service.totalJobCount,
+            department: `${service.department.manager} ${service.department.phone}`
+          }))
+      );
 
-    const buffer = await subdivisionJobsReport(
+    const buffer = await branchJobsReport(
       [
         {
           data,
-          branch: response.branch,
-          subdivision: { name: response.name, description: response.description }
+          branch: { name: response.name, description: response.description }
         }
       ],
       datepiker.value
@@ -136,47 +151,48 @@ const onExportToExcel = async () => {
 };
 
 const onExportAllToExcel = async () => {
-  if (!subdivisions?.value?.length || !datepiker?.value) return;
+  if (!branches?.value?.length || !datepiker?.value) return;
 
   loading.value = true;
 
   try {
-    const response = await Sheet.getSubdivisionsByIds({});
+    const response = await Archive.getBranchesByIds({});
 
     const reports = response
       .sort((a, b) => a.id.localeCompare(b.id))
       .map(record => {
         return {
-          branch: record.branch,
-          subdivision: { name: record.name, description: record.description },
-          data: record.services
+          branch: { name: record.name, description: record.description },
+          data: record.subdivisions
             .sort((a, b) => a.id.localeCompare(b.id))
-            .map(item => {
-              return {
-                code: item.code,
-                name: item.name,
-                subdivision: record.name,
-                totalJobCount: item.totalJobCount,
-                department: `${item.department.manager} ${item.department.phone}`
-              };
-            })
+            .flatMap(subdivision =>
+              subdivision.services
+                .sort((a, b) => a.id.localeCompare(b.id))
+                .map(service => ({
+                  code: service.code,
+                  name: service.name,
+                  subdivision: subdivision.name,
+                  totalJobCount: service.totalJobCount,
+                  department: `${service.department.manager} ${service.department.phone}`
+                }))
+            )
         };
       });
 
-    const buffer = await subdivisionJobsReport(reports, datepiker.value);
+    const buffer = await branchJobsReport(reports, datepiker.value);
 
     const blob = new Blob([buffer], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
 
-    const url = URL.createObjectURL(blob);
+    const objectURL = URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
-    link.click();
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
 
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(objectURL);
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -190,16 +206,18 @@ const onExportAllToExcel = async () => {
 };
 
 watchEffect(async () => {
-  if (subdivisionId.value && datepiker.value) {
+  if (branch.value && datepiker.value) {
     await onUpdateRecords();
   }
 });
 
 onMounted(async () => {
   try {
-    const { docs } = await Subdivision.findAll({ offset: 0, limit: 10000 });
+    const { docs } = await Branch.findAll({ offset: 0, limit: 1000 });
 
-    subdivisions.value = docs;
+    branches.value = docs.map(({ id, name, description }) => {
+      return { id, name, description };
+    });
   } catch (err) {
     toast.add({
       severity: 'warn',
@@ -219,16 +237,16 @@ onMounted(async () => {
         rowHover
         scrollable
         dataKey="id"
-        size="small"
         showGridlines
-        resizableColumns
-        columnResizeMode="expand"
+        size="small"
         scrollHeight="flex"
-        sortMode="multiple"
         responsiveLayout="scroll"
+        columnResizeMode="expand"
         :loading="loading"
         style="height: calc(100vh - 15.5rem)"
-        :value="subdivision?.services || []"
+        v-model:value="records"
+        rowGroupMode="subheader"
+        groupRowsBy="subdivisionTotalJobCount"
         class="min-w-full overflow-x-auto text-base"
         :pt="{
           mask: {
@@ -242,7 +260,7 @@ onMounted(async () => {
               <i class="pi pi-file-excel mr-2 hidden sm:block" style="font-size: 2.5rem" />
               <div class="flex flex-col">
                 <h3 class="text-xl font-normal">
-                  {{ subdivision?.name ? `${subdivision?.name} | ` : '' }}
+                  {{ selectBranch?.name ? `${selectBranch.name} | ` : '' }}
                   <span>{{ $route?.meta?.title }}</span>
                   {{ datepiker ? `за ${dateToMonthStr(datepiker)}` : '' }}
                 </h3>
@@ -297,7 +315,7 @@ onMounted(async () => {
 
         <template #empty>
           <div
-            v-if="!loading && !subdivision?.services && !subdivision?.services?.length"
+            v-if="!loading && !records?.length"
             class="absolute left-0 z-20 mt-6 flex h-full w-full items-stretch justify-center bg-none text-center"
             style="height: calc(100vh - 30rem)"
           >
@@ -323,28 +341,16 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <Column frozen header="Код роботи" field="code" class="min-w-[12rem]" />
+        <Column header="Код роботи" field="code" class="min-w-[12rem]" />
 
-        <Column header="Назва роботи" field="name" class="max-w-[40rem]">
-          <template #body="{ data, field }">
-            <p class="min-w-[35rem] overflow-hidden text-ellipsis px-2">
-              {{ data[field] }}
-            </p>
-          </template>
-        </Column>
+        <Column header="Назва роботи" field="name" class="min-w-[12rem]" />
 
-        <Column header="Структурний підрозділ" field="subdivision" class="min-w-[20rem]">
-          <template #body>
-            <span class="px-2">
-              {{ subdivision?.name || '-' }}
-            </span>
-          </template>
-        </Column>
+        <Column header="Структурний підрозділ" field="subdivision" class="min-w-[12rem]" />
 
         <Column
           header="Кількість робіт"
           field="totalJobCount"
-          class="min-w-[15rem]"
+          class="min-w-[12rem]"
           style="text-align: center"
           :pt="{ columntitle: { class: ['m-auto'] } }"
         >
@@ -383,22 +389,39 @@ onMounted(async () => {
           </template>
         </Column>
 
-        <ColumnGroup type="footer" v-if="subdivision?.services?.length">
+        <Column header="subdivisionTotalJobCount" field="subdivisionTotalJobCount" />
+
+        <template #groupheader="slotProps">
+          <div class="flex items-center gap-2">
+            <span class="uppercase text-primary">Структурний підрозділ:</span>
+            <span>{{ slotProps.data.subdivision }}</span>
+          </div>
+        </template>
+
+        <template #groupfooter="slotProps">
+          <div class="flex flex-col">
+            <p>Виконано {{ slotProps.data.subdivisionTotalJobCount }} робіт</p>
+            <p>Сумарна вартісь {{ slotProps.data.subdivisionTotalPrice }} грн.</p>
+          </div>
+        </template>
+
+        <ColumnGroup type="footer" v-if="records.length">
           <Row>
             <Column
-              :footer="subdivision.services.length"
+              :footer="records.length"
               style="text-align: center"
               class="!text-xs !text-muted-color"
             />
-            <Column footer="Всього:" :colspan="3" class="uppercase" style="text-align: right" />
-            <Column style="text-align: center">
+            <Column :colspan="3" footer="Разом:" class="uppercase" style="text-align: end" />
+            <Column :colspan="1" style="text-align: center">
               <template #footer>
-                <Tag severity="info" class="min-w-[4rem]" :value="subdivision?.totalJobCount" />
+                <Tag severity="info" class="min-w-[4rem]" :value="totalJobCountAll" />
               </template>
             </Column>
-            <Column :footer="subdivision?.totalPrice || 0" :colspan="2" style="text-align: center">
+
+            <Column :colspan="2" style="text-align: center">
               <template #footer>
-                <Tag severity="info" class="min-w-[4rem]" :value="subdivision?.totalPrice" />
+                <Tag severity="info" class="min-w-[4rem]" :value="totalPriceAll" />
               </template>
             </Column>
           </Row>
@@ -406,9 +429,9 @@ onMounted(async () => {
       </DataTable>
     </div>
 
-    <Tabs scrollable showNavigators lazy v-model:value="subdivisionId">
+    <Tabs scrollable showNavigators lazy v-model:value="branch">
       <TabList>
-        <Tab v-for="tab in subdivisions" :key="tab.id" :value="tab.id">
+        <Tab v-for="tab in branches" :key="tab.id" :value="tab.id">
           {{ tab.name }}
         </Tab>
       </TabList>

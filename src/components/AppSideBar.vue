@@ -51,9 +51,22 @@ import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
         icon="pi pi-file-excel !text-2xl"
         severity="secondary"
         class="bg-transparent text-muted-color hover:bg-emphasis"
-        v-tooltip="'Звіти про надання послуг'"
+        v-tooltip="'Щомісячний звіт про надання послуг'"
         as="router-link"
         to="/sheet"
+        v-if="$planzvit?.isAdministrator || $planzvit?.isModerator"
+      />
+
+      <Button
+        size="large"
+        variant="text"
+        icon="pi pi-save !text-xl"
+        severity="secondary"
+        class="bg-transparent text-muted-color hover:bg-emphasis"
+        v-tooltip="'Архів щомісячних звітів про надання послуг'"
+        as="router-link"
+        to="/archive"
+        v-if="$planzvit?.isAdministrator || $planzvit?.isModerator"
       />
 
       <Button
@@ -72,7 +85,7 @@ import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
       <div class="flex flex-col items-center">
         <BtnInfoProfile />
 
-        <Divider />
+        <Divider v-if="$planzvit?.isAdministrator || $planzvit?.isModerator" />
 
         <Button
           size="large"
@@ -83,6 +96,7 @@ import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
           v-tooltip="'База даних'"
           as="router-link"
           to="/table"
+          v-if="$planzvit?.isAdministrator || $planzvit?.isModerator"
         />
 
         <Button
@@ -94,6 +108,7 @@ import BtnInfoProfile from '@/components/buttons/BtnInfoProfile.vue';
           v-tooltip="'Налаштування'"
           as="router-link"
           to="/core"
+          v-if="$planzvit?.isAdministrator"
         />
 
         <Divider />

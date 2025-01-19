@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-
+const $planzvit = inject('planzvit');
 const refMenu = ref();
 
 const menu = ref([
@@ -17,6 +17,7 @@ const menu = ref([
   {
     label: 'Планвіт',
     icon: 'pi pi-file-excel !text-2xl !mr-2',
+    disabled: !$planzvit?.isAdministrator && !$planzvit?.isModerator,
     command: () => {
       router.push({ name: 'sheet' });
     }
@@ -24,6 +25,7 @@ const menu = ref([
   {
     label: 'База даних',
     icon: 'pi pi-database !text-2xl !mr-2',
+    disabled: !$planzvit?.isAdministrator && !$planzvit?.isModerator,
     command: () => {
       router.push({ name: 'table' });
     }

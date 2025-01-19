@@ -188,12 +188,12 @@ onMounted(async () => {
         <div class="rounded-lg border p-6">
           <div class="mb-3 flex justify-between">
             <div>
-              <span class="mb-3 block text-lg font-bold">Підтримка відділів</span>
+              <span class="mb-3 block text-lg font-bold">Кількість відділів</span>
             </div>
             <div
               class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
             >
-              {{ statistic?.departmentsServicesCount || '-' }}
+              {{ statistic?.departmentsCount || '-' }}
             </div>
           </div>
           <span class="mr-2 font-medium text-primary">Актуально на</span>
@@ -210,7 +210,8 @@ onMounted(async () => {
             <div
               class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
             >
-              {{ statistic?.servicesCount || '-' }}
+              {{ statistic?.servicesInDepartmentsCount || 0 }} /
+              {{ statistic?.servicesCount || 0 }}
             </div>
           </div>
           <span class="mr-2 font-medium text-primary">Актуально на</span>
@@ -244,7 +245,8 @@ onMounted(async () => {
             <div
               class="flex h-12 min-w-[4rem] items-center justify-center rounded bg-primary/20 p-2 text-xl font-bold"
             >
-              {{ statistic?.subdivisionsCount || '-' }}
+              {{ statistic?.subdivisionsInBranchesCount || 0 }} /
+              {{ statistic?.subdivisionsCount || 0 }}
             </div>
           </div>
           <span class="mr-2 font-medium text-primary">Актуально на</span>

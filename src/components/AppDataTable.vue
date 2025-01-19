@@ -1,8 +1,8 @@
 <script setup lang="jsx">
-import { ref, computed, onMounted } from 'vue';
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref } from 'vue';
 
 import AppLoading from '@/components/AppLoading.vue';
 import { getObjField } from '@/service/ObjectMethods';
@@ -107,54 +107,54 @@ const onColumnsMenu = event => {
 };
 
 const onRemoveRecord = ({ id }) => {
-  try {
-    loading.value = true;
-
-    confirm.require({
-      message: 'Ви бажаєте видалити цей запис?',
-      header: 'Підтвердити видалення запису',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        if (id) {
-          await props.onDelete({ id });
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: 'Запис видалено',
-            life: 3000
-          });
-          await onUpdateRecords();
-        } else {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Запис не вибрано',
-            life: 3000
-          });
-        }
-      },
-      reject: () => {
-        toast.add({
-          severity: 'info',
-          summary: 'Інформація',
-          detail: 'Видалення запису не підтверджено',
-          life: 3000
-        });
-      }
-    });
-  } catch (err) {
+  if (!id) {
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
-      detail: 'Запис не видалено',
-      life: 5000
+      detail: 'Запис не вибрано',
+      life: 3000
     });
-  } finally {
-    loading.value = false;
+
+    return;
   }
+
+  return confirm.require({
+    message: 'Підтвердіть видалення запису.',
+    header: 'Ви бажаєте видалити цей запис?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        loading.value = true;
+        await props.onDelete({ id });
+        toast.add({
+          severity: 'success',
+          summary: 'Інформація',
+          detail: 'Запис видалено',
+          life: 3000
+        });
+        await onUpdateRecords();
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Запис не видалено',
+          life: 5000
+        });
+      } finally {
+        loading.value = false;
+      }
+    },
+    reject: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Видалення запису не підтверджено',
+        life: 3000
+      });
+    }
+  });
 };
 
 const onUpdateRecords = async () => {
@@ -959,10 +959,11 @@ onMounted(async () => {
 
           <DataTable
             scrollable
+            dataKey="id"
             showGridlines
             scrollHeight="300px"
-            :virtualScrollerOptions="{ itemSize: 36 }"
-            :value="data[`${expansion.fileld}`]"
+            :virtualScrollerOptions="{ itemSize: 46 }"
+            :value="data[`${expansion.fileld}`] || []"
             tableStyle="min-width: 60rem"
             class="min-w-full overflow-x-auto text-base"
             :pt="{
@@ -970,6 +971,7 @@ onMounted(async () => {
                 class: ['!bg-transparent', 'dark:!bg-transparent']
               }
             }"
+            v-if="data[`${expansion.fileld}`].length"
           >
             <Column frozen headerStyle="width: 3rem;" style="text-align: center">
               <template #header>

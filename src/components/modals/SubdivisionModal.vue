@@ -74,67 +74,55 @@ const onCreateRecord = async () => {
 };
 
 const onRemoveRecord = async () => {
-  try {
-    loading.value = true;
-
-    if (!values?.id) {
-      return toast.add({
-        severity: 'warn',
-        summary: 'Попередження',
-        detail: 'Запис не вибрано',
-        life: 5000
-      });
-    }
-
-    confirm.require({
-      message: 'Ви бажаєте видалити цей запис?',
-      header: 'Підтвердити видалення запису',
-      icon: 'pi pi-question',
-      acceptIcon: 'pi pi-check',
-      acceptClass: '',
-      rejectIcon: 'pi pi-times',
-      accept: async () => {
-        try {
-          await removeOne(values);
-
-          toast.add({
-            severity: 'success',
-            summary: 'Інформація',
-            detail: 'Запис видалено',
-            life: 5000
-          });
-        } catch (err) {
-          toast.add({
-            severity: 'warn',
-            summary: 'Попередження',
-            detail: 'Запис не видалено',
-            life: 5000
-          });
-        } finally {
-          visible.value = false;
-        }
-      },
-      reject: () => {
-        visible.value = false;
-
-        toast.add({
-          severity: 'info',
-          summary: 'Інформація',
-          detail: 'Видалення запису не підтверджено',
-          life: 5000
-        });
-      }
-    });
-  } catch (err) {
+  if (!values?.id) {
     toast.add({
       severity: 'warn',
       summary: 'Попередження',
-      detail: 'Запис не видалено',
+      detail: 'Запис не вибрано',
       life: 5000
     });
-  } finally {
-    loading.value = false;
+
+    return;
   }
+
+  return confirm.require({
+    message: 'Підтвердіть видалення запису.',
+    header: 'Ви бажаєте видалити цей запис?',
+    icon: 'pi pi-question',
+    acceptIcon: 'pi pi-check',
+    rejectIcon: 'pi pi-times',
+    accept: async () => {
+      try {
+        await removeOne(values);
+
+        toast.add({
+          severity: 'success',
+          summary: 'Інформація',
+          detail: 'Запис видалено',
+          life: 5000
+        });
+      } catch (err) {
+        toast.add({
+          severity: 'warn',
+          summary: 'Попередження',
+          detail: 'Запис не видалено',
+          life: 5000
+        });
+      } finally {
+        visible.value = false;
+      }
+    },
+    reject: () => {
+      visible.value = false;
+
+      toast.add({
+        severity: 'info',
+        summary: 'Інформація',
+        detail: 'Видалення запису не підтверджено',
+        life: 5000
+      });
+    }
+  });
 };
 
 const onSaveRecord = handleSubmit(async values => {
@@ -169,7 +157,6 @@ const onSaveRecord = handleSubmit(async values => {
 
 const onCloseModal = async () => {
   resetForm({ values: {} }, { force: true });
-  loading.value = false;
   emits('close', {});
 };
 </script>
@@ -217,7 +204,11 @@ const onCloseModal = async () => {
       </div>
     </template>
 
-    <form class="flex flex-col gap-y-4 md:flex-row md:flex-wrap" @submit.prevent="onSaveRecord">
+    <form
+      class="flex flex-col gap-y-4 md:flex-row md:flex-wrap"
+      @submit.prevent="onSaveRecord"
+      v-focustrap
+    >
       <div class="flex w-full flex-col space-y-4">
         <div class="flex flex-col gap-2">
           <label for="name" class="font-bold"> Назва структурного підрозділу </label>

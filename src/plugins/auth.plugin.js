@@ -15,7 +15,11 @@ export default {
           });
           store.setProfile(profile);
         } catch (err) {
-          $error(err);
+          if (err && err?.statusCode === 401) {
+            $error(new Error('Несанкціонований доступ'));
+          } else {
+            $error(err);
+          }
         }
       },
 
@@ -63,21 +67,6 @@ export default {
           detail: 'Вихід успішно виконано',
           life: 3000
         });
-      },
-
-      async reset({ email }) {
-        try {
-          await $axios({
-            method: endpoints.reset.method,
-            url: endpoints.reset.url,
-            data: { email }
-          });
-
-          $router.push({ name: 'home' });
-        } catch (err) {
-          $error(err);
-          throw err;
-        }
       },
 
       async refresh() {

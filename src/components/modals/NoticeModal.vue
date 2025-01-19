@@ -95,7 +95,7 @@ const onCloseModal = () => {
       </div>
     </template>
 
-    <form class="flex flex-col gap-y-4" @submit.prevent="onSendNotice">
+    <form class="flex flex-col gap-y-4" @submit.prevent="onSendNotice" v-focustrap>
       <div class="flex flex-col gap-2">
         <label for="profiles" class="font-bold">Профілі сповіщень</label>
         <MultiSelect

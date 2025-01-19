@@ -6,20 +6,20 @@ import AppLoading from '@/components/AppLoading.vue';
 
 import { dateToMonthStr } from '@/service/DataFilters.js';
 import { subdivisionJobsReport } from '@/service/ReportsSheetToXlsx';
-import { useSheet } from '@/stores/api/sheets';
+import { useArchive } from '@/stores/api/archives';
 import { useSubdivision } from '@/stores/api/subdivisions';
 
 const toast = useToast();
 
 const Subdivision = useSubdivision();
-const Sheet = useSheet();
+const Archive = useArchive();
 
 const loading = ref(false);
 
 const subdivision = ref();
 const subdivisionId = ref();
 const subdivisions = ref([]);
-const datepiker = ref(new Date());
+const datepiker = ref();
 
 const exportmenu = ref();
 const exportmenuitems = ref([
@@ -64,7 +64,7 @@ const onUpdateRecords = async () => {
   try {
     loading.value = true;
 
-    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {});
+    const [response] = await Archive.getSubdivisionsById(subdivisionId.value, {});
 
     subdivision.value = response;
   } catch (err) {
@@ -86,7 +86,7 @@ const onExportToExcel = async () => {
   loading.value = true;
 
   try {
-    const [response] = await Sheet.getSubdivisionsById(subdivisionId.value, {});
+    const [response] = await Archive.getSubdivisionsById(subdivisionId.value, {});
 
     const data = response.services
       .sort((a, b) => a.id.localeCompare(b.id))
@@ -141,7 +141,7 @@ const onExportAllToExcel = async () => {
   loading.value = true;
 
   try {
-    const response = await Sheet.getSubdivisionsByIds({});
+    const response = await Archive.getSubdivisionsByIds({});
 
     const reports = response
       .sort((a, b) => a.id.localeCompare(b.id))
