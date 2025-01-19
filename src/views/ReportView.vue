@@ -53,13 +53,13 @@ const exportmenuitems = ref([
       {
         label: 'Закрити поточний звіт',
         icon: 'pi pi-lock',
-        disabled: !$planzvit?.isAdministrator,
+        disabled: !$planzvit?.isAdministrator && !$planzvit?.isModerator,
         command: () => onCompletedReport(true)
       },
       {
         label: 'Відкрити поточний звіт',
         icon: 'pi pi-lock-open',
-        disabled: !$planzvit?.isAdministrator,
+        disabled: !$planzvit?.isAdministrator && !$planzvit?.isModerator,
         command: () => onCompletedReport(false)
       }
     ]
@@ -94,7 +94,7 @@ const exportmenuitems = ref([
   {
     label: 'Архівувати щомісячний звіт',
     icon: 'pi pi-server',
-    disabled: !$planzvit?.isAdministrator,
+    disabled: !$planzvit?.isAdministrator && !$planzvit?.isModerator,
     command: () => onArchiveReport()
   }
 ]);
