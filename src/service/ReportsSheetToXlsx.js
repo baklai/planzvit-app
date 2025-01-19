@@ -2,6 +2,111 @@ import ExcelJS from 'exceljs';
 
 import { dateToMonthPeriodStr, dateToMonthStr } from '@/service/DataFilters';
 
+export const servicesReport = async (worksheets, datetime) => {
+  const workbook = new ExcelJS.Workbook();
+
+  for (const { records } of worksheets) {
+    const worksheet = workbook.addWorksheet('SERVICES');
+
+    worksheet.mergeCells('A1:C1');
+    worksheet.getCell('A1').value = 'Перелік робіт';
+    worksheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'right' };
+    worksheet.getCell('A1').font = { name: 'Times New Roman', size: 14 };
+
+    const headers = [
+      { header: '№ п/п', key: 'index', width: 10 },
+      { header: 'Код роботи', key: 'code', width: 20 },
+      { header: 'Вартість робочого місця (роботи), грн.', key: 'price', width: 25 },
+      { header: 'Назва системи', key: 'name', width: 100 }
+    ];
+
+    worksheet.getRow(3).values = headers.map(h => h.header);
+
+    worksheet.getRow(3).height = 125;
+
+    worksheet.getRow(3).eachCell(cell => {
+      cell.font = { name: 'Times New Roman', size: 12, bold: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+      cell.border = {
+        top: { style: 'thin' },
+        left: { style: 'thin' },
+        bottom: { style: 'thin' },
+        right: { style: 'thin' }
+      };
+    });
+
+    headers.forEach((h, index) => {
+      const column = worksheet.getColumn(index + 1);
+
+      if (h.key === 'name') {
+        const maxContentLength = Math.max(
+          h.header.length,
+          ...records.map(item => item[h.key]?.toString().length || 0)
+        );
+
+        column.width = Math.min(maxContentLength + 2, 80);
+      } else {
+        column.width = h.width;
+      }
+    });
+
+    const rowStyles = [
+      {
+        font: { name: 'Times New Roman', size: 11 },
+        alignment: { vertical: 'middle', horizontal: 'center', wrapText: true }
+      },
+      {
+        font: { name: 'Times New Roman', size: 11 },
+        alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }
+      },
+      {
+        font: { name: 'Times New Roman', size: 11 },
+        alignment: { vertical: 'middle', horizontal: 'center', wrapText: true }
+      },
+      {
+        font: { name: 'Times New Roman', size: 11 },
+        alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }
+      }
+    ];
+
+    records.forEach((item, index) => {
+      const row = worksheet.getRow(4 + index);
+      Object.values(item).forEach((value, colIndex) => {
+        const cell = row.getCell(colIndex + 1);
+        cell.value = value;
+        cell.font = rowStyles[colIndex].font;
+        cell.alignment = rowStyles[colIndex].alignment;
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
+      });
+    });
+
+    records.forEach((item, index) => {
+      const rowIndex = 4 + index;
+      const row = worksheet.getRow(rowIndex);
+
+      let maxLines = 1;
+      headers.forEach((header, colIndex) => {
+        const value = item[header.key];
+        if (value) {
+          const text = value.toString();
+          const columnWidth = worksheet.getColumn(colIndex + 1).width || 10;
+          const estimatedLines = Math.ceil(text.length / columnWidth);
+          maxLines = Math.max(maxLines, estimatedLines);
+        }
+      });
+
+      row.height = maxLines * 15;
+    });
+  }
+
+  return await workbook.xlsx.writeBuffer();
+};
+
 export const departmentJobsReport = async (worksheets, datetime) => {
   const workbook = new ExcelJS.Workbook();
 

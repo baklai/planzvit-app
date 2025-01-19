@@ -6,6 +6,7 @@ import { useToast } from 'primevue/usetoast';
 import AppLoading from '@/components/AppLoading.vue';
 
 import { useService } from '@/stores/api/services';
+import { servicesReport } from '@/service/ReportsSheetToXlsx';
 import { dateToMonthStr } from '@/service/DataFilters.js';
 
 const toast = useToast();
@@ -13,12 +14,44 @@ const toast = useToast();
 const Service = useService();
 
 const records = ref([]);
-
+const datepiker = ref(new Date());
 const loading = ref(false);
+
+const exportmenu = ref();
+const exportmenuitems = ref([
+  {
+    label: 'Експорт переліку робіт',
+    icon: 'pi pi-file-export',
+    command: () => onExportToExcel()
+  },
+
+  {
+    label: 'Імпорт переліку робіт',
+    icon: 'pi pi-file-import',
+    command: () => false
+  }
+]);
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
+
+const toggle = event => {
+  exportmenu.value.toggle(event);
+};
+
+const onCellEditComplete = async event => {
+  const { data, newValue, field } = event;
+
+  try {
+    data[field] = newValue;
+    await Service.updateOne(data['id'], {
+      price: data[field]
+    });
+  } catch (err) {
+    event.preventDefault();
+  }
+};
 
 const onUpdateRecords = async () => {
   try {
@@ -43,16 +76,58 @@ const onUpdateRecords = async () => {
   }
 };
 
-const onCellEditComplete = async event => {
-  const { data, newValue, field } = event;
+const onExportToExcel = async (optimized = false) => {
+  if (!datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та відділ',
+      life: 5000
+    });
+
+    return;
+  }
+
+  loading.value = true;
 
   try {
-    data[field] = newValue;
-    await Service.updateOne(data['id'], {
-      price: data[field]
+    const records = await Service.findAll({
+      offset: 0,
+      limit: 10000
+    }).then(({ docs }) => {
+      return docs.map((item, index) => {
+        return {
+          index: index + 1,
+          code: item.code,
+          price: item.price,
+          name: item.name
+        };
+      });
     });
+
+    const buffer = await servicesReport([{ records }], datepiker.value);
+
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    const objectURL = URL.createObjectURL(blob);
+
+    const aLink = document.createElement('a');
+    aLink.href = objectURL;
+    aLink.download = `Перелік робіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.click();
+
+    URL.revokeObjectURL(objectURL);
   } catch (err) {
-    event.preventDefault();
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: err.message,
+      life: 3000
+    });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -108,7 +183,7 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="flex w-full flex-wrap items-center justify-between sm:w-max">
+          <div class="flex w-full flex-wrap items-center justify-between gap-x-4 sm:w-max">
             <FloatLabel variant="in" v-if="filters['global']">
               <IconField>
                 <InputIcon class="pi pi-search" />
@@ -126,6 +201,39 @@ onMounted(async () => {
               </IconField>
               <label for="in_search">Пошук за кодом та назвою</label>
             </FloatLabel>
+
+            <FloatLabel variant="in">
+              <DatePicker
+                inputId="datepiker"
+                v-model="datepiker"
+                view="month"
+                showIcon
+                iconDisplay="input"
+                dateFormat="mm/yy"
+                variant="filled"
+                :disabled="loading"
+              />
+              <label for="datepiker">Оберіть рік та місяць</label>
+            </FloatLabel>
+
+            <Button
+              size="large"
+              type="button"
+              icon="pi pi-ellipsis-v"
+              @click="toggle"
+              aria-haspopup="true"
+              severity="secondary"
+              aria-controls="exports_menu"
+              v-tooltip.bottom="'Експорт звітів'"
+              :pt="{ root: { class: ['h-14'] } }"
+            />
+            <Menu
+              ref="exportmenu"
+              id="exports_menu"
+              :model="exportmenuitems"
+              :popup="true"
+              :pt="{ list: { class: ['!gap-y-1'] }, itemcontent: { class: ['!py-1'] } }"
+            />
           </div>
         </div>
       </template>
