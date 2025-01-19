@@ -961,9 +961,9 @@ onMounted(async () => {
             scrollable
             dataKey="id"
             showGridlines
-            scrollHeight="flex"
+            scrollHeight="300px"
             :virtualScrollerOptions="{ itemSize: 46 }"
-            :value="data[`${expansion.fileld}`]"
+            :value="data[`${expansion.fileld}`] || []"
             tableStyle="min-width: 60rem"
             class="min-w-full overflow-x-auto text-base"
             :pt="{
@@ -971,6 +971,7 @@ onMounted(async () => {
                 class: ['!bg-transparent', 'dark:!bg-transparent']
               }
             }"
+            v-if="data[`${expansion.fileld}`].length"
           >
             <Column frozen headerStyle="width: 3rem;" style="text-align: center">
               <template #header>
