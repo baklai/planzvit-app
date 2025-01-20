@@ -257,7 +257,7 @@ export const departmentJobsReport = async (worksheets, datetime) => {
 export const subdivisionJobsReport = async (reports, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const { branch, subdivision, data } of reports) {
+  for (const { subdivision, data } of reports) {
     const worksheet = workbook.addWorksheet(subdivision.name);
 
     worksheet.mergeCells('A1:E1');
@@ -272,8 +272,7 @@ export const subdivisionJobsReport = async (reports, datetime) => {
     worksheet.getCell('A2').font = { name: 'Times New Roman', size: 14 };
 
     worksheet.mergeCells('A3:E3');
-    worksheet.getCell('A3').value =
-      `для  структурних підрозділів ${branch.description} АТ "Укрзалізниця"`;
+    worksheet.getCell('A3').value = `для ${subdivision.description}`;
     worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A3').font = { name: 'Times New Roman', size: 14 };
 
@@ -457,7 +456,7 @@ export const subdivisionJobsReport = async (reports, datetime) => {
 export const subdivisionJobsReportPrice = async (reports, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const { branch, subdivision, data } of reports) {
+  for (const { subdivision, data } of reports) {
     const worksheet = workbook.addWorksheet(subdivision.name);
 
     worksheet.mergeCells('A1:F1');
@@ -476,7 +475,7 @@ export const subdivisionJobsReportPrice = async (reports, datetime) => {
     worksheet.getCell('A2').font = { name: 'Times New Roman', size: 14 };
 
     worksheet.mergeCells('A3:F3');
-    worksheet.getCell('A3').value = `для ${branch.description} АТ "Укрзалізниця"`;
+    worksheet.getCell('A3').value = `для ${subdivision.description}`;
     worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A3').font = { name: 'Times New Roman', size: 14 };
 
