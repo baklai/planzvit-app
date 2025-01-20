@@ -69,7 +69,7 @@ const exportmenuitems = ref([
     label: 'Генерація',
     items: [
       {
-        label: 'Створити новий звіт',
+        label: 'Звіт наступного періода',
         icon: 'pi pi-sparkles',
         disabled: !$planzvit?.isAdministrator,
         command: () => onCreateReport()
