@@ -301,7 +301,7 @@ export const subdivisionJobsReport = async (reports, datetime) => {
         width: 15
       },
       {
-        header: 'ПІБ Начальника відділу',
+        header: 'Відповідальна особа',
         key: 'department.name',
         width: 40
       }
@@ -713,7 +713,7 @@ export const branchJobsReport = async (reports, datetime) => {
         width: 15
       },
       {
-        header: 'ПІБ Начальника відділу',
+        header: 'Відповідальна особа',
         key: 'department.name',
         width: 40
       }
