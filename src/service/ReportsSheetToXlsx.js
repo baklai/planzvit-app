@@ -2,6 +2,13 @@ import ExcelJS from 'exceljs';
 
 import { dateToMonthPeriodStr, dateToMonthStr } from '@/service/DataFilters';
 
+const calculateRowHeight = (text, columnWidth, fontSize = 14) => {
+  const charactersPerLine = columnWidth * 1.2; // Учет ширины символов
+  const lineCount = Math.ceil(text.length / charactersPerLine);
+  const lineHeight = fontSize * 1.5; // Высота строки на один шрифт
+  return (lineCount * lineHeight) / 14; // Коэффициент для Excel
+};
+
 export const servicesReport = async (worksheets, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
@@ -542,6 +549,10 @@ export const subdivisionJobsReport = async (reports, datetime) => {
       name: 'Times New Roman',
       size: 12
     };
+
+    const cellBranchName = worksheet.getCell('A3');
+    const rowBranchName = worksheet.getRow(3);
+    rowBranchName.height = calculateRowHeight(cellBranchName.value, 165) * 16;
   }
 
   return await workbook.xlsx.writeBuffer();
@@ -864,6 +875,10 @@ export const subdivisionJobsReportPrice = async (reports, datetime) => {
       name: 'Times New Roman',
       size: 12
     };
+
+    const cellBranchName = worksheet.getCell('A3');
+    const rowBranchName = worksheet.getRow(3);
+    rowBranchName.height = calculateRowHeight(cellBranchName.value, 155) * 16;
   }
 
   return await workbook.xlsx.writeBuffer();
@@ -888,7 +903,11 @@ export const branchJobsReport = async (reports, datetime) => {
 
     worksheet.mergeCells('A3:E3');
     worksheet.getCell('A3').value = `для ${branch.description}`;
-    worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A3').alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+      wrapText: true
+    };
     worksheet.getCell('A3').font = { name: 'Times New Roman', size: 14 };
 
     worksheet.mergeCells('A4:E4');
@@ -1140,6 +1159,10 @@ export const branchJobsReport = async (reports, datetime) => {
       name: 'Times New Roman',
       size: 12
     };
+
+    const cellBranchName = worksheet.getCell('A3');
+    const rowBranchName = worksheet.getRow(3);
+    rowBranchName.height = calculateRowHeight(cellBranchName.value, 165) * 16;
   }
 
   return await workbook.xlsx.writeBuffer();
@@ -1458,6 +1481,10 @@ export const branchJobsReportPrice = async (reports, datetime) => {
       name: 'Times New Roman',
       size: 12
     };
+
+    const cellBranchName = worksheet.getCell('A3');
+    const rowBranchName = worksheet.getRow(3);
+    rowBranchName.height = calculateRowHeight(cellBranchName.value, 155) * 16;
   }
 
   return await workbook.xlsx.writeBuffer();
