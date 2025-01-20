@@ -2,16 +2,8 @@
 import { ref } from 'vue';
 
 const items = ref([
-  {
-    route: '/table/statistics',
-    label: 'Статистична інформація',
-    icon: 'pi pi-chart-bar'
-  },
-  {
-    route: '/table/departments',
-    label: 'Перелік відділів',
-    icon: 'pi pi-table'
-  },
+  { route: '/table/statistics', label: 'Статистична інформація', icon: 'pi pi-chart-bar' },
+  { route: '/table/departments', label: 'Перелік відділів', icon: 'pi pi-table' },
   { route: '/table/services', label: 'Сервіси підтримки', icon: 'pi pi-table' },
   { route: '/table/branches', label: 'Перелік служб (філій)', icon: 'pi pi-table' },
   { route: '/table/subdivisions', label: 'Перелік структурних підрозділів', icon: 'pi pi-table' }
