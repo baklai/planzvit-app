@@ -269,6 +269,7 @@ const onExportToExcelPrice = async () => {
       [
         {
           data,
+          totalPrice: data.reduce((sum, item) => sum + item.totalPrice, 0),
           branch: { name: response.name, description: response.description }
         }
       ],
@@ -321,6 +322,7 @@ const onExportAllToExcelPrice = async () => {
       .map(record => {
         return {
           branch: { name: record.name, description: record.description },
+          totalPrice: record.totalPrice,
           data: record.subdivisions
             .sort((a, b) => a.id.localeCompare(b.id))
             .flatMap(subdivision =>

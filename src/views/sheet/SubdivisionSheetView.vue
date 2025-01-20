@@ -301,7 +301,7 @@ const onExportAllToExcelPrice = async () => {
       .sort((a, b) => a.id.localeCompare(b.id))
       .map(record => {
         return {
-          branch: record.branch,
+          totalPrice: record.totalPrice,
           subdivision: { name: record.name, description: record.description },
           data: record.services
             .sort((a, b) => a.id.localeCompare(b.id))

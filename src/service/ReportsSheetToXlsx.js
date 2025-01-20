@@ -321,23 +321,14 @@ export const subdivisionJobsReport = async (reports, datetime) => {
       { header: '№ роботи', key: 'code', width: 15 },
       { header: 'Назва системи', key: 'name', width: 70 },
       { header: 'Структурний підрозділ', key: 'subdivision', width: 25 },
-      {
-        header: 'Кількість робочих місць (робіт)',
-        key: 'totalJobCount',
-        width: 15
-      },
-      {
-        header: 'Відповідальна особа',
-        key: 'department.name',
-        width: 40
-      }
+      { header: 'Кількість робочих місць (робіт)', key: 'totalJobCount', width: 15 },
+      { header: 'Відповідальна особа', key: 'department.name', width: 40 }
     ];
 
-    worksheet.getRow(8).values = headers.map(h => h.header);
-
-    worksheet.getRow(8).height = 100;
-
-    worksheet.getRow(8).eachCell(cell => {
+    const hearedRow = worksheet.getRow(8);
+    hearedRow.values = headers.map(h => h.header);
+    hearedRow.height = 100;
+    hearedRow.eachCell(cell => {
       cell.font = { name: 'Times New Roman', size: 12, bold: true };
       cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
       cell.border = {
@@ -352,7 +343,7 @@ export const subdivisionJobsReport = async (reports, datetime) => {
       worksheet.getColumn(index + 1).width = h.width;
     });
 
-    const rowStyles = [
+    const recordsRowStyles = [
       {
         font: { name: 'Times New Roman', size: 11 },
         alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }
@@ -380,8 +371,8 @@ export const subdivisionJobsReport = async (reports, datetime) => {
       Object.values(item).forEach((value, colIndex) => {
         const cell = row.getCell(colIndex + 1);
         cell.value = value;
-        cell.font = rowStyles[colIndex].font;
-        cell.alignment = rowStyles[colIndex].alignment;
+        cell.font = recordsRowStyles[colIndex].font;
+        cell.alignment = recordsRowStyles[colIndex].alignment;
         cell.border = {
           top: { style: 'thin' },
           left: { style: 'thin' },
@@ -409,68 +400,145 @@ export const subdivisionJobsReport = async (reports, datetime) => {
       row.height = maxLines * 15;
     });
 
-    worksheet.mergeCells(`A${data.length + 11}:B${data.length + 11}`);
-    worksheet.getCell(`A${data.length + 11}`).value = 'Від виконавця:';
-    worksheet.getCell(`A${data.length + 11}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 12}:B${data.length + 12}`);
+    worksheet.getCell(`A${data.length + 12}`).value = 'Від виконавця:';
+    worksheet.getCell(`A${data.length + 12}`).alignment = {
       vertical: 'middle',
       horizontal: 'left'
     };
-    worksheet.getCell(`A${data.length + 11}`).font = {
+    worksheet.getCell(`A${data.length + 12}`).font = {
       name: 'Times New Roman',
       size: 12,
       bold: true
     };
 
-    worksheet.mergeCells(`C${data.length + 11}:E${data.length + 11}`);
-    worksheet.getCell(`C${data.length + 11}`).value = 'Від замовника:';
-    worksheet.getCell(`C${data.length + 11}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 14}:B${data.length + 14}`);
+    worksheet.getCell(`A${data.length + 14}`).value =
+      'Начальник виробничого підрозділу «Східне відділення»';
+    worksheet.getCell(`A${data.length + 14}`).alignment = {
       vertical: 'middle',
       horizontal: 'left'
     };
-    worksheet.getCell(`C${data.length + 11}`).font = {
-      name: 'Times New Roman',
-      size: 12,
-      bold: true
-    };
+    worksheet.getCell(`A${data.length + 14}`).font = { name: 'Times New Roman', size: 12 };
 
-    worksheet.mergeCells(`A${data.length + 17}:B${data.length + 17}`);
-    worksheet.getCell(`A${data.length + 17}`).value = '______________________________';
-    worksheet.getCell(`A${data.length + 17}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 15}:B${data.length + 15}`);
+    worksheet.getCell(`A${data.length + 15}`).value =
+      'філії «Головний інформаційно-обчислювальний центр»';
+    worksheet.getCell(`A${data.length + 15}`).alignment = {
       vertical: 'middle',
       horizontal: 'left'
     };
-    worksheet.getCell(`A${data.length + 17}`).font = {
-      name: 'Times New Roman',
-      size: 12
-    };
+    worksheet.getCell(`A${data.length + 15}`).font = { name: 'Times New Roman', size: 12 };
 
-    worksheet.getCell(`A${data.length + 18}`).value = 'м.п.';
+    worksheet.mergeCells(`A${data.length + 16}:B${data.length + 16}`);
+    worksheet.getCell(`A${data.length + 16}`).value =
+      'Акціонерного товариства «Українська залізниця»';
+    worksheet.getCell(`A${data.length + 16}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 16}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 18}:B${data.length + 18}`);
+    worksheet.getCell(`A${data.length + 18}`).value =
+      '______________________________' + 'Михайло ІВЛЕВ';
     worksheet.getCell(`A${data.length + 18}`).alignment = {
       vertical: 'middle',
-      horizontal: 'center'
+      horizontal: 'left'
     };
     worksheet.getCell(`A${data.length + 18}`).font = {
       name: 'Times New Roman',
       size: 12
     };
 
-    worksheet.mergeCells(`D${data.length + 17}:E${data.length + 17}`);
-    worksheet.getCell(`D${data.length + 17}`).value = '______________________________';
-    worksheet.getCell(`D${data.length + 17}`).alignment = {
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).value = 'м.п.';
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).alignment = {
       vertical: 'middle',
-      horizontal: 'left'
+      horizontal: 'center'
     };
-    worksheet.getCell(`A${data.length + 17}`).font = {
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).font = {
       name: 'Times New Roman',
       size: 12
     };
 
-    worksheet.getCell(`D${data.length + 18}`).value = 'м.п.';
-    worksheet.getCell(`D${data.length + 18}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 21}:B${data.length + 21}`);
+    worksheet.getCell(`A${data.length + 21}`).value =
+      'Голоний інженер виробничого підрозділу «Східне відділення»';
+    worksheet.getCell(`A${data.length + 21}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 21}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 22}:B${data.length + 22}`);
+    worksheet.getCell(`A${data.length + 22}`).value =
+      'філії «Головний інформаційно-обчислювальний центр»';
+    worksheet.getCell(`A${data.length + 22}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 22}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 23}:B${data.length + 23}`);
+    worksheet.getCell(`A${data.length + 23}`).value =
+      'Акціонерного товариства «Українська залізниця»';
+    worksheet.getCell(`A${data.length + 23}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 23}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 25}:B${data.length + 25}`);
+    worksheet.getCell(`A${data.length + 25}`).value =
+      '______________________________' + 'Дмитро ВЕРЕМКОВИЧ';
+    worksheet.getCell(`A${data.length + 25}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 25}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).value = 'м.п.';
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).alignment = {
       vertical: 'middle',
       horizontal: 'center'
     };
-    worksheet.getCell(`D${data.length + 18}`).font = {
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.mergeCells(`D${data.length + 12}:E${data.length + 12}`);
+    worksheet.getCell(`D${data.length + 12}`).value = 'Від замовника:';
+    worksheet.getCell(`D${data.length + 12}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`D${data.length + 12}`).font = {
+      name: 'Times New Roman',
+      size: 12,
+      bold: true
+    };
+
+    worksheet.mergeCells(`D${data.length + 18}:E${data.length + 18}`);
+    worksheet.getCell(`D${data.length + 18}`).value = '______________________________';
+    worksheet.getCell(`D${data.length + 18}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 18}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.getCell(`D${data.length + 19}`).value = 'м.п.';
+    worksheet.getCell(`D${data.length + 19}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'center'
+    };
+    worksheet.getCell(`D${data.length + 19}`).font = {
       name: 'Times New Roman',
       size: 12
     };
@@ -482,7 +550,7 @@ export const subdivisionJobsReport = async (reports, datetime) => {
 export const subdivisionJobsReportPrice = async (reports, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const { subdivision, data } of reports) {
+  for (const { subdivision, totalPrice, data } of reports) {
     const worksheet = workbook.addWorksheet(subdivision.name);
 
     worksheet.mergeCells('A1:F1');
@@ -621,68 +689,178 @@ export const subdivisionJobsReportPrice = async (reports, datetime) => {
       row.height = maxLines * 15;
     });
 
-    worksheet.mergeCells(`A${data.length + 11}:B${data.length + 11}`);
-    worksheet.getCell(`A${data.length + 11}`).value = 'Від виконавця:';
-    worksheet.getCell(`A${data.length + 11}`).alignment = {
-      vertical: 'middle',
-      horizontal: 'left'
-    };
-    worksheet.getCell(`A${data.length + 11}`).font = {
-      name: 'Times New Roman',
-      size: 12,
-      bold: true
-    };
-
-    worksheet.mergeCells(`C${data.length + 11}:E${data.length + 11}`);
-    worksheet.getCell(`C${data.length + 11}`).value = 'Від замовника:';
-    worksheet.getCell(`C${data.length + 11}`).alignment = {
-      vertical: 'middle',
-      horizontal: 'left'
-    };
-    worksheet.getCell(`C${data.length + 11}`).font = {
-      name: 'Times New Roman',
-      size: 12,
-      bold: true
-    };
-
-    worksheet.mergeCells(`A${data.length + 17}:B${data.length + 17}`);
-    worksheet.getCell(`A${data.length + 17}`).value = '______________________________';
-    worksheet.getCell(`A${data.length + 17}`).alignment = {
-      vertical: 'middle',
-      horizontal: 'left'
-    };
-    worksheet.getCell(`A${data.length + 17}`).font = {
-      name: 'Times New Roman',
-      size: 12
-    };
-
-    worksheet.getCell(`A${data.length + 18}`).value = 'м.п.';
-    worksheet.getCell(`A${data.length + 18}`).alignment = {
+    worksheet.getCell(`F${data.length + 9}`).value = totalPrice;
+    worksheet.getCell(`F${data.length + 9}`).alignment = {
       vertical: 'middle',
       horizontal: 'center'
+    };
+    worksheet.getCell(`F${data.length + 9}`).font = {
+      name: 'Times New Roman',
+      size: 14,
+      bold: true
+    };
+
+    worksheet.getCell(`B${data.length + 10}`).value = 'Вартість послуг';
+    worksheet.getCell(`B${data.length + 10}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`B${data.length + 10}`).font = {
+      name: 'Times New Roman',
+      size: 14,
+      bold: true
+    };
+
+    worksheet.getCell(`C${data.length + 10}`).value = `${totalPrice} - грн.`;
+    worksheet.getCell(`C${data.length + 10}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`C${data.length + 10}`).font = {
+      name: 'Times New Roman',
+      size: 12,
+      bold: true
+    };
+
+    worksheet.mergeCells(`A${data.length + 12}:B${data.length + 12}`);
+    worksheet.getCell(`A${data.length + 12}`).value = 'Від виконавця:';
+    worksheet.getCell(`A${data.length + 12}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 12}`).font = {
+      name: 'Times New Roman',
+      size: 12,
+      bold: true
+    };
+
+    worksheet.mergeCells(`A${data.length + 14}:B${data.length + 14}`);
+    worksheet.getCell(`A${data.length + 14}`).value =
+      'Начальник виробничого підрозділу «Східне відділення»';
+    worksheet.getCell(`A${data.length + 14}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 14}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 15}:B${data.length + 15}`);
+    worksheet.getCell(`A${data.length + 15}`).value =
+      'філії «Головний інформаційно-обчислювальний центр»';
+    worksheet.getCell(`A${data.length + 15}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 15}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 16}:B${data.length + 16}`);
+    worksheet.getCell(`A${data.length + 16}`).value =
+      'Акціонерного товариства «Українська залізниця»';
+    worksheet.getCell(`A${data.length + 16}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 16}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 18}:B${data.length + 18}`);
+    worksheet.getCell(`A${data.length + 18}`).value =
+      '______________________________' + 'Михайло ІВЛЕВ';
+    worksheet.getCell(`A${data.length + 18}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
     };
     worksheet.getCell(`A${data.length + 18}`).font = {
       name: 'Times New Roman',
       size: 12
     };
 
-    worksheet.mergeCells(`D${data.length + 17}:E${data.length + 17}`);
-    worksheet.getCell(`D${data.length + 17}`).value = '______________________________';
-    worksheet.getCell(`D${data.length + 17}`).alignment = {
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).value = 'м.п.';
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).alignment = {
       vertical: 'middle',
-      horizontal: 'left'
+      horizontal: 'center'
     };
-    worksheet.getCell(`A${data.length + 17}`).font = {
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).font = {
       name: 'Times New Roman',
       size: 12
     };
 
-    worksheet.getCell(`D${data.length + 18}`).value = 'м.п.';
-    worksheet.getCell(`D${data.length + 18}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 21}:B${data.length + 21}`);
+    worksheet.getCell(`A${data.length + 21}`).value =
+      'Голоний інженер виробничого підрозділу «Східне відділення»';
+    worksheet.getCell(`A${data.length + 21}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 21}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 22}:B${data.length + 22}`);
+    worksheet.getCell(`A${data.length + 22}`).value =
+      'філії «Головний інформаційно-обчислювальний центр»';
+    worksheet.getCell(`A${data.length + 22}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 22}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 23}:B${data.length + 23}`);
+    worksheet.getCell(`A${data.length + 23}`).value =
+      'Акціонерного товариства «Українська залізниця»';
+    worksheet.getCell(`A${data.length + 23}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 23}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 25}:B${data.length + 25}`);
+    worksheet.getCell(`A${data.length + 25}`).value =
+      '______________________________' + 'Дмитро ВЕРЕМКОВИЧ';
+    worksheet.getCell(`A${data.length + 25}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 25}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).value = 'м.п.';
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).alignment = {
       vertical: 'middle',
       horizontal: 'center'
     };
-    worksheet.getCell(`D${data.length + 18}`).font = {
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.mergeCells(`D${data.length + 12}:F${data.length + 12}`);
+    worksheet.getCell(`D${data.length + 12}`).value = 'Від замовника:';
+    worksheet.getCell(`D${data.length + 12}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`D${data.length + 12}`).font = {
+      name: 'Times New Roman',
+      size: 12,
+      bold: true
+    };
+
+    worksheet.mergeCells(`D${data.length + 18}:F${data.length + 18}`);
+    worksheet.getCell(`D${data.length + 18}`).value = '______________________________';
+    worksheet.getCell(`D${data.length + 18}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 18}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.getCell(`D${data.length + 19}`).value = 'м.п.';
+    worksheet.getCell(`D${data.length + 19}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'center'
+    };
+    worksheet.getCell(`D${data.length + 19}`).font = {
       name: 'Times New Roman',
       size: 12
     };
@@ -820,68 +998,145 @@ export const branchJobsReport = async (reports, datetime) => {
       row.height = maxLines * 15;
     });
 
-    worksheet.mergeCells(`A${data.length + 11}:B${data.length + 11}`);
-    worksheet.getCell(`A${data.length + 11}`).value = 'Від виконавця:';
-    worksheet.getCell(`A${data.length + 11}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 12}:B${data.length + 12}`);
+    worksheet.getCell(`A${data.length + 12}`).value = 'Від виконавця:';
+    worksheet.getCell(`A${data.length + 12}`).alignment = {
       vertical: 'middle',
       horizontal: 'left'
     };
-    worksheet.getCell(`A${data.length + 11}`).font = {
+    worksheet.getCell(`A${data.length + 12}`).font = {
       name: 'Times New Roman',
       size: 12,
       bold: true
     };
 
-    worksheet.mergeCells(`C${data.length + 11}:E${data.length + 11}`);
-    worksheet.getCell(`C${data.length + 11}`).value = 'Від замовника:';
-    worksheet.getCell(`C${data.length + 11}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 14}:B${data.length + 14}`);
+    worksheet.getCell(`A${data.length + 14}`).value =
+      'Начальник виробничого підрозділу «Східне відділення»';
+    worksheet.getCell(`A${data.length + 14}`).alignment = {
       vertical: 'middle',
       horizontal: 'left'
     };
-    worksheet.getCell(`C${data.length + 11}`).font = {
-      name: 'Times New Roman',
-      size: 12,
-      bold: true
-    };
+    worksheet.getCell(`A${data.length + 14}`).font = { name: 'Times New Roman', size: 12 };
 
-    worksheet.mergeCells(`A${data.length + 17}:B${data.length + 17}`);
-    worksheet.getCell(`A${data.length + 17}`).value = '______________________________';
-    worksheet.getCell(`A${data.length + 17}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 15}:B${data.length + 15}`);
+    worksheet.getCell(`A${data.length + 15}`).value =
+      'філії «Головний інформаційно-обчислювальний центр»';
+    worksheet.getCell(`A${data.length + 15}`).alignment = {
       vertical: 'middle',
       horizontal: 'left'
     };
-    worksheet.getCell(`A${data.length + 17}`).font = {
-      name: 'Times New Roman',
-      size: 12
-    };
+    worksheet.getCell(`A${data.length + 15}`).font = { name: 'Times New Roman', size: 12 };
 
-    worksheet.getCell(`A${data.length + 18}`).value = 'м.п.';
+    worksheet.mergeCells(`A${data.length + 16}:B${data.length + 16}`);
+    worksheet.getCell(`A${data.length + 16}`).value =
+      'Акціонерного товариства «Українська залізниця»';
+    worksheet.getCell(`A${data.length + 16}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 16}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 18}:B${data.length + 18}`);
+    worksheet.getCell(`A${data.length + 18}`).value =
+      '______________________________' + 'Михайло ІВЛЕВ';
     worksheet.getCell(`A${data.length + 18}`).alignment = {
       vertical: 'middle',
-      horizontal: 'center'
+      horizontal: 'left'
     };
     worksheet.getCell(`A${data.length + 18}`).font = {
       name: 'Times New Roman',
       size: 12
     };
 
-    worksheet.mergeCells(`D${data.length + 17}:E${data.length + 17}`);
-    worksheet.getCell(`D${data.length + 17}`).value = '______________________________';
-    worksheet.getCell(`D${data.length + 17}`).alignment = {
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).value = 'м.п.';
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).alignment = {
       vertical: 'middle',
-      horizontal: 'left'
+      horizontal: 'center'
     };
-    worksheet.getCell(`A${data.length + 17}`).font = {
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).font = {
       name: 'Times New Roman',
       size: 12
     };
 
-    worksheet.getCell(`D${data.length + 18}`).value = 'м.п.';
-    worksheet.getCell(`D${data.length + 18}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 21}:B${data.length + 21}`);
+    worksheet.getCell(`A${data.length + 21}`).value =
+      'Голоний інженер виробничого підрозділу «Східне відділення»';
+    worksheet.getCell(`A${data.length + 21}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 21}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 22}:B${data.length + 22}`);
+    worksheet.getCell(`A${data.length + 22}`).value =
+      'філії «Головний інформаційно-обчислювальний центр»';
+    worksheet.getCell(`A${data.length + 22}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 22}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 23}:B${data.length + 23}`);
+    worksheet.getCell(`A${data.length + 23}`).value =
+      'Акціонерного товариства «Українська залізниця»';
+    worksheet.getCell(`A${data.length + 23}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 23}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 25}:B${data.length + 25}`);
+    worksheet.getCell(`A${data.length + 25}`).value =
+      '______________________________' + 'Дмитро ВЕРЕМКОВИЧ';
+    worksheet.getCell(`A${data.length + 25}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 25}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).value = 'м.п.';
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).alignment = {
       vertical: 'middle',
       horizontal: 'center'
     };
-    worksheet.getCell(`D${data.length + 18}`).font = {
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.mergeCells(`D${data.length + 12}:E${data.length + 12}`);
+    worksheet.getCell(`D${data.length + 12}`).value = 'Від замовника:';
+    worksheet.getCell(`D${data.length + 12}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`D${data.length + 12}`).font = {
+      name: 'Times New Roman',
+      size: 12,
+      bold: true
+    };
+
+    worksheet.mergeCells(`D${data.length + 18}:E${data.length + 18}`);
+    worksheet.getCell(`D${data.length + 18}`).value = '______________________________';
+    worksheet.getCell(`D${data.length + 18}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 18}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.getCell(`D${data.length + 19}`).value = 'м.п.';
+    worksheet.getCell(`D${data.length + 19}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'center'
+    };
+    worksheet.getCell(`D${data.length + 19}`).font = {
       name: 'Times New Roman',
       size: 12
     };
@@ -893,7 +1148,7 @@ export const branchJobsReport = async (reports, datetime) => {
 export const branchJobsReportPrice = async (reports, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const { branch, data } of reports) {
+  for (const { branch, totalPrice, data } of reports) {
     const worksheet = workbook.addWorksheet(branch.name);
 
     worksheet.mergeCells('A1:F1');
@@ -1028,68 +1283,178 @@ export const branchJobsReportPrice = async (reports, datetime) => {
       row.height = maxLines * 15;
     });
 
-    worksheet.mergeCells(`A${data.length + 11}:B${data.length + 11}`);
-    worksheet.getCell(`A${data.length + 11}`).value = 'Від виконавця:';
-    worksheet.getCell(`A${data.length + 11}`).alignment = {
-      vertical: 'middle',
-      horizontal: 'left'
-    };
-    worksheet.getCell(`A${data.length + 11}`).font = {
-      name: 'Times New Roman',
-      size: 12,
-      bold: true
-    };
-
-    worksheet.mergeCells(`C${data.length + 11}:E${data.length + 11}`);
-    worksheet.getCell(`C${data.length + 11}`).value = 'Від замовника:';
-    worksheet.getCell(`C${data.length + 11}`).alignment = {
-      vertical: 'middle',
-      horizontal: 'left'
-    };
-    worksheet.getCell(`C${data.length + 11}`).font = {
-      name: 'Times New Roman',
-      size: 12,
-      bold: true
-    };
-
-    worksheet.mergeCells(`A${data.length + 17}:B${data.length + 17}`);
-    worksheet.getCell(`A${data.length + 17}`).value = '______________________________';
-    worksheet.getCell(`A${data.length + 17}`).alignment = {
-      vertical: 'middle',
-      horizontal: 'left'
-    };
-    worksheet.getCell(`A${data.length + 17}`).font = {
-      name: 'Times New Roman',
-      size: 12
-    };
-
-    worksheet.getCell(`A${data.length + 18}`).value = 'м.п.';
-    worksheet.getCell(`A${data.length + 18}`).alignment = {
+    worksheet.getCell(`F${data.length + 9}`).value = totalPrice;
+    worksheet.getCell(`F${data.length + 9}`).alignment = {
       vertical: 'middle',
       horizontal: 'center'
+    };
+    worksheet.getCell(`F${data.length + 9}`).font = {
+      name: 'Times New Roman',
+      size: 14,
+      bold: true
+    };
+
+    worksheet.getCell(`B${data.length + 10}`).value = 'Вартість послуг';
+    worksheet.getCell(`B${data.length + 10}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`B${data.length + 10}`).font = {
+      name: 'Times New Roman',
+      size: 14,
+      bold: true
+    };
+
+    worksheet.getCell(`C${data.length + 10}`).value = `${totalPrice} - грн.`;
+    worksheet.getCell(`C${data.length + 10}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`C${data.length + 10}`).font = {
+      name: 'Times New Roman',
+      size: 12,
+      bold: true
+    };
+
+    worksheet.mergeCells(`A${data.length + 12}:B${data.length + 12}`);
+    worksheet.getCell(`A${data.length + 12}`).value = 'Від виконавця:';
+    worksheet.getCell(`A${data.length + 12}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 12}`).font = {
+      name: 'Times New Roman',
+      size: 12,
+      bold: true
+    };
+
+    worksheet.mergeCells(`A${data.length + 14}:B${data.length + 14}`);
+    worksheet.getCell(`A${data.length + 14}`).value =
+      'Начальник виробничого підрозділу «Східне відділення»';
+    worksheet.getCell(`A${data.length + 14}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 14}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 15}:B${data.length + 15}`);
+    worksheet.getCell(`A${data.length + 15}`).value =
+      'філії «Головний інформаційно-обчислювальний центр»';
+    worksheet.getCell(`A${data.length + 15}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 15}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 16}:B${data.length + 16}`);
+    worksheet.getCell(`A${data.length + 16}`).value =
+      'Акціонерного товариства «Українська залізниця»';
+    worksheet.getCell(`A${data.length + 16}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 16}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 18}:B${data.length + 18}`);
+    worksheet.getCell(`A${data.length + 18}`).value =
+      '______________________________' + 'Михайло ІВЛЕВ';
+    worksheet.getCell(`A${data.length + 18}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
     };
     worksheet.getCell(`A${data.length + 18}`).font = {
       name: 'Times New Roman',
       size: 12
     };
 
-    worksheet.mergeCells(`D${data.length + 17}:E${data.length + 17}`);
-    worksheet.getCell(`D${data.length + 17}`).value = '______________________________';
-    worksheet.getCell(`D${data.length + 17}`).alignment = {
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).value = 'м.п.';
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).alignment = {
       vertical: 'middle',
-      horizontal: 'left'
+      horizontal: 'center'
     };
-    worksheet.getCell(`A${data.length + 17}`).font = {
+    worksheet.getCell(`A${data.length + 19}:B${data.length + 19}`).font = {
       name: 'Times New Roman',
       size: 12
     };
 
-    worksheet.getCell(`D${data.length + 18}`).value = 'м.п.';
-    worksheet.getCell(`D${data.length + 18}`).alignment = {
+    worksheet.mergeCells(`A${data.length + 21}:B${data.length + 21}`);
+    worksheet.getCell(`A${data.length + 21}`).value =
+      'Голоний інженер виробничого підрозділу «Східне відділення»';
+    worksheet.getCell(`A${data.length + 21}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 21}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 22}:B${data.length + 22}`);
+    worksheet.getCell(`A${data.length + 22}`).value =
+      'філії «Головний інформаційно-обчислювальний центр»';
+    worksheet.getCell(`A${data.length + 22}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 22}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 23}:B${data.length + 23}`);
+    worksheet.getCell(`A${data.length + 23}`).value =
+      'Акціонерного товариства «Українська залізниця»';
+    worksheet.getCell(`A${data.length + 23}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 23}`).font = { name: 'Times New Roman', size: 12 };
+
+    worksheet.mergeCells(`A${data.length + 25}:B${data.length + 25}`);
+    worksheet.getCell(`A${data.length + 25}`).value =
+      '______________________________' + 'Дмитро ВЕРЕМКОВИЧ';
+    worksheet.getCell(`A${data.length + 25}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 25}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).value = 'м.п.';
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).alignment = {
       vertical: 'middle',
       horizontal: 'center'
     };
-    worksheet.getCell(`D${data.length + 18}`).font = {
+    worksheet.getCell(`A${data.length + 26}:B${data.length + 26}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.mergeCells(`D${data.length + 12}:F${data.length + 12}`);
+    worksheet.getCell(`D${data.length + 12}`).value = 'Від замовника:';
+    worksheet.getCell(`D${data.length + 12}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`D${data.length + 12}`).font = {
+      name: 'Times New Roman',
+      size: 12,
+      bold: true
+    };
+
+    worksheet.mergeCells(`D${data.length + 18}:F${data.length + 18}`);
+    worksheet.getCell(`D${data.length + 18}`).value = '______________________________';
+    worksheet.getCell(`D${data.length + 18}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'left'
+    };
+    worksheet.getCell(`A${data.length + 18}`).font = {
+      name: 'Times New Roman',
+      size: 12
+    };
+
+    worksheet.getCell(`D${data.length + 19}`).value = 'м.п.';
+    worksheet.getCell(`D${data.length + 19}`).alignment = {
+      vertical: 'middle',
+      horizontal: 'center'
+    };
+    worksheet.getCell(`D${data.length + 19}`).font = {
       name: 'Times New Roman',
       size: 12
     };
