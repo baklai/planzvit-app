@@ -709,8 +709,7 @@ export const branchJobsReport = async (reports, datetime) => {
     worksheet.getCell('A2').font = { name: 'Times New Roman', size: 14 };
 
     worksheet.mergeCells('A3:E3');
-    worksheet.getCell('A3').value =
-      `для  структурних підрозділів ${branch.description} АТ "Укрзалізниця"`;
+    worksheet.getCell('A3').value = `для ${branch.description}`;
     worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A3').font = { name: 'Times New Roman', size: 14 };
 
@@ -909,7 +908,7 @@ export const branchJobsReportPrice = async (reports, datetime) => {
     worksheet.getCell('A2').font = { name: 'Times New Roman', size: 14 };
 
     worksheet.mergeCells('A3:F3');
-    worksheet.getCell('A3').value = `для ${branch.description} АТ "Укрзалізниця"`;
+    worksheet.getCell('A3').value = `для ${branch.description}`;
     worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A3').font = { name: 'Times New Roman', size: 14 };
 
