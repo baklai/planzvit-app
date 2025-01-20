@@ -3,10 +3,10 @@ import ExcelJS from 'exceljs';
 import { dateToMonthPeriodStr, dateToMonthStr } from '@/service/DataFilters';
 
 const calculateRowHeight = (text, columnWidth, fontSize = 14) => {
-  const charactersPerLine = columnWidth * 1.2; // Учет ширины символов
+  const charactersPerLine = columnWidth * 1.2;
   const lineCount = Math.ceil(text.length / charactersPerLine);
-  const lineHeight = fontSize * 1.5; // Высота строки на один шрифт
-  return (lineCount * lineHeight) / 14; // Коэффициент для Excel
+  const lineHeight = fontSize * 1.5;
+  return (lineCount * lineHeight) / 14;
 };
 
 export const servicesReport = async (worksheets, datetime) => {
@@ -306,7 +306,11 @@ export const subdivisionJobsReport = async (reports, datetime) => {
 
     worksheet.mergeCells('A3:E3');
     worksheet.getCell('A3').value = `для ${subdivision.description}`;
-    worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A3').alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+      wrapText: true
+    };
     worksheet.getCell('A3').font = { name: 'Times New Roman', size: 14 };
 
     worksheet.mergeCells('A4:E4');
@@ -581,7 +585,11 @@ export const subdivisionJobsReportPrice = async (reports, datetime) => {
 
     worksheet.mergeCells('A3:F3');
     worksheet.getCell('A3').value = `для ${subdivision.description}`;
-    worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A3').alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+      wrapText: true
+    };
     worksheet.getCell('A3').font = { name: 'Times New Roman', size: 14 };
 
     worksheet.mergeCells('A4:F4');
@@ -1187,7 +1195,11 @@ export const branchJobsReportPrice = async (reports, datetime) => {
 
     worksheet.mergeCells('A3:F3');
     worksheet.getCell('A3').value = `для ${branch.description}`;
-    worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A3').alignment = {
+      vertical: 'middle',
+      horizontal: 'center',
+      wrapText: true
+    };
     worksheet.getCell('A3').font = { name: 'Times New Roman', size: 14 };
 
     worksheet.mergeCells('A4:F4');
