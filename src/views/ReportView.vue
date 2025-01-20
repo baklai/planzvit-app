@@ -215,8 +215,21 @@ const onExportToExcel = async (optimized = false) => {
         })
       );
 
+    const previousJobCount = records.reduce((sum, item) => sum + item.previousJobCount, 0);
+    const changesJobCount = records.reduce((sum, item) => sum + item.changesJobCount, 0);
+    const currentJobCount = records.reduce((sum, item) => sum + item.currentJobCount, 0);
+
     const buffer = await departmentJobsReport(
-      [{ department: { ...department.value }, records }],
+      [
+        {
+          records,
+          department: { ...department.value },
+          previousJobCount,
+          changesJobCount,
+          currentJobCount
+        }
+      ],
+
       datepiker.value
     );
 

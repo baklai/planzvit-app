@@ -110,7 +110,13 @@ export const servicesReport = async (worksheets, datetime) => {
 export const departmentJobsReport = async (worksheets, datetime) => {
   const workbook = new ExcelJS.Workbook();
 
-  for (const { department, records } of worksheets) {
+  for (const {
+    records,
+    department,
+    previousJobCount,
+    changesJobCount,
+    currentJobCount
+  } of worksheets) {
     const worksheet = workbook.addWorksheet(department.name);
 
     worksheet.mergeCells('A1:G1');
@@ -157,11 +163,13 @@ export const departmentJobsReport = async (worksheets, datetime) => {
       { header: 'Кількість робочих місць (робіт) всього', key: 'currentJobCount', width: 15 }
     ];
 
-    worksheet.getRow(7).values = headers.map(h => h.header);
+    const hearedRow = worksheet.getRow(7);
 
-    worksheet.getRow(7).height = 125;
+    hearedRow.values = headers.map(h => h.header);
 
-    worksheet.getRow(7).eachCell(cell => {
+    hearedRow.height = 125;
+
+    hearedRow.eachCell(cell => {
       cell.font = { name: 'Times New Roman', size: 12, bold: true };
       cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
       cell.border = {
@@ -176,7 +184,7 @@ export const departmentJobsReport = async (worksheets, datetime) => {
       worksheet.getColumn(index + 1).width = h.width;
     });
 
-    const rowStyles = [
+    const recordsRowStyles = [
       {
         font: { name: 'Times New Roman', size: 11 },
         alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }
@@ -191,7 +199,7 @@ export const departmentJobsReport = async (worksheets, datetime) => {
       },
       {
         font: { name: 'Times New Roman', size: 11 },
-        alignment: { vertical: 'middle', horizontal: 'center', wrapText: true }
+        alignment: { vertical: 'middle', horizontal: 'left', wrapText: true }
       },
       {
         font: { name: 'Times New Roman', size: 14 },
@@ -212,8 +220,8 @@ export const departmentJobsReport = async (worksheets, datetime) => {
       Object.values(item).forEach((value, colIndex) => {
         const cell = row.getCell(colIndex + 1);
         cell.value = value;
-        cell.font = rowStyles[colIndex].font;
-        cell.alignment = rowStyles[colIndex].alignment;
+        cell.font = recordsRowStyles[colIndex].font;
+        cell.alignment = recordsRowStyles[colIndex].alignment;
         cell.border = {
           top: { style: 'thin' },
           left: { style: 'thin' },
@@ -241,14 +249,32 @@ export const departmentJobsReport = async (worksheets, datetime) => {
       row.height = maxLines * 15;
     });
 
-    worksheet.mergeCells(`A${records.length + 10}:G${records.length + 10}`);
-    worksheet.getCell(`A${records.length + 10}`).value =
-      `Начальник відділу  ${department.name}________________${department.manager}`;
-    worksheet.getCell(`A${records.length + 10}`).alignment = {
-      vertical: 'middle',
-      horizontal: 'center'
-    };
-    worksheet.getCell(`A${records.length + 10}`).font = { name: 'Times New Roman', size: 14 };
+    worksheet.mergeCells(`A${records.length + 8}:D${records.length + 8}`);
+    const titleJobCountCell = worksheet.getCell(`A${records.length + 8}`);
+    titleJobCountCell.value = 'Кількість робочих місць:';
+    titleJobCountCell.alignment = { vertical: 'middle', horizontal: 'right' };
+    titleJobCountCell.font = { name: 'Times New Roman', size: 14 };
+
+    const previousJobCountCell = worksheet.getCell(`E${records.length + 8}`);
+    previousJobCountCell.value = previousJobCount;
+    previousJobCountCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    previousJobCountCell.font = { name: 'Times New Roman', size: 16 };
+
+    const changesJobCountCell = worksheet.getCell(`F${records.length + 8}`);
+    changesJobCountCell.value = changesJobCount;
+    changesJobCountCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    changesJobCountCell.font = { name: 'Times New Roman', size: 16 };
+
+    const currentJobCountCell = worksheet.getCell(`G${records.length + 8}`);
+    currentJobCountCell.value = currentJobCount;
+    currentJobCountCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    currentJobCountCell.font = { name: 'Times New Roman', size: 16 };
+
+    worksheet.mergeCells(`A${records.length + 12}:G${records.length + 12}`);
+    const footerCell = worksheet.getCell(`A${records.length + 12}`);
+    footerCell.value = `Начальник відділу  ${department.name}________________${department.manager}`;
+    footerCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    footerCell.font = { name: 'Times New Roman', size: 14 };
   }
 
   return await workbook.xlsx.writeBuffer();

@@ -171,7 +171,6 @@ const onExportAllToExcel = async () => {
 
     const reports = response.map(({ department, records }) => {
       return {
-        department: department,
         records: records.map(item => {
           return {
             code: item.service.code,
@@ -182,7 +181,11 @@ const onExportAllToExcel = async () => {
             changesJobCount: item.changesJobCount,
             currentJobCount: item.currentJobCount
           };
-        })
+        }),
+        department: department,
+        previousJobCount: records.reduce((sum, item) => sum + item.previousJobCount, 0),
+        changesJobCount: records.reduce((sum, item) => sum + item.changesJobCount, 0),
+        currentJobCount: records.reduce((sum, item) => sum + item.currentJobCount, 0)
       };
     });
 
