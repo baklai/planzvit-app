@@ -3,9 +3,9 @@ import { ref } from 'vue';
 
 const items = ref([
   { route: '/sheet/service', label: 'Вартість робіт', icon: 'pi pi-file-excel' },
-  { route: '/sheet/report', label: 'Щомісячні звіти', icon: 'pi pi-file-excel' },
-  { route: '/sheet/subdivision', label: 'Акт послуг підрозділам', icon: 'pi pi-file-excel' },
-  { route: '/sheet/branch', label: 'Акт послуг службам (філіям)', icon: 'pi pi-file-excel' }
+  { route: '/sheet/report', label: 'Звіти про надання послуг', icon: 'pi pi-file-excel' },
+  { route: '/sheet/branch', label: 'Перелік послуг службам (філіям)', icon: 'pi pi-file-excel' },
+  { route: '/sheet/subdivision', label: 'Перелік послуг підрозділам', icon: 'pi pi-file-excel' }
 ]);
 </script>
 

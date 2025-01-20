@@ -26,7 +26,7 @@ const exportmenuitems = ref([
     label: 'Поточні звіти',
     items: [
       {
-        label: 'Щомісячний звіт',
+        label: 'Звіт про надання послуг',
         icon: 'pi pi-download',
         command: () => onExportToExcel()
       }
@@ -36,7 +36,7 @@ const exportmenuitems = ref([
     label: 'Комплексні звіти',
     items: [
       {
-        label: 'Щомісячний звіт',
+        label: 'Звіти про надання послуг',
         icon: 'pi pi-download',
         command: () => onExportAllToExcel()
       }
@@ -136,7 +136,7 @@ const onExportToExcel = async () => {
 
     const aLink = document.createElement('a');
     aLink.href = objectURL;
-    aLink.download = `${selectDepartment.name} Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.download = `${selectDepartment.name} Звіт про надання послуг за ${dateToMonthStr(datepiker.value)}.xlsx`;
     aLink.click();
 
     URL.revokeObjectURL(objectURL);
@@ -199,7 +199,7 @@ const onExportAllToExcel = async () => {
 
     const aLink = document.createElement('a');
     aLink.href = objectURL;
-    aLink.download = `ВП СХ Щомісячний звіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.download = `Звіти про надання послуг за ${dateToMonthStr(datepiker.value)}.xlsx`;
     aLink.click();
 
     URL.revokeObjectURL(objectURL);

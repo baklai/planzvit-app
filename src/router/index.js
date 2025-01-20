@@ -63,7 +63,7 @@ const router = createRouter({
           path: 'report',
           name: 'sheet-report',
           meta: {
-            title: 'Щомісячні звіти',
+            title: 'Звіти про надання послуг',
             description: 'Звіти про надання послуг з програмно-технологічного супроводу'
           },
           component: () => import('@/views/sheet/ReportSheetView.vue')
@@ -72,8 +72,8 @@ const router = createRouter({
           path: 'branch',
           name: 'sheet-branch',
           meta: {
-            title: 'Акт послуг службам (філіям)',
-            description: 'Акт послуг, який надаються службам (філіям)'
+            title: 'Перелік послуг службам (філіям)',
+            description: 'Перелік послуг, який надається службам (філіям)'
           },
           component: () => import('@/views/sheet/BranchSheetView.vue')
         },
@@ -81,8 +81,8 @@ const router = createRouter({
           path: 'subdivision',
           name: 'sheet-subdivision',
           meta: {
-            title: 'Акт послуг підрозділам',
-            description: 'Акт послуг, який надаються підрозділам'
+            title: 'Перелік послуг підрозділам',
+            description: 'Перелік послуг, який надаються підрозділам'
           },
           component: () => import('@/views/sheet/SubdivisionSheetView.vue')
         }

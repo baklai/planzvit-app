@@ -27,12 +27,12 @@ const exportmenuitems = ref([
     label: 'Поточні звіти',
     items: [
       {
-        label: 'Щомісячний планзвіт',
+        label: 'Перелік послуг підрозділу',
         icon: 'pi pi-download',
         command: () => onExportToExcel()
       },
       {
-        label: 'Щомісячний фінансовий планзвіт',
+        label: 'Акт здавання-приймання послуг',
         icon: 'pi pi-download',
         command: () => onExportToExcelPrice()
       }
@@ -42,12 +42,12 @@ const exportmenuitems = ref([
     label: 'Комплексні звіти',
     items: [
       {
-        label: 'Щомісячний планзвіт',
+        label: 'Перелік послуг підрозділам',
         icon: 'pi pi-download',
         command: () => onExportAllToExcel()
       },
       {
-        label: 'Щомісячний фінансовий планзвіт',
+        label: 'Акти здавання-приймання послуг',
         icon: 'pi pi-download',
         command: () => onExportAllToExcelPrice()
       }
@@ -91,7 +91,16 @@ const onUpdateRecords = async () => {
 };
 
 const onExportToExcel = async () => {
-  if (!subdivisionId.value || !datepiker.value) return;
+  if (!subdivisionId.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та підрозділ',
+      life: 5000
+    });
+
+    return;
+  }
 
   loading.value = true;
 
@@ -129,7 +138,7 @@ const onExportToExcel = async () => {
 
     const aLink = document.createElement('a');
     aLink.href = objectURL;
-    aLink.download = `${response.name} Щомісячний планзвіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.download = `${response.name} Перелік послуг за ${dateToMonthStr(datepiker.value)}.xlsx`;
     aLink.click();
 
     URL.revokeObjectURL(objectURL);
@@ -146,7 +155,16 @@ const onExportToExcel = async () => {
 };
 
 const onExportAllToExcel = async () => {
-  if (!subdivisions?.value?.length || !datepiker?.value) return;
+  if (!subdivisions?.value?.length || !datepiker?.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та підрозділ',
+      life: 5000
+    });
+
+    return;
+  }
 
   loading.value = true;
 
@@ -182,7 +200,7 @@ const onExportAllToExcel = async () => {
 
     const link = document.createElement('a');
     link.href = url;
-    link.download = `ВП СХ Щомісячний планзвіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.download = `Перелік послуг підрозділам за ${dateToMonthStr(datepiker.value)}.xlsx`;
     link.click();
 
     URL.revokeObjectURL(url);
@@ -199,7 +217,16 @@ const onExportAllToExcel = async () => {
 };
 
 const onExportToExcelPrice = async () => {
-  if (!subdivisionId.value || !datepiker.value) return;
+  if (!subdivisionId.value || !datepiker.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та підрозділ',
+      life: 5000
+    });
+
+    return;
+  }
 
   loading.value = true;
 
@@ -237,7 +264,7 @@ const onExportToExcelPrice = async () => {
 
     const aLink = document.createElement('a');
     aLink.href = objectURL;
-    aLink.download = `${response.name} Щомісячний фінансовий планзвіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    aLink.download = `${response.name} Акт здавання-приймання послуг за ${dateToMonthStr(datepiker.value)}.xlsx`;
     aLink.click();
 
     URL.revokeObjectURL(objectURL);
@@ -254,7 +281,16 @@ const onExportToExcelPrice = async () => {
 };
 
 const onExportAllToExcelPrice = async () => {
-  if (!subdivisions?.value?.length || !datepiker?.value) return;
+  if (!subdivisions?.value?.length || !datepiker?.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Попередження',
+      detail: 'Оберіть місяць, рік та підрозділ',
+      life: 5000
+    });
+
+    return;
+  }
 
   loading.value = true;
 
@@ -292,7 +328,7 @@ const onExportAllToExcelPrice = async () => {
 
     const link = document.createElement('a');
     link.href = url;
-    link.download = `ВП СХ Щомісячний фінансовий планзвіт за ${dateToMonthStr(datepiker.value)}.xlsx`;
+    link.download = `Акт здавання-приймання послуг підрозділам за ${dateToMonthStr(datepiker.value)}.xlsx`;
     link.click();
 
     URL.revokeObjectURL(url);
